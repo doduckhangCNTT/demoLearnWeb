@@ -5,7 +5,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-// import routes from "./routes"
+import routes from "./routes";
 
 // Middleware
 const app = express();
@@ -16,6 +16,7 @@ app.use(cors());
 app.use(cookieParser());
 
 // Routes
+app.use("/api", routes);
 
 // Database
 import "./config/database";

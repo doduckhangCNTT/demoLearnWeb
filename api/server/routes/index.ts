@@ -1,4 +1,5 @@
-// const routes = [
-// ]
+import authRouter from "./authRouter";
 
-// export default routes
+const routes = [authRouter];
+
+export default routes;

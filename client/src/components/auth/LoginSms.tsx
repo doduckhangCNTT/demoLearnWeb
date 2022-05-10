@@ -7,7 +7,7 @@ import { authSelector } from "../../redux/selector/selectors";
 import { FormSubmit, InputChangedEvent } from "../../utils/Typescript";
 import SocialLogin from "./SocialLogin";
 
-export default function LoginPass() {
+export default function LoginSms() {
   const accessPagePaths = {
     register: {
       path: "/register",
@@ -17,25 +17,17 @@ export default function LoginPass() {
       path: "/forgot_password",
       name: "Forgot your password?",
     },
-    loginSms: {
-      path: "/login_sms",
-      name: "Login with SMS",
-    },
   };
 
-  const initialState = {
-    account: "",
-    password: "",
-  };
   const { authUser } = useSelector(authSelector);
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
-  const [user, setUser] = useState(initialState);
+  const [phone, setPhone] = useState("");
 
   const handleInput = (e: InputChangedEvent) => {
-    const { name, value } = e.target;
-    setUser({ ...user, [name]: value });
+    const { value } = e.target;
+    setPhone(value);
   };
 
   useEffect(() => {
@@ -46,8 +38,7 @@ export default function LoginPass() {
 
   const handleSubmit = (e: FormSubmit) => {
     e.preventDefault();
-    actionAuth.loginAction(user, dispatch);
-    // setUser(initialState);
+    actionAuth.loginSmsAction(phone, dispatch);
   };
 
   return (
@@ -85,33 +76,17 @@ export default function LoginPass() {
             <input type="hidden" name="remember" defaultValue="true" />
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
-                <label htmlFor="email-address" className="">
-                  Email address
+                <label htmlFor="phone" className="">
+                  Phone number
                 </label>
                 <input
-                  id="email-address"
-                  name="account"
-                  type="email"
+                  id="phone"
+                  name="phone"
+                  type="text"
                   autoComplete="email"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Email address"
-                  onChange={handleInput}
-                />
-              </div>
-
-              <div className="">
-                <label htmlFor="password" className="">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Password"
+                  placeholder="+84384899367"
                   onChange={handleInput}
                 />
               </div>
@@ -131,22 +106,6 @@ export default function LoginPass() {
                 >
                   Remember me
                 </label>
-              </div>
-              <div className="text-sm">
-                <div className="hover:text-cyan-400">
-                  <Link to={`${accessPagePaths.loginSms.path}`}>
-                    {`${accessPagePaths.loginSms.name}`}
-                  </Link>
-                </div>
-
-                <div>
-                  <Link
-                    to={`${accessPagePaths.forgotLogin.path}`}
-                    className="font-medium text-indigo-600 hover:text-indigo-500"
-                  >
-                    {`${accessPagePaths.forgotLogin.name}`}
-                  </Link>
-                </div>
               </div>
             </div>
 

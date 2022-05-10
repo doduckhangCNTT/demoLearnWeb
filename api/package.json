@@ -2,7 +2,8 @@
   "name": "learnweb",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "dev": "ts-node-dev server/index.ts"
   },
@@ -19,7 +20,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.1",
     "morgan": "^1.10.0",
-    "node-fetch": "^3.2.4",
+    "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.4",
     "twilio": "^3.76.1"
   },

@@ -15,9 +15,9 @@ export const validRegister = (
   }
 
   if (!account) {
-    errors.push("Account must be provided");
-  } else if (!validEmail(account)) {
-    errors.push("Email is incorrect format");
+    errors.push("Please add your email or phone number");
+  } else if (!validPhone(account) && !validEmail(account)) {
+    errors.push("Email or phone number is not valid");
   }
 
   if (password.length < 6) {

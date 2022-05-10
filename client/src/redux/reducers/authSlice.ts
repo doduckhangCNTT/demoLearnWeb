@@ -1,17 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { validRegister } from "../../utils/Valid";
+import { IAuth, IAuthType } from "../types/authType";
 
-const initialState = {};
+const initialState: IAuth = {};
 
-export default createSlice({
-  name: "auths",
+export const authSlice = createSlice({
+  name: "auth",
   initialState,
   reducers: {
-    register: (state, action) => {
-      const check = validRegister(action.payload);
-      if (check.errLength > 0) {
-        return;
-      }
+    authUser: (state, action: IAuthType) => {
+      return action.payload;
     },
   },
 });

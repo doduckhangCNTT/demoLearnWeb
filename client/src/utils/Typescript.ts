@@ -8,6 +8,7 @@ export type InputChangedEvent = ChangeEvent<
 export type FormSubmit = FormEvent<HTMLFormElement>;
 
 export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
 export interface IUserRegister {
   name: string;
@@ -15,12 +16,10 @@ export interface IUserRegister {
   password: string;
   cf_password: string;
 }
-
 export interface IUserLogin {
   account: string;
   password: string;
 }
-
 export interface IUser extends IUserLogin {
   avatar: string;
   createdAt: string;
@@ -29,4 +28,9 @@ export interface IUser extends IUserLogin {
   type: string;
   updatedAt: string;
   _id: string;
+}
+
+export interface IPayloadResetPass {
+  password: string;
+  cf_password: string;
 }

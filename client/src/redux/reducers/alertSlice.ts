@@ -3,7 +3,7 @@ import { IAlert, IAlertType } from "../types/alertType";
 
 const initialState: IAlert = {};
 
-export default createSlice({
+export const alertSlice = createSlice({
   name: "alerts",
   initialState,
   reducers: {

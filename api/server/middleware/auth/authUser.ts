@@ -3,7 +3,7 @@ import { IDecodedToken, IReqAuth } from "../../config/interface";
 import Users from "../../models/userModel";
 import jwt from "jsonwebtoken";
 
-const auth = async (req: IReqAuth, res: Response, next: NextFunction) => {
+const authUser = async (req: IReqAuth, res: Response, next: NextFunction) => {
   try {
     const token = req.header("Authorization");
     if (!token) return res.status(400).json({ msg: "Invalid token 1" });
@@ -25,4 +25,4 @@ const auth = async (req: IReqAuth, res: Response, next: NextFunction) => {
   }
 };
 
-export default auth;
+export default authUser;

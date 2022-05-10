@@ -1,6 +1,7 @@
 import Alert from "./components/alert/Alert";
 import Footer from "./components/global/Footer";
 import Header from "./components/global/Header";
+import Navbar from "./components/global/Navbar";
 import HandleRouter from "./routes/HandleRouter";
 
 function App() {
@@ -11,8 +12,14 @@ function App() {
         <Header />
       </div>
 
-      <div className="flex-1">
-        <HandleRouter />
+      <div className="flex flex-1">
+        <div className="h-full max-w-[100px] flex flex-col flex-shrink top-0">
+          <Navbar />
+        </div>
+
+        <div className="w-full h-full">
+          <HandleRouter />
+        </div>
       </div>
 
       <div className="bottom-0 bg-black">

@@ -12,7 +12,7 @@ export const validRegister = (userRegister: IUserRegister) => {
   }
 
   if (!account) {
-    errors.push("Please add your email or phone number.");
+    errors.push("Please add your account or phone number.");
   } else if (!validPhone(account) && !validateEmail(account)) {
     errors.push("Email or phone number format is incorrect.");
   }
@@ -39,7 +39,7 @@ export function validateEmail(email: string) {
 }
 
 export function checkPassword(password: string, cf_password: string) {
-  if (!password || !cf_password) return;
+  if (!password || !cf_password) return "Invalid password";
 
   if (password.length < 6) {
     return "Password must be at least 6 characters";

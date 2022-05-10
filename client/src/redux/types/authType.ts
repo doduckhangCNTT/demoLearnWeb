@@ -9,6 +9,6 @@ export interface IAuth {
 }
 
 export interface IAuthType {
-  type: typeof AUTH;
+  type: string;
   payload: IAuth;
 }

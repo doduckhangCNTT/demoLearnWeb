@@ -1,19 +1,20 @@
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
-import actionAuth from "../../redux/action/actionAuth";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import userAction from "../../redux/action/userAction";
 import { FormSubmit, InputChangedEvent } from "../../utils/Typescript";
 
 export default function RegisterForm() {
+  const { access_token } = useParams();
+
   const initialState = {
-    name: "",
-    account: "",
     password: "",
     cf_password: "",
   };
 
   const [user, setUser] = useState(initialState);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleInput = (e: InputChangedEvent) => {
@@ -23,9 +24,9 @@ export default function RegisterForm() {
 
   const handleSubmit = (e: FormSubmit) => {
     e.preventDefault();
-    // dispatch(alertSlice.actions.alertAdd({ loading: true }));
-    // dispatch(authSlice.actions.register());
-    actionAuth.registerAction(user, dispatch);
+    if (!access_token) return;
+    userAction.resetPassword(user, access_token, dispatch);
+    navigate("/login");
     setUser(initialState);
   };
 
@@ -40,7 +41,7 @@ export default function RegisterForm() {
               alt="Workflow"
             />
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              Sign in to your account
+              Reset password to your account
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
               Or{" "}
@@ -61,35 +62,6 @@ export default function RegisterForm() {
           >
             <input type="hidden" name="remember" defaultValue="true" />
             <div className="rounded-md shadow-sm -space-y-px">
-              <div>
-                <label htmlFor="username" className="">
-                  User name
-                </label>
-                <input
-                  id="username"
-                  name="name"
-                  type="text"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Nguyen van A"
-                  onChange={handleInput}
-                />
-              </div>
-              <div>
-                <label htmlFor="email-address" className="">
-                  Email address
-                </label>
-                <input
-                  id="email-address"
-                  name="account"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="abc@gmail.com"
-                  onChange={handleInput}
-                />
-              </div>
               <div className="">
                 <label htmlFor="password" className="">
                   Password

@@ -15,6 +15,7 @@ export interface IUser extends Document {
 
 export interface IReqAuth extends Request {
   user?: IUser;
+  files?: any;
 }
 
 export interface INewUser {

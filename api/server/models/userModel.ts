@@ -24,6 +24,15 @@ const userSchema = new mongoose.Schema(
       default:
         "https://images.unsplash.com/photo-1611944212129-29977ae1398c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80",
     },
+    bio: {
+      type: String,
+      default: "",
+      maxLength: [100, "Bio is smaller than 100 characters"],
+    },
+    telephoneNumber: {
+      type: String,
+      trim: true,
+    },
     role: {
       type: String,
       default: "user",

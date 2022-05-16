@@ -17,7 +17,7 @@ export const checkTokenExp = async (token: string, dispatch: AppDispatch) => {
   if (decode.exp >= Date.now() / 1000) return;
   const res = await getApi("refresh_token");
   // await actionAuth.refreshAction(dispatch);
-  console.log("ACCESS_TOKEN: ", res.data);
+  // console.log("ACCESS_TOKEN: ", res.data);
 
   return res.data.access_token;
 };

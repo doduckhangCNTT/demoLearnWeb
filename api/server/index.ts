@@ -6,6 +6,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import routes from "./routes";
+const fileUpload = require("express-fileupload");
 
 // Middleware
 const app = express();
@@ -14,6 +15,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(morgan("dev"));
 app.use(cors({ origin: `${process.env.BASE_URL}`, credentials: true }));
 app.use(cookieParser());
+app.use(
+  fileUpload({
+    useTempFiles: true,
+  })
+);
 
 // Routes
 app.use("/api", routes);

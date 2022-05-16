@@ -1,12 +1,13 @@
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { forgotPassword } from "../../redux/action/actionAuth";
 import { FormSubmit, InputChangedEvent } from "../../utils/Typescript";
 
 export default function ForgotPassWord() {
   const [account, setAccount] = useState("");
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleInput = (e: InputChangedEvent) => {
@@ -17,6 +18,7 @@ export default function ForgotPassWord() {
   const handleSubmit = (e: FormSubmit) => {
     e.preventDefault();
     forgotPassword(account, dispatch);
+    navigate("/login");
   };
 
   return (

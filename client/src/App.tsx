@@ -1,10 +1,21 @@
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import Alert from "./components/alert/Alert";
 import Footer from "./components/global/Footer";
 import Header from "./components/global/Header";
 import Navbar from "./components/global/Navbar";
+import actionAuth from "./redux/action/actionAuth";
+import categoryAction from "./redux/action/categoryAction";
 import HandleRouter from "./routes/HandleRouter";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    categoryAction.getCategory(dispatch);
+    actionAuth.refreshAction(dispatch);
+  }, [dispatch]);
+
   return (
     <div className="h-[100vh] flex flex-col">
       <div>

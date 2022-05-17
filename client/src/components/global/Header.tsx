@@ -35,6 +35,14 @@ const listInfoOfUser = {
     name: "Create Category",
     path: "/create_category",
   },
+  createBlog: {
+    name: "Create Blog",
+    path: "/create_blog",
+  },
+  yourBlog: {
+    name: "Your Blog",
+    path: "/your_blogs",
+  },
   signOut: {
     name: "Sign out",
   },
@@ -178,40 +186,83 @@ export default function Header() {
                               </Menu.Item>
 
                               {/* Create Categories */}
-                              {authUser.user.role === "admin" ? (
-                                <Menu.Item>
-                                  {({ active }) => (
-                                    <Link
-                                      to={listInfoOfUser.createCategory.path}
-                                      className={classNames(
-                                        active ? "bg-gray-100" : "",
-                                        "block px-4 py-2 text-sm text-gray-700"
-                                      )}
-                                    >
-                                      {listInfoOfUser.createCategory.name}
-                                    </Link>
-                                  )}
-                                </Menu.Item>
-                              ) : (
-                                ""
-                              )}
+                              <div className="border-t-2">
+                                {authUser.user.role === "admin" ? (
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <Link
+                                        to={listInfoOfUser.createCategory.path}
+                                        className={classNames(
+                                          active ? "bg-gray-100" : "",
+                                          "block px-4 py-2 text-sm text-gray-700"
+                                        )}
+                                      >
+                                        {listInfoOfUser.createCategory.name}
+                                      </Link>
+                                    )}
+                                  </Menu.Item>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
+
+                              {/* Create Blogs */}
+                              <div className="border-t-2">
+                                {authUser.user ? (
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <Link
+                                        to={listInfoOfUser.createBlog.path}
+                                        className={classNames(
+                                          active ? "bg-gray-100" : "",
+                                          "block px-4 py-2 text-sm text-gray-700"
+                                        )}
+                                      >
+                                        {listInfoOfUser.createBlog.name}
+                                      </Link>
+                                    )}
+                                  </Menu.Item>
+                                ) : (
+                                  ""
+                                )}
+                                {/* Your Blogs */}
+                                {authUser.user ? (
+                                  <Menu.Item>
+                                    {({ active }) => (
+                                      <Link
+                                        to={listInfoOfUser.yourBlog.path}
+                                        className={classNames(
+                                          active ? "bg-gray-100" : "",
+                                          "block px-4 py-2 text-sm text-gray-700"
+                                        )}
+                                      >
+                                        {listInfoOfUser.yourBlog.name}
+                                      </Link>
+                                    )}
+                                  </Menu.Item>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
 
                               {/* Sign out */}
-                              <Menu.Item>
-                                {({ active }) => (
-                                  <button
-                                    onClick={handleLogout}
-                                    className={classNames(
-                                      active
-                                        ? "bg-gray-100 w-full flex justify-items-start"
-                                        : "",
-                                      "flex justify-items-start px-4 py-2 text-sm text-gray-700 w-full"
-                                    )}
-                                  >
-                                    {listInfoOfUser.signOut.name}
-                                  </button>
-                                )}
-                              </Menu.Item>
+                              <div className="border-t-2">
+                                <Menu.Item>
+                                  {({ active }) => (
+                                    <button
+                                      onClick={handleLogout}
+                                      className={classNames(
+                                        active
+                                          ? "bg-gray-100 w-full flex justify-items-start"
+                                          : "",
+                                        "flex justify-items-start px-4 py-2 text-sm text-gray-700 w-full"
+                                      )}
+                                    >
+                                      {listInfoOfUser.signOut.name}
+                                    </button>
+                                  )}
+                                </Menu.Item>
+                              </div>
                             </Menu.Items>
                           </Transition>
                         </Menu>

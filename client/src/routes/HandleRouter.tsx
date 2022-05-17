@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
+import DetailBlog from "../pages/blogs/DetailBlog";
 
 // React Lazy
 const PagesCommon = React.lazy(() => import("../pages/PagesCommon"));
@@ -24,7 +25,18 @@ const LearningPaths = React.lazy(() => import("./LearningPaths"));
 const Courses = React.lazy(() => import("../pages/Courses"));
 const ActiveUser = React.lazy(() => import("../pages/active/ActiveUser"));
 const NotFound = React.lazy(() => import("../components/global/NotFound"));
+
 const Blogs = React.lazy(() => import("../pages/blogs/Blogs"));
+const CreateBlog = React.lazy(() => import("../pages/blogs/CreateBlog"));
+const YourBlogs = React.lazy(
+  () => import("../pages/blogs/yourBlogs/YourBlogs")
+);
+const PublishedBlogs = React.lazy(
+  () => import("../pages/blogs/yourBlogs/PublishedBlogs")
+);
+const DraftsBlogs = React.lazy(
+  () => import("../pages/blogs/yourBlogs/DraftsBlogs")
+);
 
 const HandleRouter = () => {
   return (
@@ -55,6 +67,13 @@ const HandleRouter = () => {
           <Route path="leaning-paths" element={<LearningPaths />} />
           <Route path="courses" element={<Courses />} />
           <Route path="blogs" element={<Blogs />} />
+          <Route path="create_blog" element={<CreateBlog />} />
+          <Route path="detail_blog" element={<DetailBlog />} />
+
+          <Route path="/your_blogs" element={<YourBlogs />}>
+            <Route path="drafts" element={<DraftsBlogs />} />
+            <Route path="published" element={<PublishedBlogs />} />
+          </Route>
 
           <Route path="active/:active_token" element={<ActiveUser />} />
         </Route>

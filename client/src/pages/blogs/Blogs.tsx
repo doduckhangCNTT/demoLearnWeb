@@ -6,7 +6,7 @@ const Blogs = () => {
   const WIDTH_BLOGS = "3/4";
   const WIDTH_CATEGORIES = "1/4";
 
-  const listBlogs = [
+  const listBlogCategories = [
     {
       name: "Font-End Developer",
       path: "/font_end",
@@ -44,7 +44,7 @@ const Blogs = () => {
         <div className={`md:w-1/4 m-3`}>
           <h1 className="font-bold text-[20px]">List Categories</h1>
           <div className="mt-5 sm:w-full flex-wrap">
-            {listBlogs.map((item, index) => {
+            {listBlogCategories.map((item, index) => {
               return (
                 <div
                   className="bg-slate-300 text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md"

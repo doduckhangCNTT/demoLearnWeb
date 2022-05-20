@@ -9,6 +9,7 @@ import {
   IUser,
   IUserProfile,
 } from "../../utils/Typescript";
+import Option from "../Option";
 
 interface IProps {
   title: string;
@@ -58,6 +59,7 @@ const FormPersonalInfo: React.FC<IProps> = React.memo(
       setEdit(true);
       setEditInfo(!editInfo);
     };
+
     const handleSubmit = (e: FormSubmit) => {
       e.preventDefault();
 

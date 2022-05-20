@@ -46,3 +46,37 @@ export interface IPayloadResetPass {
 export interface IPayloadResetPass_noCf {
   password: string;
 }
+
+export interface ICategory {
+  _id?: string;
+  name?: string;
+  quality?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface IBlog {
+  user: string;
+  title: string;
+  content: string;
+  description: string;
+  count?: number;
+  thumbnail: string | File;
+  category: string;
+  createdAt: string;
+}
+
+export interface IGetBlogsCategory {
+  id: string;
+  blogs: IBlog[];
+  total?: number;
+  search?: string;
+  count?: number;
+}
+export interface IGetBlogsUser extends IBlog {
+  id: string;
+  blogs: IBlog[];
+  total?: number;
+  search?: string;
+  count?: number;
+}

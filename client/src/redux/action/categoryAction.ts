@@ -1,9 +1,8 @@
 import { checkTokenExp } from "../../utils/CheckTokenExp";
 import { deleteApi, getApi, postApi, putApi } from "../../utils/FetchData";
-import { AppDispatch } from "../../utils/Typescript";
+import { AppDispatch, ICategory } from "../../utils/Typescript";
 import { alertSlice } from "../reducers/alertSlice";
 import { categorySlice } from "../reducers/categorySlice";
-import { ICategory } from "../types/categoryType";
 
 const categoryAction = {
   createCategory: async (

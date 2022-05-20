@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { ICategory } from "../../utils/Typescript";
 import {
-  ICategory,
   ICreateCategoryType,
   IDeleteCategoryType,
   IGetCategoryType,
+  IPatchCategoryType,
   IUpdateCategoryType,
 } from "../types/categoryType";
 
@@ -29,6 +30,15 @@ export const categorySlice = createSlice({
       return state.map((item) => {
         if (item._id === action.payload._id) {
           return { ...item, name: action.payload.name };
+        }
+        return item;
+      });
+    },
+
+    patchCategory: (state, action: IPatchCategoryType) => {
+      return state.map((item) => {
+        if (item._id === action.payload._id) {
+          return { ...item, quality: action.payload.quality };
         }
         return item;
       });

@@ -3,6 +3,9 @@ import { authSlice } from "./reducers/authSlice";
 import { alertSlice } from "./reducers/alertSlice";
 import { categorySlice } from "./reducers/categorySlice";
 import { uploadSlice } from "./reducers/uploadSlice";
+import { blogSlice } from "./reducers/blogSlice";
+import { blogsCategorySlice } from "./reducers/blogCategorySlice";
+import { blogsUserSlice } from "./reducers/blogsUserSlice";
 
 const store = configureStore({
   reducer: {
@@ -10,6 +13,9 @@ const store = configureStore({
     authUser: authSlice.reducer,
     categories: categorySlice.reducer,
     upload: uploadSlice.reducer,
+    blogs: blogSlice.reducer,
+    blogsCategory: blogsCategorySlice.reducer,
+    blogsUser: blogsUserSlice.reducer,
   },
 });
 

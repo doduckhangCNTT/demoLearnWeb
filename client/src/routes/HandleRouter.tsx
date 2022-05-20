@@ -31,6 +31,9 @@ const CreateBlog = React.lazy(() => import("../pages/blogs/CreateBlog"));
 const YourBlogs = React.lazy(
   () => import("../pages/blogs/yourBlogs/YourBlogs")
 );
+const BlogOfCategory = React.lazy(
+  () => import("../pages/blogs/yourBlogs/BlogOfCategory")
+);
 const PublishedBlogs = React.lazy(
   () => import("../pages/blogs/yourBlogs/PublishedBlogs")
 );
@@ -66,7 +69,9 @@ const HandleRouter = () => {
 
           <Route path="leaning-paths" element={<LearningPaths />} />
           <Route path="courses" element={<Courses />} />
-          <Route path="blogs" element={<Blogs />} />
+          <Route path="blogs" element={<Blogs />}>
+            <Route path="category/:option" element={<BlogOfCategory />} />
+          </Route>
           <Route path="create_blog" element={<CreateBlog />} />
           <Route path="detail_blog" element={<DetailBlog />} />
 

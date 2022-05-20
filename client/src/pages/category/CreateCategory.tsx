@@ -3,8 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import NotFound from "../../components/global/NotFound";
 import categoryAction from "../../redux/action/categoryAction";
 import { authSelector, categorySelector } from "../../redux/selector/selectors";
-import { ICategory } from "../../redux/types/categoryType";
-import { FormSubmit, InputChangedEvent } from "../../utils/Typescript";
+import {
+  FormSubmit,
+  ICategory,
+  InputChangedEvent,
+} from "../../utils/Typescript";
 
 const CreateCategory = () => {
   const [name, setName] = useState("");

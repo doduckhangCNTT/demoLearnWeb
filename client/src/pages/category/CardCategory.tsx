@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import categoryAction from "../../redux/action/categoryAction";
 import { authSelector } from "../../redux/selector/selectors";
-import { ICategory } from "../../redux/types/categoryType";
+import { ICategory } from "../../utils/Typescript";
 
 interface IProps {
   category: ICategory;

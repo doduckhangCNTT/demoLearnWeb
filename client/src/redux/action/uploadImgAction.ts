@@ -7,7 +7,7 @@ import { IAuth } from "../types/authType";
 
 const uploadImgAction = {
   uploadImg: async (
-    file: string,
+    file: string | File,
     token: string,
     dispatch: AppDispatch,
     authUser?: IAuth

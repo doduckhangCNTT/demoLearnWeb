@@ -65,6 +65,31 @@ const categoryCtrl = {
     }
   },
 
+  patchCategory: async (req: IReqAuth, res: Response) => {
+    if (!req.user) {
+      return res
+        .status(401)
+        .json({ success: false, msg: "Invalid Authentication" });
+    }
+    try {
+      const { quality } = req.body;
+
+      const category = await Categories.findOneAndUpdate(
+        { _id: req.params.id },
+        { quality }
+      );
+      if (!category) {
+        return res
+          .status(400)
+          .json({ success: false, msg: "Category is not exists" });
+      }
+
+      res.json({ success: true, msg: "Update category successfully" });
+    } catch (error: any) {
+      res.status(400).json({ msg: error.message });
+    }
+  },
+
   deleteCategory: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
       return res

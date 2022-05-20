@@ -1,7 +1,11 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import LazyLoadingImg from "../../components/LazyLoadingImg/LazyLoadingImg";
+import { authSelector } from "../../redux/selector/selectors";
+import Option from "../Option";
 
 const InfoCreator = () => {
+  const { authUser } = useSelector(authSelector);
   const icons = [
     {
       iconBookmark: (
@@ -56,14 +60,16 @@ const InfoCreator = () => {
       <div className="max-w-sm rounded-xl flex items-center space-x-4">
         <div className="shrink-0">
           <LazyLoadingImg
-            url="https://images.unsplash.com/photo-1652068359232-a98e76719936?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=679&q=80"
+            url={authUser.user?.avatar as string}
             alt="ChitChat Logo"
             className="h-12 w-12 rounded-full"
           />
         </div>
         <div>
-          <div className="text-xl font-medium text-black">ChitChat</div>
-          <p className="text-slate-500">You have a new message!</p>
+          <div className="text-xl font-medium text-black">
+            {authUser.user?.name}
+          </div>
+          <p className="text-slate-500">{authUser.user?.role}!</p>
         </div>
       </div>
       {/* BookMark & Option Icon */}
@@ -74,7 +80,7 @@ const InfoCreator = () => {
               <div className="" onClick={() => setSave(!save)}>
                 {save ? item.iconBookmarkSolid : item.iconBookmark}
               </div>
-              <div>{item.iconOption}</div>
+              <div>{<Option />}</div>
             </div>
           );
         })}

@@ -13,6 +13,7 @@ router
 router
   .route("/category/:id")
   .put(authUser, authAdmin, categoryCtrl.updateCategory)
+  .patch(authUser, authAdmin, categoryCtrl.patchCategory)
   .delete(authUser, authAdmin, categoryCtrl.deleteCategory);
 
 export default router;

@@ -1,4 +1,4 @@
-import { IUserRegister } from "./Typescript";
+import { IBlog, IUserRegister } from "./Typescript";
 
 export const validRegister = (userRegister: IUserRegister) => {
   const { name, account, password, cf_password } = userRegister;
@@ -47,3 +47,51 @@ export function checkPassword(password: string, cf_password: string) {
     return "Password is not match ";
   }
 }
+
+export function checkImg(file: File) {
+  if (file.size > 1024 * 1024 * 1024) {
+    return "File size is too large";
+  }
+  if (file.type !== "image/jpeg" && file.type !== "image/png") {
+    return "File is not incorrect format";
+  }
+}
+
+export const validCreateBlog = ({
+  title,
+  content,
+  description,
+  thumbnail,
+  category,
+}: IBlog) => {
+  let errors: string[] = [];
+
+  if (title.trim().length < 10) {
+    errors.push("Title has at least 10 characters");
+  } else if (title.trim().length > 50) {
+    errors.push("Title has more than 50 characters");
+  }
+
+  if (content.trim().length < 2000) {
+    errors.push("Content has less than 2000 characters");
+  }
+
+  if (description.trim().length < 50) {
+    errors.push("Description has at least 10 characters");
+  } else if (description.trim().length > 200) {
+    errors.push("Description has more than 50 characters");
+  }
+
+  if (!thumbnail) {
+    errors.push("Thumbnail cannot be left blank");
+  }
+
+  if (!category) {
+    errors.push("Category cannot be left blank");
+  }
+
+  return {
+    errMsg: errors,
+    errLength: errors.length,
+  };
+};

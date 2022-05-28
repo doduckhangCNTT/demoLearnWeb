@@ -2,12 +2,52 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { IReqAuth } from "../config/interface";
 import Blogs from "../models/blogModel";
+import DraftBlog from "../models/draftBlogsModel";
 
 const blogCtrl = {
   getBlogs: async (req: Request, res: Response) => {
     try {
       // const blogs = await Blogs.find().sort("-createdAt");
       const blogs = await Blogs.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            let: { user_id: "$user" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$user_id"] } } },
+              { $project: { password: 0 } },
+            ],
+
+            as: "user",
+          },
+        },
+
+        { $unwind: "$user" },
+
+        {
+          $lookup: {
+            from: "categories",
+            let: { category_id: "$category" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$category_id"] } } },
+            ],
+            as: "category",
+          },
+        },
+        { $unwind: "$category" },
+
+        { $sort: { createdAt: -1 } },
+      ]);
+      res.json(blogs);
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  getDraftBlogs: async (req: Request, res: Response) => {
+    try {
+      // const blogs = await Blogs.find().sort("-createdAt");
+      const blogs = await DraftBlog.aggregate([
         {
           $lookup: {
             from: "users",
@@ -50,20 +90,38 @@ const blogCtrl = {
         .json({ success: false, error: "Initial Authentication " });
 
     try {
-      const { title, content, description, thumbnail, category } = req.body;
-      const newBlog = new Blogs({
-        user: req.user._id,
-        title: title,
-        content: content,
-        description: description,
-        thumbnail: thumbnail,
-        category: category,
-      });
-      await newBlog.save();
+      const { title, content, description, thumbnail, category, classify } =
+        req.body;
+      let newBlog;
+      if (classify.toLowerCase() === "create") {
+        newBlog = new Blogs({
+          user: req.user._id,
+          title: title,
+          content: content,
+          description: description,
+          thumbnail: thumbnail,
+          category: category,
+        });
+        await newBlog.save();
+      } else if (classify.toLowerCase() === "draft") {
+        newBlog = new DraftBlog({
+          user: req.user._id,
+          title: title,
+          content: content,
+          description: description,
+          thumbnail: thumbnail,
+          category: category,
+        });
+        await newBlog.save();
+        console.log({ newBlog });
+      }
       res.json({
         ...newBlog._doc,
         user: req.user,
-        msg: "Create Blog successfully",
+        msg:
+          classify === "create"
+            ? "Create Blog successfully"
+            : "Move blog from  Draft Blog successfully",
       });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
@@ -119,6 +177,42 @@ const blogCtrl = {
       const count = Data[0].count;
 
       res.json({ blogs, count });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  getBlog: async (req: Request, res: Response) => {
+    try {
+      const blog = await Blogs.findOne({ _id: req.params.id }).populate(
+        "user",
+        "-password"
+      );
+
+      if (!blog)
+        return res
+          .status(400)
+          .json({ success: false, error: "Blog not found" });
+
+      res.json({ success: true, blog });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  getDraftBlog: async (req: Request, res: Response) => {
+    try {
+      const blog = await DraftBlog.findOne({ _id: req.params.id }).populate(
+        "user",
+        "-password"
+      );
+
+      if (!blog)
+        return res
+          .status(400)
+          .json({ success: false, error: "Blog not found" });
+
+      res.json({ success: true, blog });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }
@@ -183,16 +277,32 @@ const blogCtrl = {
 
     try {
       const newBlog = req.body;
-      const blog = await Blogs.findOneAndUpdate(
-        {
-          _id: req.params.id,
-          user: req.user._id,
-        },
-        newBlog
-      );
-      if (!blog) return res.status(400).json({ msg: "Invalid Authentication" });
+      const { classify } = req.body;
+      let blog;
 
-      res.json({ msg: "Update Blog successfully", blog });
+      if (classify.toLowerCase() === "create") {
+        blog = await Blogs.findOneAndUpdate(
+          {
+            _id: req.params.id,
+            user: req.user._id,
+          },
+          newBlog
+        );
+        if (!blog)
+          return res.status(400).json({ msg: "Invalid Authentication" });
+      } else if (classify.toLowerCase() === "draft") {
+        blog = await DraftBlog.findOneAndUpdate(
+          {
+            _id: req.params.id,
+            user: req.user._id,
+          },
+          newBlog
+        );
+        if (!blog)
+          return res.status(400).json({ msg: "Invalid Authentication" });
+      }
+
+      res.json({ success: true, msg: "Update Blog successfully", blog });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }
@@ -202,14 +312,33 @@ const blogCtrl = {
     if (!req.user)
       return res.status(400).json({ msg: "Invalid Authentication" });
 
+    const classify = req.body;
+    let blog;
     try {
-      const blog = await Blogs.findOneAndDelete({
+      blog = await Blogs.findOneAndDelete({
         _id: req.params.id,
         user: req.user._id,
       });
       if (!blog) return res.status(400).json({ msg: "Invalid Authentication" });
 
       res.json({ msg: "Delete Blog successfully", blog });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  deleteDraftBlog: async (req: IReqAuth, res: Response) => {
+    if (!req.user)
+      return res.status(400).json({ msg: "Invalid Authentication" });
+
+    try {
+      const blog = await DraftBlog.findOneAndDelete({
+        _id: req.params.id,
+        user: req.user._id,
+      });
+      if (!blog) return res.status(400).json({ msg: "Invalid Authentication" });
+
+      res.json({ msg: "Delete Draft Blog successfully", blog });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }

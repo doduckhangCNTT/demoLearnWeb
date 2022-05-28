@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { blogSelector, categorySelector } from "../../redux/selector/selectors";
-import CardBlog from "./CardBlog";
+import CardBlog from "./Card/CardBlog";
 import BlogOfCategory from "./yourBlogs/BlogOfCategory";
 
 const Blogs = () => {

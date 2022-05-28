@@ -7,7 +7,7 @@ import {
   authSelector,
 } from "../../../redux/selector/selectors";
 import { IBlog } from "../../../utils/Typescript";
-import CardBlog from "../CardBlog";
+import CardBlog from "../Card/CardBlog";
 
 const PublishedBlogs = () => {
   const { blogsUser } = useSelector(blogsUserSelector);
@@ -35,7 +35,6 @@ const PublishedBlogs = () => {
   }, [authUser.user, authUser.access_token, blogsUser, dispatch]);
 
   if (!authUser.access_token) return <NotFound />;
-
   return (
     <div className="flex flex-col gap-5">
       <div className="text-[20px] font-bold">Quality Blogs: {count}</div>

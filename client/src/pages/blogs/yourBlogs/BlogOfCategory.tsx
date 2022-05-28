@@ -8,7 +8,7 @@ import {
   categorySelector,
 } from "../../../redux/selector/selectors";
 import { IBlog } from "../../../utils/Typescript";
-import CardBlog from "../CardBlog";
+import CardBlog from "../Card/CardBlog";
 
 const BlogOfCategory = () => {
   const { option } = useParams();

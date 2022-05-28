@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
 import LazyLoadingImg from "../../components/LazyLoadingImg/LazyLoadingImg";
-import { authSelector } from "../../redux/selector/selectors";
-import Option from "../Option";
+import { IAuth } from "../../redux/types/authType";
+import { IBlog, IUser } from "../../utils/Typescript";
+import Option from "../option/Option";
 
-const InfoCreator = () => {
-  const { authUser } = useSelector(authSelector);
+interface IProps {
+  props?: IBlog | IAuth;
+}
+
+const InfoCreator: React.FC<IProps> = ({ props }) => {
   const icons = [
     {
       iconBookmark: (
@@ -60,16 +63,16 @@ const InfoCreator = () => {
       <div className="max-w-sm rounded-xl flex items-center space-x-4">
         <div className="shrink-0">
           <LazyLoadingImg
-            url={authUser.user?.avatar as string}
+            url={`${(props?.user as IUser)?.avatar}`}
             alt="ChitChat Logo"
             className="h-12 w-12 rounded-full"
           />
         </div>
         <div>
           <div className="text-xl font-medium text-black">
-            {authUser.user?.name}
+            {(props?.user as IUser)?.name}
           </div>
-          <p className="text-slate-500">{authUser.user?.role}!</p>
+          <p className="text-slate-500">{(props?.user as IUser)?.role}!</p>
         </div>
       </div>
       {/* BookMark & Option Icon */}
@@ -80,7 +83,7 @@ const InfoCreator = () => {
               <div className="" onClick={() => setSave(!save)}>
                 {save ? item.iconBookmarkSolid : item.iconBookmark}
               </div>
-              <div>{<Option />}</div>
+              <div>{<Option props={props ? props : {}} />}</div>
             </div>
           );
         })}

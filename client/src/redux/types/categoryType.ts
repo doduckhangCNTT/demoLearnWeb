@@ -3,7 +3,6 @@ import { ICategory } from "../../utils/Typescript";
 export interface ICreateCategoryType {
   payload: ICategory;
 }
-
 export interface IGetCategoryType {
   payload: ICategory[];
 }

@@ -1,6 +1,5 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
-import DetailBlog from "../pages/blogs/DetailBlog";
 
 // React Lazy
 const PagesCommon = React.lazy(() => import("../pages/PagesCommon"));
@@ -28,9 +27,17 @@ const NotFound = React.lazy(() => import("../components/global/NotFound"));
 
 const Blogs = React.lazy(() => import("../pages/blogs/Blogs"));
 const CreateBlog = React.lazy(() => import("../pages/blogs/CreateBlog"));
+const UpdateBlog = React.lazy(
+  () => import("../pages/blogs/updateBlog/UpdateBlog")
+);
+const UpdateDraftBlog = React.lazy(
+  () => import("../pages/blogs/updateBlog/UpdateDraftBlog")
+);
+const DeleteBlog = React.lazy(() => import("../pages/blogs/DeleteBlog"));
 const YourBlogs = React.lazy(
   () => import("../pages/blogs/yourBlogs/YourBlogs")
 );
+const DetailBlog = React.lazy(() => import("../pages/blogs/DetailBlog"));
 const BlogOfCategory = React.lazy(
   () => import("../pages/blogs/yourBlogs/BlogOfCategory")
 );
@@ -69,11 +76,19 @@ const HandleRouter = () => {
 
           <Route path="leaning-paths" element={<LearningPaths />} />
           <Route path="courses" element={<Courses />} />
+
           <Route path="blogs" element={<Blogs />}>
             <Route path="category/:option" element={<BlogOfCategory />} />
           </Route>
+
+          <Route path="update_blog/:id" element={<UpdateBlog />} />
+          <Route
+            path="update_draftBlog/:valueId"
+            element={<UpdateDraftBlog />}
+          />
+          <Route path="delete_blog/:id" element={<DeleteBlog />} />
           <Route path="create_blog" element={<CreateBlog />} />
-          <Route path="detail_blog" element={<DetailBlog />} />
+          <Route path="detail_blog/:id" element={<DetailBlog />} />
 
           <Route path="/your_blogs" element={<YourBlogs />}>
             <Route path="drafts" element={<DraftsBlogs />} />

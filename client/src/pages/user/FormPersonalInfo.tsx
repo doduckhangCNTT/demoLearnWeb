@@ -9,7 +9,7 @@ import {
   IUser,
   IUserProfile,
 } from "../../utils/Typescript";
-import Option from "../Option";
+import Option from "../option/Option";
 
 interface IProps {
   title: string;

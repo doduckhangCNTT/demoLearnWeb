@@ -22,12 +22,12 @@ const blogSchema = new mongoose.Schema(
       type: String,
       require: true,
       trim: true,
-      minLength: 50,
+      minLength: 10,
       maxLength: 100,
     },
 
     thumbnail: {
-      type: String,
+      type: Object,
       require: true,
     },
 

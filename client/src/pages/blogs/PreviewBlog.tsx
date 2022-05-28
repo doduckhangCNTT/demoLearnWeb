@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import LazyLoadingImg from "../../components/LazyLoadingImg/LazyLoadingImg";
+import { authSelector } from "../../redux/selector/selectors";
 import { IBlog } from "../../utils/Typescript";
 import InfoCreator from "./InfoCreator";
 
@@ -12,11 +14,13 @@ const PreviewBlog: React.FC<IProps> = ({ blog }) => {
   const WIDTH_BLOG_CONTENT = "2/3";
   const WIDTH_BLOG_IMG = "1/3";
 
+  const { authUser } = useSelector(authSelector);
+
   return (
     <div className="border-2 rounded-lg p-3 my-3 ">
       <div>
         {/* Info creator */}
-        <InfoCreator />
+        <InfoCreator props={authUser} />
       </div>
 
       <div className="flex gap-5 mt-2 md:flex-row sm:flex-col-reverse xs:flex-col-reverse">
@@ -39,13 +43,19 @@ const PreviewBlog: React.FC<IProps> = ({ blog }) => {
 
         {/* Img Blog */}
         <div className={`md:w-${WIDTH_BLOG_IMG} sm:w-full`}>
-          <LazyLoadingImg
-            url={
-              blog.thumbnail ? URL.createObjectURL(blog.thumbnail as any) : ""
-            }
-            alt=""
-            className="w-full max-h-[200px] object-cover rounded-lg"
-          />
+          {typeof blog.thumbnail.url === "string" ? (
+            <img
+              src={blog.thumbnail.url}
+              alt=""
+              className="w-full max-h-[200px] object-cover rounded-lg"
+            />
+          ) : (
+            <LazyLoadingImg
+              url={URL.createObjectURL(blog.thumbnail.url as Blob)}
+              alt=""
+              className="w-full max-h-[200px] object-cover rounded-lg"
+            />
+          )}
         </div>
       </div>
     </div>

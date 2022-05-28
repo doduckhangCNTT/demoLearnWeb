@@ -55,6 +55,7 @@ const uploadImgCtrl = {
         .status(400)
         .json({ success: false, msg: "Invalid Authentication" });
 
+    console.log("Req: ", req);
     try {
       const { public_id } = req.body;
       if (!public_id)

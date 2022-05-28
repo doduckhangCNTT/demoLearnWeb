@@ -41,3 +41,15 @@ export const deleteApi = async (url: string, token?: string) => {
 
   return res;
 };
+
+export const deleteApiUpload = async (
+  url: string,
+  post?: object,
+  token?: string
+) => {
+  const res = await axios.post(`${API_URL}/api/${url}`, post, {
+    headers: { Authorization: token ? token : "" },
+  });
+
+  return res;
+};

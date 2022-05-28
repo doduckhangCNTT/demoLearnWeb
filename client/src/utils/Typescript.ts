@@ -56,12 +56,18 @@ export interface ICategory {
 }
 
 export interface IBlog {
-  user: string;
+  _id?: string;
+  user: string | IUser;
   title: string;
   content: string;
   description: string;
   count?: number;
-  thumbnail: string | File;
+  // thumbnail: string | File;
+  thumbnail: {
+    url: string | File;
+    public_id: string;
+  };
+
   category: string;
   createdAt: string;
 }
@@ -79,4 +85,7 @@ export interface IGetBlogsUser extends IBlog {
   total?: number;
   search?: string;
   count?: number;
+}
+export interface IDeleteBlog {
+  id: string;
 }

@@ -2,11 +2,35 @@ import { Menu } from "@headlessui/react";
 import React, { Fragment } from "react";
 import { Transition } from "@headlessui/react";
 import { Link } from "react-router-dom";
+import { IBlog, IUser } from "../../utils/Typescript";
+import { IAuth } from "../../redux/types/authType";
+import { useDispatch, useSelector } from "react-redux";
+import { authSelector } from "../../redux/selector/selectors";
+import blogAction from "../../redux/action/blogAction";
 
-const Option = () => {
+interface IProps {
+  props: IBlog | IAuth;
+}
+
+const Option: React.FC<IProps> = ({ props }) => {
   function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(" ");
   }
+
+  const { authUser } = useSelector(authSelector);
+  const dispatch = useDispatch();
+
+  const handleDeleteBlog = () => {
+    if (!authUser.access_token) return;
+
+    if (window.confirm("Are you sure you want to delete this"))
+      blogAction.deleteBlog(
+        props as IBlog,
+        authUser.access_token,
+        dispatch,
+        "delete"
+      );
+  };
 
   return (
     <div>
@@ -39,22 +63,42 @@ const Option = () => {
           leaveTo="transform opacity-0 scale-95"
         >
           <Menu.Items className="origin-top-right absolute z-20 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-            {/* Edit Blog */}
-            <Menu.Item>
-              {({ active }) => (
-                <Link
-                  to=""
-                  className={classNames(
-                    active ? "bg-gray-100" : "",
-                    "block px-4 py-2 text-sm text-gray-700"
+            {(props?.user as IUser)?._id === authUser.user?._id ? (
+              <div>
+                {/* Update blog */}
+                <Menu.Item>
+                  {({ active }) => (
+                    <Link
+                      to={`/update_blog/${(props as IBlog)._id as string}`}
+                      className={classNames(
+                        active ? "bg-gray-100" : "",
+                        "block px-4 py-2 text-sm text-gray-700"
+                      )}
+                    >
+                      Edit
+                    </Link>
                   )}
-                >
-                  Edit
-                </Link>
-              )}
-            </Menu.Item>
+                </Menu.Item>
 
-            {/* Delete Blog */}
+                {/* Delete blog */}
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      onClick={() => handleDeleteBlog()}
+                      className={classNames(
+                        active ? "bg-gray-100" : "",
+                        "block px-4 py-2 text-sm text-gray-700 w-full text-left"
+                      )}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </Menu.Item>
+              </div>
+            ) : (
+              ""
+            )}
+            {/* Report  */}
             <Menu.Item>
               {({ active }) => (
                 <Link
@@ -64,7 +108,7 @@ const Option = () => {
                     "block px-4 py-2 text-sm text-gray-700"
                   )}
                 >
-                  Delete
+                  Report
                 </Link>
               )}
             </Menu.Item>

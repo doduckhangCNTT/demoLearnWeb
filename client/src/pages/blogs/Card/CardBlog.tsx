@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import LazyLoadingImg from "../../components/LazyLoadingImg/LazyLoadingImg";
-import { IBlog, IGetBlogsUser } from "../../utils/Typescript";
-import InfoCreator from "./InfoCreator";
+import LazyLoadingImg from "../../../components/LazyLoadingImg/LazyLoadingImg";
+import { IBlog, IGetBlogsUser } from "../../../utils/Typescript";
+import InfoCreator from "../InfoCreator";
 
 interface IProps {
   blog: IBlog | IGetBlogsUser;
@@ -16,7 +16,7 @@ const CardBlog: React.FC<IProps> = ({ blog }) => {
     <div className="border-2 rounded-lg p-3 my-3 ">
       <div>
         {/* Info creator */}
-        <InfoCreator />
+        <InfoCreator props={blog} />
       </div>
 
       <div className="flex gap-5 mt-2 md:flex-row sm:flex-col-reverse xs:flex-col-reverse">
@@ -25,7 +25,7 @@ const CardBlog: React.FC<IProps> = ({ blog }) => {
           className={`w-${WIDTH_BLOG_CONTENT} flex flex-col justify-between`}
         >
           <div className="">
-            <Link to="/detail_blog">
+            <Link to={`/detail_blog/${blog._id}`}>
               <h1 className="font-bold text-[25px]">{blog.title}</h1>
             </Link>
             <div className="">
@@ -40,7 +40,7 @@ const CardBlog: React.FC<IProps> = ({ blog }) => {
         <div className={`md:w-${WIDTH_BLOG_IMG} sm:w-full`}>
           <div className="w-full max-h-[200px]">
             <LazyLoadingImg
-              url={blog.thumbnail as string}
+              url={blog.thumbnail.url as string}
               alt=""
               className="w-full max-h-[200px] object-cover rounded-lg"
             />

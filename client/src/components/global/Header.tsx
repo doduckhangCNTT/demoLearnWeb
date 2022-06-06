@@ -43,6 +43,10 @@ const listInfoOfUser = {
     name: "Your Blog",
     path: "/your_blogs",
   },
+  saveBlog: {
+    name: "Save Blog",
+    path: "/save_blogs",
+  },
   signOut: {
     name: "Sign out",
   },
@@ -227,19 +231,36 @@ export default function Header() {
                                 )}
                                 {/* Your Blogs */}
                                 {authUser.user ? (
-                                  <Menu.Item>
-                                    {({ active }) => (
-                                      <Link
-                                        to={listInfoOfUser.yourBlog.path}
-                                        className={classNames(
-                                          active ? "bg-gray-100" : "",
-                                          "block px-4 py-2 text-sm text-gray-700"
-                                        )}
-                                      >
-                                        {listInfoOfUser.yourBlog.name}
-                                      </Link>
-                                    )}
-                                  </Menu.Item>
+                                  <div>
+                                    <Menu.Item>
+                                      {({ active }) => (
+                                        <Link
+                                          to={listInfoOfUser.yourBlog.path}
+                                          className={classNames(
+                                            active ? "bg-gray-100" : "",
+                                            "block px-4 py-2 text-sm text-gray-700"
+                                          )}
+                                        >
+                                          {listInfoOfUser.yourBlog.name}
+                                        </Link>
+                                      )}
+                                    </Menu.Item>
+
+                                    {/* Saved blog */}
+                                    <Menu.Item>
+                                      {({ active }) => (
+                                        <Link
+                                          to={listInfoOfUser.saveBlog.path}
+                                          className={classNames(
+                                            active ? "bg-gray-100" : "",
+                                            "block px-4 py-2 text-sm text-gray-700"
+                                          )}
+                                        >
+                                          {listInfoOfUser.saveBlog.name}
+                                        </Link>
+                                      )}
+                                    </Menu.Item>
+                                  </div>
                                 ) : (
                                   ""
                                 )}

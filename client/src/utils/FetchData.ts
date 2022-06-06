@@ -53,3 +53,11 @@ export const deleteApiUpload = async (
 
   return res;
 };
+
+export const deleteApiValid = async (url: string, token?: string) => {
+  const res = await axios.delete(`${API_URL}/api/${url}`, {
+    headers: { Authorization: token ? token : "" },
+  });
+
+  return res;
+};

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { saveBlogsOfUserSelector } from "../../redux/selector/selectors";
 import { getApi } from "../../utils/FetchData";
-import { IBlog, IUser } from "../../utils/Typescript";
+import { IBlog, IBookMarkBlogUser, IUser } from "../../utils/Typescript";
 import Comments from "../comments/Comments";
 import CardBlog from "./Card/CardBlog";
 import InfoCreator from "./InfoCreator";
@@ -11,11 +13,12 @@ const DetailBlog = () => {
   const [blog, setBlog] = useState<IBlog>();
   const [blogsCategory, setBlogsCategory] = useState<IBlog[]>([]);
   const { id } = useParams();
+  const { saveBlogUser } = useSelector(saveBlogsOfUserSelector);
+  const [bookMarkBlog, setBookMarkBlog] = useState<IBookMarkBlogUser>();
 
   useEffect(() => {
     const getBlog = async () => {
       const res = await getApi(`blog/${id}`);
-      console.log("Res: ", res);
       setBlog(res.data.blog);
     };
     getBlog();
@@ -26,12 +29,18 @@ const DetailBlog = () => {
       const id = blog?.category;
       if (!id) return;
       const res = await getApi(`blog/category/${id}`);
-      console.log("Res Blog Category", res);
       setBlogsCategory(res.data.blogs);
     };
 
     getBlogsCategory();
   }, [blog?.category]);
+
+  useEffect(() => {
+    const res = saveBlogUser.blogsSave.find(
+      (item) => item.id_blog === blog?._id
+    );
+    setBookMarkBlog(res);
+  }, [blog?._id, saveBlogUser.blogsSave]);
 
   return (
     <div className="h-full">
@@ -59,7 +68,11 @@ const DetailBlog = () => {
 
           <div className="">
             <div className="my-5">
-              <InfoCreator props={blog} />
+              {bookMarkBlog ? (
+                <InfoCreator props={blog} bookmark={bookMarkBlog} />
+              ) : (
+                ""
+              )}
             </div>
             <div className="">{blog?.content}</div>
           </div>

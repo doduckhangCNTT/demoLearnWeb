@@ -67,9 +67,13 @@ export interface IBlog {
     url: string | File;
     public_id: string;
   };
-
   category: string;
   createdAt: string;
+}
+
+export interface IBookMarkBlogUser extends IBlog {
+  id_blog?: string;
+  userSaved?: string | IUser;
 }
 
 export interface IGetBlogsCategory {
@@ -82,10 +86,15 @@ export interface IGetBlogsCategory {
 export interface IGetBlogsUser extends IBlog {
   id: string;
   blogs: IBlog[];
+  blogsSave: IBlog[];
   total?: number;
   search?: string;
   count?: number;
 }
+
 export interface IDeleteBlog {
   id: string;
+}
+export interface IDeleteSaveBlog {
+  _id: string;
 }

@@ -1,14 +1,14 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import LazyLoadingImg from "../../../components/LazyLoadingImg/LazyLoadingImg";
-import { IBlog, IGetBlogsUser } from "../../../utils/Typescript";
-import OptionDraft from "../../option/OptionDraft";
+import { IBookMarkBlogUser } from "../../../utils/Typescript";
+import OptionSaveBlog from "../../option/OptionSaveBlog";
 
 interface IProps {
-  blog: IBlog | IGetBlogsUser;
-  checkOptionEdit?: boolean;
+  blog: IBookMarkBlogUser;
 }
 
-const CardDraftBlog: React.FC<IProps> = ({ blog, checkOptionEdit }) => {
+const CardSaveBlog: React.FC<IProps> = ({ blog }) => {
   const WIDTH_BLOG_CONTENT = "2/3";
   const WIDTH_BLOG_IMG = "1/3";
 
@@ -16,7 +16,7 @@ const CardDraftBlog: React.FC<IProps> = ({ blog, checkOptionEdit }) => {
     <div className="border-2 rounded-lg p-3 my-3 ">
       <div className="flex-col gap-5 mt-2 md:flex-row sm:flex-col-reverse xs:flex-col-reverse">
         <div className="flex justify-end mb-2">
-          <OptionDraft props={blog} />
+          <OptionSaveBlog props={blog} />
         </div>
 
         <div className="flex gap-2">
@@ -25,7 +25,9 @@ const CardDraftBlog: React.FC<IProps> = ({ blog, checkOptionEdit }) => {
             className={`w-${WIDTH_BLOG_CONTENT} flex flex-col justify-between`}
           >
             <div className="">
-              <h1 className="font-bold text-[25px]">{blog.title}</h1>
+              <Link to={`/detail_blog/${blog.id_blog}`}>
+                <h1 className="font-bold text-[25px]">{blog.title}</h1>
+              </Link>
               <div className="">
                 <p className="">{blog.description}</p>
               </div>
@@ -50,4 +52,4 @@ const CardDraftBlog: React.FC<IProps> = ({ blog, checkOptionEdit }) => {
   );
 };
 
-export default CardDraftBlog;
+export default CardSaveBlog;

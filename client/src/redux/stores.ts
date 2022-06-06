@@ -7,6 +7,8 @@ import { blogSlice } from "./reducers/blogSlice";
 import { blogsCategorySlice } from "./reducers/blogCategorySlice";
 import { blogsUserSlice } from "./reducers/blogsUserSlice";
 import { draftBlogSlice } from "./reducers/draftBlogSlice";
+import { saveBlogSlice } from "./reducers/saveBlogSlice";
+import { saveBlogUserSlice } from "./reducers/saveBlogUserSlice";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +20,8 @@ const store = configureStore({
     draftBlogs: draftBlogSlice.reducer,
     blogsCategory: blogsCategorySlice.reducer,
     blogsUser: blogsUserSlice.reducer,
+    saveBlog: saveBlogSlice.reducer,
+    saveBlogUser: saveBlogUserSlice.reducer,
   },
 });
 

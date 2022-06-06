@@ -23,7 +23,6 @@ const blogAction = {
     const access_token = result ? result : token;
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
-      console.log(typeof blog.thumbnail.url);
       if (!blog.thumbnail.url) {
         return dispatch(
           alertSlice.actions.alertAdd({
@@ -42,7 +41,6 @@ const blogAction = {
         let formData = new FormData();
         formData.append("file", blog.thumbnail.url);
         const resImg = await postApi("upload", formData, access_token);
-
         data = { public_id: resImg.data.public_id, url: resImg.data.url };
       }
 
@@ -50,7 +48,7 @@ const blogAction = {
       const res = await postApi("blog", newBlog, access_token);
 
       dispatch(blogSlice.actions.createBlog(res.data));
-      dispatch(categorySlice.actions.createCategory(res.data));
+      // dispatch(categorySlice.actions.createCategory(res.data));
 
       if (blog._id) {
         dispatch(

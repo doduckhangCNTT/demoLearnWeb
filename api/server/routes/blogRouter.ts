@@ -7,11 +7,14 @@ const router = express.Router();
 router.post("/blog", authUser, blogCtrl.createBlog);
 
 router.get("/blog", blogCtrl.getBlogs);
+
 router.get("/draft/blog", authUser, blogCtrl.getDraftBlogs);
 
 router.get("/blog/category/:id", blogCtrl.getBlogsCategory);
 
 router.get("/blog/user/:id", authUser, blogCtrl.getBlogsUser);
+
+// router.patch("/blog/bookmark/:id")
 
 router
   .route("/blog/:id")

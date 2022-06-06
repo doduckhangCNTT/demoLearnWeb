@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { IReqAuth } from "../config/interface";
 import Blogs from "../models/blogModel";
 import DraftBlog from "../models/draftBlogsModel";
+import SavedBlog from "../models/saveBlogModel";
 
 const blogCtrl = {
   getBlogs: async (req: Request, res: Response) => {
@@ -308,11 +309,46 @@ const blogCtrl = {
     }
   },
 
-  deleteBlog: async (req: IReqAuth, res: Response) => {
+  updateBookMarkBlog: async (req: IReqAuth, res: Response) => {
     if (!req.user)
       return res.status(400).json({ msg: "Invalid Authentication" });
 
-    const classify = req.body;
+    try {
+      const newBlog = req.body;
+      const { classify } = req.body;
+      let blog;
+
+      if (classify.toLowerCase() === "create") {
+        blog = await Blogs.findOneAndUpdate(
+          {
+            _id: req.params.id,
+            user: req.user._id,
+          },
+          newBlog
+        );
+        if (!blog)
+          return res.status(400).json({ msg: "Invalid Authentication" });
+      } else if (classify.toLowerCase() === "draft") {
+        blog = await DraftBlog.findOneAndUpdate(
+          {
+            _id: req.params.id,
+            user: req.user._id,
+          },
+          newBlog
+        );
+        if (!blog)
+          return res.status(400).json({ msg: "Invalid Authentication" });
+      }
+
+      res.json({ success: true, msg: "Update Blog successfully", blog });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  deleteBlog: async (req: IReqAuth, res: Response) => {
+    if (!req.user)
+      return res.status(400).json({ msg: "Invalid Authentication" });
     let blog;
     try {
       blog = await Blogs.findOneAndDelete({

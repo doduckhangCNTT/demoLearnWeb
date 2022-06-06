@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
+import SaveBlog from "../pages/blogs/SaveBlog";
 
 // React Lazy
 const PagesCommon = React.lazy(() => import("../pages/PagesCommon"));
@@ -82,6 +83,8 @@ const HandleRouter = () => {
           </Route>
 
           <Route path="update_blog/:id" element={<UpdateBlog />} />
+          <Route path="save_blogs" element={<SaveBlog />} />
+
           <Route
             path="update_draftBlog/:valueId"
             element={<UpdateDraftBlog />}

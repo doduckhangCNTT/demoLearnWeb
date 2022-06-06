@@ -6,6 +6,7 @@ import blogCategoryAction from "../../../redux/action/blogCategoryAction";
 import {
   blogsCategorySelector,
   categorySelector,
+  saveBlogsOfUserSelector,
 } from "../../../redux/selector/selectors";
 import { IBlog } from "../../../utils/Typescript";
 import CardBlog from "../Card/CardBlog";
@@ -18,6 +19,7 @@ const BlogOfCategory = () => {
   const { categories } = useSelector(categorySelector);
   const dispatch = useDispatch();
   const { blogsCategory } = useSelector(blogsCategorySelector);
+  const { saveBlogUser } = useSelector(saveBlogsOfUserSelector);
 
   useEffect(() => {
     const category = categories.find(
@@ -48,9 +50,18 @@ const BlogOfCategory = () => {
       <div className={`w-full`}>
         {blogsOfCategory.length > 0 ? (
           blogsOfCategory?.map((blog, index) => {
+            if (!blog._id) return [];
+            const res = saveBlogUser.blogsSave.find(
+              (item) => item.id_blog === blog._id
+            );
+
             return (
               <div className="" key={index}>
-                <CardBlog blog={blog} />
+                {res ? (
+                  <CardBlog blog={blog} bookmark={res} />
+                ) : (
+                  <CardBlog blog={blog} />
+                )}
               </div>
             );
           })

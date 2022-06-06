@@ -1,22 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import LazyLoadingImg from "../../../components/LazyLoadingImg/LazyLoadingImg";
+
 import { IBlog, IGetBlogsUser } from "../../../utils/Typescript";
 import InfoCreator from "../InfoCreator";
 
 interface IProps {
   blog: IBlog | IGetBlogsUser;
+  bookmark?: IBlog;
 }
 
-const CardBlog: React.FC<IProps> = ({ blog }) => {
+const CardBlog: React.FC<IProps> = ({ blog, bookmark }) => {
   const WIDTH_BLOG_CONTENT = "2/3";
   const WIDTH_BLOG_IMG = "1/3";
 
   return (
     <div className="border-2 rounded-lg p-3 my-3 ">
       <div>
-        {/* Info creator */}
-        <InfoCreator props={blog} />
+        <InfoCreator props={blog} bookmark={bookmark} />
       </div>
 
       <div className="flex gap-5 mt-2 md:flex-row sm:flex-col-reverse xs:flex-col-reverse">

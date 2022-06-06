@@ -24,6 +24,23 @@ export interface INewUser {
   password: string;
 }
 
+export interface IBlog {
+  _id?: string;
+  user: string | IUser;
+  title: string;
+  content: string;
+  description: string;
+  count?: number;
+  // thumbnail: string | File;
+  thumbnail: {
+    url: string | File;
+    public_id: string;
+  };
+
+  category: string;
+  createdAt: string;
+}
+
 export interface IDecodedToken {
   id?: string;
   newUser?: INewUser;

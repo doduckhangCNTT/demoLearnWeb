@@ -1,15 +1,41 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { blogSelector, categorySelector } from "../../redux/selector/selectors";
+import saveBlogUserAction from "../../redux/action/saveBlogUserAction";
+import {
+  blogSelector,
+  categorySelector,
+  saveBlogsOfUserSelector,
+  saveBlogUserSelector,
+  authSelector,
+} from "../../redux/selector/selectors";
 import CardBlog from "./Card/CardBlog";
 import BlogOfCategory from "./yourBlogs/BlogOfCategory";
+import saveBlogAction from "../../redux/action/saveBlogAction";
 
 const Blogs = () => {
+  const { option } = useParams();
   const { blogs } = useSelector(blogSelector);
   const { categories } = useSelector(categorySelector);
+  const { saveBlog } = useSelector(saveBlogUserSelector);
+  const { saveBlogUser } = useSelector(saveBlogsOfUserSelector);
 
-  const { option } = useParams();
+  const { authUser } = useSelector(authSelector);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!authUser.access_token) return;
+    saveBlogAction.getBlogs(authUser.access_token, dispatch);
+  }, [authUser.access_token, dispatch]);
+
+  useEffect(() => {
+    if (!authUser.access_token || !authUser.user) return;
+    saveBlogUserAction.getBlogUser(
+      authUser.user?._id,
+      authUser.access_token,
+      dispatch
+    );
+  }, [authUser.access_token, authUser.user, saveBlog, dispatch]);
 
   return (
     <>
@@ -34,9 +60,18 @@ const Blogs = () => {
             <BlogOfCategory />
           ) : (
             blogs.map((blog, index) => {
+              if (!blog._id) return [];
+              const res = saveBlogUser.blogsSave.find(
+                (item) => item.id_blog === blog._id
+              );
+
               return (
                 <div className="" key={index}>
-                  <CardBlog blog={blog} />
+                  {res ? (
+                    <CardBlog blog={blog} bookmark={res} />
+                  ) : (
+                    <CardBlog blog={blog} />
+                  )}
                 </div>
               );
             })
@@ -47,6 +82,9 @@ const Blogs = () => {
         <div className={`md:w-1/4 m-3`}>
           <h1 className="font-bold text-[20px]">List Categories</h1>
           <div className="mt-5 sm:w-full flex-wrap">
+            <div className="bg-slate-300 relative text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md">
+              <Link to={`/blogs`}>All</Link>
+            </div>
             {categories.map((item, index) => {
               return (
                 <div

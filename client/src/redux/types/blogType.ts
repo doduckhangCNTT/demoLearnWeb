@@ -1,6 +1,7 @@
 import {
   IBlog,
   IDeleteBlog,
+  IDeleteSaveBlog,
   IGetBlogsCategory,
   IGetBlogsUser,
 } from "../../utils/Typescript";
@@ -19,4 +20,7 @@ export interface IGetBlogsUserType {
 }
 export interface IDeleteBlogType {
   payload: IDeleteBlog;
+}
+export interface IDeleteSaveBlogType {
+  payload: IDeleteSaveBlog;
 }

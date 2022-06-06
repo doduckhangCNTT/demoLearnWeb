@@ -1,8 +1,14 @@
 import mongoose from "mongoose";
 
-const blogSchema = new mongoose.Schema(
+const saveBlogSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Types.ObjectId, ref: "users" },
+    userSaved: { type: mongoose.Types.ObjectId, ref: "users" },
+
+    id_blog: {
+      type: String,
+      require: true,
+    },
 
     title: {
       type: String,
@@ -26,11 +32,6 @@ const blogSchema = new mongoose.Schema(
       maxLength: 100,
     },
 
-    bookMark: {
-      type: Boolean,
-      default: false,
-    },
-
     thumbnail: {
       type: Object,
       require: true,
@@ -41,4 +42,4 @@ const blogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("blogs", blogSchema);
+export default mongoose.model("saveBlogs", saveBlogSchema);

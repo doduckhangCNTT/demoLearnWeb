@@ -50,6 +50,7 @@ const saveBlogAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await deleteApi(`bookmark/blog/${blog._id}`, access_token);
+      console.log("Res: ", res);
       dispatch(saveBlogSlice.actions.deleteBlog(res.data.blog));
 
       dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));

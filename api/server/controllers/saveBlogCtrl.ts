@@ -139,7 +139,6 @@ const saveBlogCtrl = {
     if (!req.user)
       return res.status(400).json({ msg: "Invalid Authentication 123" });
 
-    console.log({ id: req.params.id, user: req.user });
     try {
       const blog = await SaveBlogModel.findOneAndDelete({
         _id: req.params.id,

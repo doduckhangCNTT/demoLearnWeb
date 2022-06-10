@@ -24,7 +24,7 @@ const OptionSaveBlog: React.FC<IProps> = ({ props }) => {
       if (!authUser.access_token) return;
 
       if (window.confirm("Are you sure you want to delete this"))
-        await saveBlogAction.deleteBlogUser(
+        await saveBlogAction.deleteBlog(
           props as IBlog,
           authUser.access_token,
           dispatch

@@ -21,7 +21,9 @@ export const saveBlogSlice = createSlice({
     },
 
     deleteBlog: (state, action: IDeleteSaveBlogType) => {
-      const blogs = state.filter((item) => action.payload._id !== item._id);
+      const blogs = (state as any).blogs.filter(
+        (item: { _id: string }) => action.payload._id !== item._id
+      );
 
       return blogs;
     },

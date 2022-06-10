@@ -1,37 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import {
-  authSelector,
-  saveBlogUserSelector,
-} from "../../redux/selector/selectors";
+import { saveBlogUserSelector } from "../../redux/selector/selectors";
 import { getApi } from "../../utils/FetchData";
-import {
-  IBlog,
-  IBookMarkBlogUser,
-  IGetBlogsUser,
-  IUser,
-} from "../../utils/Typescript";
+import { IBlog, IBookMarkBlogUser, IUser } from "../../utils/Typescript";
 import Comments from "../comments/Comments";
 import CardBlog from "./Card/CardBlog";
 import InfoCreator from "./InfoCreator";
 
 const DetailBlog = () => {
   const { saveBlog } = useSelector(saveBlogUserSelector);
-  const { authUser } = useSelector(authSelector);
 
   const { id } = useParams();
   const [toggle, setToggle] = useState(false);
   const [blog, setBlog] = useState<IBlog>();
   const [blogsCategory, setBlogsCategory] = useState<IBlog[]>([]);
-  const [blogsSaved, setBlogsSaved] = useState<IBookMarkBlogUser>();
   const [bookMarkBlog, setBookMarkBlog] = useState<IBookMarkBlogUser>();
 
-  console.log({
-    bookMarkBlog,
-    blogsSaved,
-    blog,
-  });
   useEffect(() => {
     const getBlog = async () => {
       const res = await getApi(`blog/${id}`);
@@ -52,16 +37,11 @@ const DetailBlog = () => {
   }, [blog?.category]);
 
   useEffect(() => {
-    const listBlogsSaved = saveBlog.find(
-      (item) => item._id === authUser.user?._id
+    const res = (saveBlog as any).blogs?.find(
+      (item: { id_blog: string | undefined }) => item.id_blog === blog?._id
     );
-    setBlogsSaved(listBlogsSaved);
-  }, [authUser.user?._id, saveBlog]);
-
-  useEffect(() => {
-    const res = blogsSaved?.blogs?.find((item) => item.id_blog === blog?._id);
     setBookMarkBlog(res);
-  }, [blog?._id, blogsSaved?.blogs]);
+  }, [blog?._id, saveBlog]);
 
   return (
     <div className="h-full">
@@ -84,7 +64,7 @@ const DetailBlog = () => {
         <div className="w-[20%] top-1/3"></div>
         <div className="w-[80%]">
           <div className="text-center">
-            <h1 className="font-bold text-[30px]">{blog?.title}</h1>
+            <h1 className="font-bold text-[30px] mt-[20px]">{blog?.title}</h1>
           </div>
 
           <div className="">

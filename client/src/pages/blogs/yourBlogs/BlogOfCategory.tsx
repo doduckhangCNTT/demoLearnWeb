@@ -4,14 +4,10 @@ import { useParams } from "react-router-dom";
 import NotValue from "../../../components/global/NotValue";
 import blogCategoryAction from "../../../redux/action/blogCategoryAction";
 import {
-  authSelector,
   blogsCategorySelector,
   saveBlogUserSelector,
 } from "../../../redux/selector/selectors";
-import {
-  IBookMarkBlogUser,
-  IGetBlogsCategory,
-} from "../../../utils/Typescript";
+import { IGetBlogsCategory } from "../../../utils/Typescript";
 import CardBlog from "../Card/CardBlog";
 
 const BlogOfCategory = () => {
@@ -19,10 +15,8 @@ const BlogOfCategory = () => {
 
   const { blogsCategory } = useSelector(blogsCategorySelector);
   const { saveBlog } = useSelector(saveBlogUserSelector);
-  const { authUser } = useSelector(authSelector);
 
   const [blogsOfCategory, setBlogsOfCategory] = useState<IGetBlogsCategory>();
-  const [blogsUserSaved, setBlogsUserSaved] = useState<IBookMarkBlogUser>();
 
   const dispatch = useDispatch();
 
@@ -35,11 +29,6 @@ const BlogOfCategory = () => {
     blogCategoryAction.getBlogsCategory(dispatch);
   }, [dispatch]);
 
-  useEffect(() => {
-    const blogsUser = saveBlog.find((item) => item._id === authUser.user?._id);
-    setBlogsUserSaved(blogsUser);
-  }, [authUser.user?._id, saveBlog]);
-
   return (
     <div className="">
       <div className="font-bold text-[20px]">
@@ -50,8 +39,9 @@ const BlogOfCategory = () => {
         {blogsOfCategory ? (
           blogsOfCategory.blogs.map((blog, index) => {
             if (!blog._id) return [];
-            const res = blogsUserSaved?.blogs?.find(
-              (item) => item.id_blog === blog._id
+            const res = (saveBlog as any)?.blogs?.find(
+              (item: { id_blog: string | undefined }) =>
+                item.id_blog === blog._id
             );
 
             return (

@@ -38,19 +38,19 @@ const saveBlogCtrl = {
     try {
       // const blogs = await Blogs.find().sort("-createdAt");
       const blogs = await SaveBlogModel.aggregate([
-        {
-          $lookup: {
-            from: "users",
-            let: { user_id: "$user" },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$_id", "$$user_id"] } } },
-              { $project: { password: 0 } },
-            ],
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     let: { user_id: "$user" },
+        //     pipeline: [
+        //       { $match: { $expr: { $eq: ["$_id", "$$user_id"] } } },
+        //       { $project: { password: 0 } },
+        //     ],
 
-            as: "user",
-          },
-        },
-        { $unwind: "$user" },
+        //     as: "user",
+        //   },
+        // },
+        // { $unwind: "$user" },
 
         {
           $lookup: {
@@ -67,17 +67,17 @@ const saveBlogCtrl = {
 
         { $unwind: "$userSaved" },
 
-        {
-          $lookup: {
-            from: "categories",
-            let: { category_id: "$category" },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$_id", "$$category_id"] } } },
-            ],
-            as: "category",
-          },
-        },
-        { $unwind: "$category" },
+        // {
+        //   $lookup: {
+        //     from: "categories",
+        //     let: { category_id: "$category" },
+        //     pipeline: [
+        //       { $match: { $expr: { $eq: ["$_id", "$$category_id"] } } },
+        //     ],
+        //     as: "category",
+        //   },
+        // },
+        // { $unwind: "$category" },
 
         { $sort: { createdAt: -1 } },
 

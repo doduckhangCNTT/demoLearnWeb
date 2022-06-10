@@ -11,7 +11,7 @@ import {
 import CardBlog from "./Card/CardBlog";
 import BlogOfCategory from "./yourBlogs/BlogOfCategory";
 import saveBlogAction from "../../redux/action/saveBlogAction";
-import { IBookMarkBlogUser, IGetBlogsCategory } from "../../utils/Typescript";
+import { IGetBlogsCategory } from "../../utils/Typescript";
 import blogAction from "../../redux/action/blogAction";
 import categoryAction from "../../redux/action/categoryAction";
 
@@ -27,7 +27,6 @@ const Blogs = () => {
   const dispatch = useDispatch();
 
   const [blogsOfCategory, setBlogsOfCategory] = useState<IGetBlogsCategory>();
-  const [blogsSaved, setBlogsSaved] = useState<IBookMarkBlogUser>();
 
   useEffect(() => {
     blogAction.getBlogs(dispatch);
@@ -36,15 +35,8 @@ const Blogs = () => {
 
   useEffect(() => {
     if (!authUser.access_token) return;
-    saveBlogAction.getBlogs(authUser.access_token, dispatch);
-  }, [authUser.access_token, dispatch]);
-
-  useEffect(() => {
-    const listBlogsSaved = saveBlog.find(
-      (item) => item._id === authUser.user?._id
-    );
-    setBlogsSaved(listBlogsSaved);
-  }, [authUser.user?._id, saveBlog]);
+    saveBlogAction.getBlogs(authUser, dispatch);
+  }, [authUser, dispatch]);
 
   useEffect(() => {
     const blogCategory = blogsCategory.find((item) => item._id === option);
@@ -74,8 +66,9 @@ const Blogs = () => {
           ) : (
             blogs.map((blog, index) => {
               if (!blog._id) return [];
-              const res = blogsSaved?.blogs?.find(
-                (item) => blog._id === item.id_blog
+              const res = (saveBlog as any).blogs?.find(
+                (item: { id_blog: string | undefined }) =>
+                  blog._id === item.id_blog
               );
               return (
                 <div className="" key={index}>
@@ -91,7 +84,7 @@ const Blogs = () => {
         </div>
 
         {/* List Categories */}
-        <div className={`md:w-1/4 m-3 z-1`}>
+        <div className={`md:w-1/4 m-3`}>
           <h1 className="font-bold text-[20px]">List Categories</h1>
           <div className="mt-5 sm:w-full flex-wrap">
             <div className="bg-slate-300 relative text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md">

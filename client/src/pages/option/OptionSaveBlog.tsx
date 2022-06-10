@@ -30,7 +30,7 @@ const OptionSaveBlog: React.FC<IProps> = ({ props }) => {
           dispatch
         );
 
-      saveBlogAction.getBlogs(authUser.access_token, dispatch);
+      saveBlogAction.getBlogs(authUser, dispatch);
     };
 
     solution();

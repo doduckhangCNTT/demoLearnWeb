@@ -67,7 +67,7 @@ export default function Header() {
   };
   return (
     <div className="relative h-[50px]">
-      <Disclosure as="nav" className="shadow-md fixed z-100 bg-white w-full">
+      <Disclosure as="nav" className="shadow-md fixed z-10 bg-white w-full">
         {({ open }) => (
           <>
             <div className="mx-auto px-2 sm:px-6 lg:px-8">

@@ -16,15 +16,17 @@ const PublishedBlogs = () => {
 
   useEffect(() => {
     const solution = async () => {
-      if (!authUser.user || !authUser.access_token) return;
-      await blogUserAction.getBlogUser(
-        authUser.user?._id,
-        authUser.access_token,
-        dispatch
-      );
+      if (!(blogsUser as any).blogs) {
+        if (!authUser.user || !authUser.access_token) return;
+        await blogUserAction.getBlogUser(
+          authUser.user?._id,
+          authUser.access_token,
+          dispatch
+        );
+      }
     };
     solution();
-  }, [authUser.access_token, authUser.user, dispatch]);
+  }, [authUser.access_token, authUser.user, blogsUser, dispatch]);
 
   if (!authUser.access_token) return <NotFound />;
   return (
@@ -33,7 +35,7 @@ const PublishedBlogs = () => {
         Quality Blogs: {(blogsUser as any).count}
       </div>
 
-      <div className={`grid xl:grid-cols-2  gap-2`}>
+      <div className={`grid xl:grid-cols-2 gap-2`}>
         {/* List Blogs */}
         {(blogsUser as any).blogs?.map(
           (

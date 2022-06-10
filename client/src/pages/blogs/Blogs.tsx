@@ -11,9 +11,11 @@ import {
 import CardBlog from "./Card/CardBlog";
 import BlogOfCategory from "./yourBlogs/BlogOfCategory";
 import saveBlogAction from "../../redux/action/saveBlogAction";
-import { IGetBlogsCategory } from "../../utils/Typescript";
+import { IBookMarkBlogUser, IGetBlogsCategory } from "../../utils/Typescript";
 import blogAction from "../../redux/action/blogAction";
 import categoryAction from "../../redux/action/categoryAction";
+import { blogSlice } from "../../redux/reducers/blogSlice";
+import { categorySlice } from "../../redux/reducers/categorySlice";
 
 const Blogs = () => {
   const { option } = useParams();
@@ -29,14 +31,22 @@ const Blogs = () => {
   const [blogsOfCategory, setBlogsOfCategory] = useState<IGetBlogsCategory>();
 
   useEffect(() => {
-    blogAction.getBlogs(dispatch);
-    categoryAction.getCategory(dispatch);
-  }, [dispatch]);
+    if (blogs.length > 0) {
+      dispatch(blogSlice.actions.getBlog(blogs));
+      dispatch(categorySlice.actions.getCategories(categories));
+    } else {
+      blogAction.getBlogs(dispatch);
+      categoryAction.getCategory(dispatch);
+    }
+  }, [dispatch, blogs.length, blogs, categories]);
 
+  // Give Blog user saved
   useEffect(() => {
     if (!authUser.access_token) return;
-    saveBlogAction.getBlogs(authUser, dispatch);
-  }, [authUser, dispatch]);
+    if (!(saveBlog as any).blogs) {
+      saveBlogAction.getBlogs(authUser, dispatch);
+    }
+  }, [authUser, dispatch, saveBlog]);
 
   useEffect(() => {
     const blogCategory = blogsCategory.find((item) => item._id === option);

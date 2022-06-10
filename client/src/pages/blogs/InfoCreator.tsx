@@ -81,7 +81,7 @@ const InfoCreator: React.FC<IProps> = React.memo(({ props, bookmark }) => {
         authUser.access_token,
         dispatch
       );
-      saveBlogAction.getBlogs(authUser, dispatch);
+      // saveBlogAction.getBlogs(authUser, dispatch);
     };
 
     solution();

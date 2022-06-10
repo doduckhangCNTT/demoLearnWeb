@@ -13,7 +13,12 @@ export const saveBlogSlice = createSlice({
   initialState,
   reducers: {
     createBlog: (state, action: IBlogType) => {
-      return [action.payload, ...state];
+      console.log("State: ", state);
+      return {
+        ...state,
+        blogs: [action.payload, ...(state as any).blogs],
+        count: (state as any).blogs.length + 1,
+      };
     },
 
     getBlog: (state, action: IGetBlogType) => {

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import LazyLoadingImg from "../../components/LazyLoadingImg/LazyLoadingImg";
 import saveBlogAction from "../../redux/action/saveBlogAction";
-import saveBlogUserAction from "../../redux/action/saveBlogUserAction";
 import { authSelector } from "../../redux/selector/selectors";
 
 import { IAuth } from "../../redux/types/authType";
@@ -66,28 +65,43 @@ const InfoCreator: React.FC<IProps> = React.memo(({ props, bookmark }) => {
   const { authUser } = useSelector(authSelector);
 
   const handleSaveBookmark = () => {
-    if (!authUser.access_token || !authUser.user) return;
+    const solution = async () => {
+      if (!authUser.access_token || !authUser.user) return;
 
-    // Save blog to "saveBlogUser" store
-    saveBlogUserAction.getBlogUser(
-      authUser.user?._id,
-      authUser.access_token,
-      dispatch
-    );
+      // Save blog to "saveBlogUser" store
+      // saveBlogUserAction.getBlogUser(
+      //   authUser.user?._id,
+      //   authUser.access_token,
+      //   dispatch
+      // );
 
-    // Save blog to "saveBlog" store
-    saveBlogAction.createBlog(props as IBlog, authUser.access_token, dispatch);
+      // Save blog to "saveBlog" store
+      await saveBlogAction.createBlog(
+        props as IBlog,
+        authUser.access_token,
+        dispatch
+      );
+      saveBlogAction.getBlogs(authUser.access_token, dispatch);
+    };
+
+    solution();
   };
 
   const handleDeleteBookmark = () => {
-    if (!authUser.access_token) return;
+    const solution = async () => {
+      if (!authUser.access_token) return;
 
-    // Delete blog to "saveBlog" store
-    saveBlogAction.deleteBlog(
-      bookmark as IBookMarkBlogUser,
-      authUser.access_token,
-      dispatch
-    );
+      // Delete blog to "saveBlog" store
+      await saveBlogAction.deleteBlog(
+        bookmark as IBookMarkBlogUser,
+        authUser.access_token,
+        dispatch
+      );
+
+      saveBlogAction.getBlogs(authUser.access_token, dispatch);
+    };
+
+    solution();
   };
 
   return (

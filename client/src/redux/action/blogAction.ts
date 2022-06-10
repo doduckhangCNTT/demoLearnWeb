@@ -9,7 +9,6 @@ import {
 import { AppDispatch, IBlog } from "../../utils/Typescript";
 import { alertSlice } from "../reducers/alertSlice";
 import { blogSlice } from "../reducers/blogSlice";
-import { categorySlice } from "../reducers/categorySlice";
 import { draftBlogSlice } from "../reducers/draftBlogSlice";
 
 const blogAction = {
@@ -84,7 +83,7 @@ const blogAction = {
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
-      const res = await getApi("draft/blog", access_token);
+      const res = await getApi("blog/draft", access_token);
       dispatch(draftBlogSlice.actions.getBlog(res.data));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
@@ -112,14 +111,12 @@ const blogAction = {
         },
         classify,
       };
-      console.log("New blog: ", newBlog);
       dispatch(
         blogSlice.actions.updateBlog({ id: newBlog._id, newBlog: newBlog })
       );
       const res = await putApi(`blog/${newBlog._id}`, newBlog, access_token);
 
       dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
-      // dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
     }
@@ -148,7 +145,6 @@ const blogAction = {
           blogSlice.actions.deleteBlog({ id: blog._id ? blog._id : "" })
         );
         res = await deleteApi(`blog/${blog._id}`, access_token);
-        // dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
       } else if (classify?.toLowerCase() === "draft") {
         dispatch(
           draftBlogSlice.actions.deleteBlog({ id: blog._id ? blog._id : "" })

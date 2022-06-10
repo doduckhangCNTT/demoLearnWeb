@@ -5,7 +5,7 @@ import { IBlog } from "../../utils/Typescript";
 import { IAuth } from "../../redux/types/authType";
 import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "../../redux/selector/selectors";
-import saveBlogUserAction from "../../redux/action/saveBlogUserAction";
+import saveBlogAction from "../../redux/action/saveBlogAction";
 
 interface IProps {
   props: IBlog | IAuth;
@@ -20,14 +20,20 @@ const OptionSaveBlog: React.FC<IProps> = ({ props }) => {
   const dispatch = useDispatch();
 
   const handleDeleteBlog = () => {
-    if (!authUser.access_token) return;
+    const solution = async () => {
+      if (!authUser.access_token) return;
 
-    if (window.confirm("Are you sure you want to delete this"))
-      saveBlogUserAction.deleteBlogUser(
-        props as IBlog,
-        authUser.access_token,
-        dispatch
-      );
+      if (window.confirm("Are you sure you want to delete this"))
+        await saveBlogAction.deleteBlogUser(
+          props as IBlog,
+          authUser.access_token,
+          dispatch
+        );
+
+      saveBlogAction.getBlogs(authUser.access_token, dispatch);
+    };
+
+    solution();
   };
 
   return (

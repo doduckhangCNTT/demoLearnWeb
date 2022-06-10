@@ -6,7 +6,6 @@ import { IBlog, IUser } from "../../utils/Typescript";
 import { IAuth } from "../../redux/types/authType";
 import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "../../redux/selector/selectors";
-import blogAction from "../../redux/action/blogAction";
 import saveBlogAction from "../../redux/action/saveBlogAction";
 
 interface IProps {
@@ -65,6 +64,21 @@ const OptionDraft: React.FC<IProps> = ({ props }) => {
           <Menu.Items className="origin-top-right absolute z-20 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
             {(props?.user as IUser)?._id === authUser.user?._id ? (
               <div>
+                {/* Update blog */}
+                <Menu.Item>
+                  {({ active }) => (
+                    <Link
+                      to={`/update_draftBlog/${(props as IBlog)._id as string}`}
+                      className={classNames(
+                        active ? "bg-gray-100" : "",
+                        "block px-4 py-2 text-sm text-gray-700"
+                      )}
+                    >
+                      Edit
+                    </Link>
+                  )}
+                </Menu.Item>
+
                 {/* Delete blog */}
                 <Menu.Item>
                   {({ active }) => (

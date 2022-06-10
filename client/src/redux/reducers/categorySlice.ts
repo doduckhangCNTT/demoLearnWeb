@@ -16,6 +16,7 @@ export const categorySlice = createSlice({
   reducers: {
     createCategory: (state, action: ICreateCategoryType) => {
       return [action.payload, ...state];
+      // return action.payload;
     },
 
     getCategories: (state, action: IGetCategoryType) => {

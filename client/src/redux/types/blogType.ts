@@ -13,10 +13,10 @@ export interface IGetBlogType {
   payload: IBlog[];
 }
 export interface IGetBlogsCategoryType {
-  payload: IGetBlogsCategory;
+  payload: IGetBlogsCategory[];
 }
 export interface IGetBlogsUserType {
-  payload: IGetBlogsUser;
+  payload: IGetBlogsUser[];
 }
 export interface IDeleteBlogType {
   payload: IDeleteBlog;

@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import NotFound from "../../components/global/NotFound";
 import categoryAction from "../../redux/action/categoryAction";
-import { authSelector, categorySelector } from "../../redux/selector/selectors";
+import {
+  authSelector,
+  blogsCategorySelector,
+  categorySelector,
+} from "../../redux/selector/selectors";
 import {
   FormSubmit,
   ICategory,
@@ -15,6 +19,11 @@ const CreateCategory = () => {
   const dispatch = useDispatch();
   const { authUser } = useSelector(authSelector);
   const { categories } = useSelector(categorySelector);
+  const { blogsCategory } = useSelector(blogsCategorySelector);
+
+  useEffect(() => {
+    categoryAction.getCategory(dispatch);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!edit?.name) return;
@@ -27,7 +36,12 @@ const CreateCategory = () => {
 
   const handleDeleteCategory = (id: string) => {
     if (!authUser.access_token) return;
-    categoryAction.deleteCategory(id, authUser.access_token, dispatch);
+    const res = blogsCategory.find((item) => item._id === id);
+
+    if (res) window.confirm("You need delete blogs of this category");
+    else {
+      categoryAction.deleteCategory(id, authUser.access_token, dispatch);
+    }
   };
 
   const handleInput = (e: InputChangedEvent) => {
@@ -35,14 +49,20 @@ const CreateCategory = () => {
     setName(value);
   };
 
-  const handleSubmitCategory = (e: FormSubmit) => {
+  const handleSubmitCategory = async (e: FormSubmit) => {
     e.preventDefault();
     if (!authUser.access_token) return;
     if (edit) {
       const data = { ...edit, name };
       categoryAction.updateCategory(data, authUser.access_token, dispatch);
     } else {
-      categoryAction.createCategory(name, authUser.access_token, dispatch);
+      await categoryAction.createCategory(
+        name,
+        authUser.access_token,
+        dispatch
+      );
+
+      categoryAction.getCategory(dispatch);
     }
     setEdit(null);
     setName("");

@@ -11,6 +11,7 @@ import { alertSlice } from "../../redux/reducers/alertSlice";
 import blogAction from "../../redux/action/blogAction";
 import PreviewBlog from "./PreviewBlog";
 import { getApi } from "../../utils/FetchData";
+import categoryAction from "../../redux/action/categoryAction";
 
 interface IProps {
   id?: string;
@@ -74,6 +75,10 @@ const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
       setOldData(initialState);
     };
   }, [id]);
+
+  useEffect(() => {
+    categoryAction.getCategory(dispatch);
+  }, [dispatch]);
 
   useEffect(() => {
     const getDraftBlog = async () => {
@@ -251,8 +256,6 @@ const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
         {/* View Blog */}
         <div className="xl:w-1/2 md:w-full sm:w-full xs:w-full">
           <PreviewBlog blog={blog} />
-
-          {/* <img src={blog.thumbnail as string} alt="" /> */}
         </div>
       </div>
 

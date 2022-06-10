@@ -5,17 +5,13 @@ import Footer from "./components/global/Footer";
 import Header from "./components/global/Header";
 import Navbar from "./components/global/Navbar";
 import actionAuth from "./redux/action/actionAuth";
-import blogAction from "./redux/action/blogAction";
-import categoryAction from "./redux/action/categoryAction";
 import HandleRouter from "./routes/HandleRouter";
 
 function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    categoryAction.getCategory(dispatch);
     actionAuth.refreshAction(dispatch);
-    blogAction.getBlogs(dispatch);
   }, [dispatch]);
 
   return (

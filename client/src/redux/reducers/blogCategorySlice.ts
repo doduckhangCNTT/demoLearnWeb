@@ -9,7 +9,7 @@ export const blogsCategorySlice = createSlice({
   initialState,
   reducers: {
     getBlogsCategory: (state, action: IGetBlogsCategoryType) => {
-      return [...state, action.payload];
+      return action.payload;
     },
   },
 });

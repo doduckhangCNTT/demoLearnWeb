@@ -38,6 +38,15 @@ const blogCtrl = {
         { $unwind: "$category" },
 
         { $sort: { createdAt: -1 } },
+
+        // {
+        //   $group: {
+        //     _id: "$category._id",
+        //     category: { $first: "$category" },
+        //     blogs: { $push: "$$ROOT" },
+        //     count: { $sum: 1 },
+        //   },
+        // },
       ]);
       res.json(blogs);
     } catch (error: any) {
@@ -129,7 +138,7 @@ const blogCtrl = {
     }
   },
 
-  getBlogsCategory: async (req: Request, res: Response) => {
+  getBlogsRelativeCategory: async (req: Request, res: Response) => {
     try {
       const Data = await Blogs.aggregate([
         {
@@ -178,6 +187,54 @@ const blogCtrl = {
       const count = Data[0].count;
 
       res.json({ blogs, count });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  getBlogsCategory: async (req: Request, res: Response) => {
+    try {
+      // const blogs = await Blogs.find().sort("-createdAt");
+      const blogs = await Blogs.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            let: { user_id: "$user" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$user_id"] } } },
+              { $project: { password: 0 } },
+            ],
+
+            as: "user",
+          },
+        },
+
+        { $unwind: "$user" },
+
+        {
+          $lookup: {
+            from: "categories",
+            let: { category_id: "$category" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$category_id"] } } },
+            ],
+            as: "category",
+          },
+        },
+        { $unwind: "$category" },
+
+        { $sort: { createdAt: -1 } },
+
+        {
+          $group: {
+            _id: "$category._id",
+            category: { $first: "$category" },
+            blogs: { $push: "$$ROOT" },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+      res.json(blogs);
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }

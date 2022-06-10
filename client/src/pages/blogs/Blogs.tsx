@@ -1,27 +1,38 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import saveBlogUserAction from "../../redux/action/saveBlogUserAction";
 import {
   blogSelector,
   categorySelector,
-  saveBlogsOfUserSelector,
   saveBlogUserSelector,
   authSelector,
+  blogsCategorySelector,
 } from "../../redux/selector/selectors";
 import CardBlog from "./Card/CardBlog";
 import BlogOfCategory from "./yourBlogs/BlogOfCategory";
 import saveBlogAction from "../../redux/action/saveBlogAction";
+import { IBookMarkBlogUser, IGetBlogsCategory } from "../../utils/Typescript";
+import blogAction from "../../redux/action/blogAction";
+import categoryAction from "../../redux/action/categoryAction";
 
 const Blogs = () => {
   const { option } = useParams();
+
   const { blogs } = useSelector(blogSelector);
   const { categories } = useSelector(categorySelector);
   const { saveBlog } = useSelector(saveBlogUserSelector);
-  const { saveBlogUser } = useSelector(saveBlogsOfUserSelector);
-
+  const { blogsCategory } = useSelector(blogsCategorySelector);
   const { authUser } = useSelector(authSelector);
+
   const dispatch = useDispatch();
+
+  const [blogsOfCategory, setBlogsOfCategory] = useState<IGetBlogsCategory>();
+  const [blogsSaved, setBlogsSaved] = useState<IBookMarkBlogUser>();
+
+  useEffect(() => {
+    blogAction.getBlogs(dispatch);
+    categoryAction.getCategory(dispatch);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!authUser.access_token) return;
@@ -29,23 +40,25 @@ const Blogs = () => {
   }, [authUser.access_token, dispatch]);
 
   useEffect(() => {
-    if (!authUser.access_token || !authUser.user) return;
-    saveBlogUserAction.getBlogUser(
-      authUser.user?._id,
-      authUser.access_token,
-      dispatch
+    const listBlogsSaved = saveBlog.find(
+      (item) => item._id === authUser.user?._id
     );
-  }, [authUser.access_token, authUser.user, saveBlog, dispatch]);
+    setBlogsSaved(listBlogsSaved);
+  }, [authUser.user?._id, saveBlog]);
+
+  useEffect(() => {
+    const blogCategory = blogsCategory.find((item) => item._id === option);
+    setBlogsOfCategory(blogCategory);
+  }, [blogsCategory, option]);
 
   return (
     <>
       {/* Introduce user blog */}
       <div className="m-3">
-        <div className="">
+        <div className="flex items-end">
           <h1 className="font-bold text-[35px] capitalize">
-            {option?.replace("_", " ")}
+            {blogsOfCategory?.category.name?.replace("_", " ")}
           </h1>
-          <div>{/* {blogsCategory} */}</div>
         </div>
         <p className="">
           Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online
@@ -61,10 +74,9 @@ const Blogs = () => {
           ) : (
             blogs.map((blog, index) => {
               if (!blog._id) return [];
-              const res = saveBlogUser.blogsSave.find(
-                (item) => item.id_blog === blog._id
+              const res = blogsSaved?.blogs?.find(
+                (item) => blog._id === item.id_blog
               );
-
               return (
                 <div className="" key={index}>
                   {res ? (
@@ -79,7 +91,7 @@ const Blogs = () => {
         </div>
 
         {/* List Categories */}
-        <div className={`md:w-1/4 m-3`}>
+        <div className={`md:w-1/4 m-3 z-1`}>
           <h1 className="font-bold text-[20px]">List Categories</h1>
           <div className="mt-5 sm:w-full flex-wrap">
             <div className="bg-slate-300 relative text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md">
@@ -91,9 +103,7 @@ const Blogs = () => {
                   className="bg-slate-300 relative text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md"
                   key={index}
                 >
-                  <Link to={`category/${item.name?.toLowerCase()}`}>
-                    {item.name}
-                  </Link>
+                  <Link to={`category/${item._id}`}>{item.name}</Link>
                 </div>
               );
             })}

@@ -80,6 +80,15 @@ const saveBlogCtrl = {
         { $unwind: "$category" },
 
         { $sort: { createdAt: -1 } },
+
+        {
+          $group: {
+            _id: "$userSaved._id",
+            userSaved: { $first: "$userSaved" },
+            blogs: { $push: "$$ROOT" },
+            count: { $sum: 1 },
+          },
+        },
       ]);
       res.json(blogs);
     } catch (error: any) {

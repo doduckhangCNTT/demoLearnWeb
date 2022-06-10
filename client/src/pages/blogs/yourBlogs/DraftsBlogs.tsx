@@ -12,13 +12,13 @@ const DraftsBlogs = () => {
   const { authUser } = useSelector(authSelector);
   const { draftBlogs } = useSelector(draftBlogSelector);
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (!authUser.access_token) return;
     blogAction.getDraftBlogs(authUser.access_token, dispatch);
   }, [dispatch, authUser.access_token]);
 
   if (!authUser.access_token) return <NotFound />;
-
   return (
     <div className="flex col-span-2 gap-2">
       {draftBlogs.map((item, index) => {

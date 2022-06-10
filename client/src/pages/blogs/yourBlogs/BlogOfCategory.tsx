@@ -4,54 +4,53 @@ import { useParams } from "react-router-dom";
 import NotValue from "../../../components/global/NotValue";
 import blogCategoryAction from "../../../redux/action/blogCategoryAction";
 import {
+  authSelector,
   blogsCategorySelector,
-  categorySelector,
-  saveBlogsOfUserSelector,
+  saveBlogUserSelector,
 } from "../../../redux/selector/selectors";
-import { IBlog } from "../../../utils/Typescript";
+import {
+  IBookMarkBlogUser,
+  IGetBlogsCategory,
+} from "../../../utils/Typescript";
 import CardBlog from "../Card/CardBlog";
 
 const BlogOfCategory = () => {
   const { option } = useParams();
-  const [categoryId, setCategoryId] = useState("");
-  const [count, setCount] = useState(0);
-  const [blogsOfCategory, setBlogsOfCategory] = useState<IBlog[]>([]);
-  const { categories } = useSelector(categorySelector);
-  const dispatch = useDispatch();
+
   const { blogsCategory } = useSelector(blogsCategorySelector);
-  const { saveBlogUser } = useSelector(saveBlogsOfUserSelector);
+  const { saveBlog } = useSelector(saveBlogUserSelector);
+  const { authUser } = useSelector(authSelector);
+
+  const [blogsOfCategory, setBlogsOfCategory] = useState<IGetBlogsCategory>();
+  const [blogsUserSaved, setBlogsUserSaved] = useState<IBookMarkBlogUser>();
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const category = categories.find(
-      (category) => category.name?.toLowerCase() === option
-    );
-    setCategoryId(category?._id ? category._id : "");
-  }, [categories, option]);
+    const blogCategory = blogsCategory.find((item) => item._id === option);
+    setBlogsOfCategory(blogCategory);
+  }, [blogsCategory, option]);
 
   useEffect(() => {
-    if (!categoryId) return;
+    blogCategoryAction.getBlogsCategory(dispatch);
+  }, [dispatch]);
 
-    if (blogsCategory.every((category) => category.id !== categoryId)) {
-      blogCategoryAction.getBlogCategoryId(categoryId, dispatch);
-    } else {
-      const data = blogsCategory.find((category) => category.id === categoryId);
-      if (!data) return;
-      setBlogsOfCategory(data.blogs);
-      setCount(data.count ? data.count : 0);
-    }
-  }, [categoryId, blogsCategory, dispatch]);
+  useEffect(() => {
+    const blogsUser = saveBlog.find((item) => item._id === authUser.user?._id);
+    setBlogsUserSaved(blogsUser);
+  }, [authUser.user?._id, saveBlog]);
 
   return (
     <div className="">
       <div className="font-bold text-[20px]">
-        Quality Blog Categories : {count}
+        Quality Blog Categories : {blogsOfCategory?.count}
       </div>
       {/* List Blogs */}
       <div className={`w-full`}>
-        {blogsOfCategory.length > 0 ? (
-          blogsOfCategory?.map((blog, index) => {
+        {blogsOfCategory ? (
+          blogsOfCategory.blogs.map((blog, index) => {
             if (!blog._id) return [];
-            const res = saveBlogUser.blogsSave.find(
+            const res = blogsUserSaved?.blogs?.find(
               (item) => item.id_blog === blog._id
             );
 

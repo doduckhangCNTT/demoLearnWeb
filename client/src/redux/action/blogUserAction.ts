@@ -12,7 +12,6 @@ const blogUserAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await getApi(`blog/user/${id}`, access_token);
-
       dispatch(blogsUserSlice.actions.getBlogsUser({ ...res.data, id }));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));

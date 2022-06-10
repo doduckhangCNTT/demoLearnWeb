@@ -74,11 +74,20 @@ export interface IBlog {
 export interface IBookMarkBlogUser extends IBlog {
   id_blog?: string;
   userSaved?: string | IUser;
+  blogs?: IBookMarkBlogUser[];
+}
+
+export interface IBlogsSavedUser {
+  _id: string;
+  userSaved?: string | IUser;
+  blogs: IBlog[];
+  count: number;
 }
 
 export interface IGetBlogsCategory {
-  id: string;
+  _id: string;
   blogs: IBlog[];
+  category: ICategory;
   total?: number;
   search?: string;
   count?: number;
@@ -86,9 +95,6 @@ export interface IGetBlogsCategory {
 export interface IGetBlogsUser extends IBlog {
   id: string;
   blogs: IBlog[];
-  blogsSave: IBlog[];
-  total?: number;
-  search?: string;
   count?: number;
 }
 

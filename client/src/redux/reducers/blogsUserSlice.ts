@@ -9,7 +9,8 @@ export const blogsUserSlice = createSlice({
   initialState,
   reducers: {
     getBlogsUser: (state, action: IGetBlogsUserType) => {
-      return [...state, action.payload];
+      // return [...state, action.payload];
+      return action.payload;
     },
   },
 });

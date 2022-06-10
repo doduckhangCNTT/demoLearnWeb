@@ -9,11 +9,22 @@ const blogCategoryAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await getApi(`blog/category/${id}`);
-      // console.log("Res Blog Category: ", res);
-
       dispatch(
         blogsCategorySlice.actions.getBlogsCategory({ ...res.data, id })
       );
+
+      dispatch(alertSlice.actions.alertAdd({ loading: false }));
+    } catch (error: any) {
+      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
+    }
+  },
+
+  getBlogsCategory: async (dispatch: AppDispatch) => {
+    try {
+      dispatch(alertSlice.actions.alertAdd({ loading: true }));
+
+      const res = await getApi(`blog/category`);
+      dispatch(blogsCategorySlice.actions.getBlogsCategory(res.data));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {

@@ -50,7 +50,6 @@ const saveBlogAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await deleteApi(`bookmark/blog/${blog._id}`, access_token);
-      console.log("Res: ", res);
       dispatch(saveBlogSlice.actions.deleteBlog(res.data.blog));
 
       dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
@@ -59,20 +58,20 @@ const saveBlogAction = {
     }
   },
 
-  deleteBlogUser: async (blog: IBlog, token: string, dispatch: AppDispatch) => {
-    const result = await checkTokenExp(token, dispatch);
-    const access_token = result ? result : token;
-    try {
-      dispatch(alertSlice.actions.alertAdd({ loading: true }));
+  // deleteBlogUser: async (blog: IBlog, token: string, dispatch: AppDispatch) => {
+  //   const result = await checkTokenExp(token, dispatch);
+  //   const access_token = result ? result : token;
+  //   try {
+  //     dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
-      const res = await deleteApi(`bookmark/blog/${blog._id}`, access_token);
-      dispatch(saveBlogSlice.actions.deleteBlog(res.data.blog));
+  //     const res = await deleteApi(`bookmark/blog/${blog._id}`, access_token);
+  //     dispatch(saveBlogSlice.actions.deleteBlog(res.data.blog));
 
-      dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
-    } catch (error: any) {
-      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
-    }
-  },
+  //     dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
+  //   } catch (error: any) {
+  //     dispatch(alertSlice.actions.alertAdd({ error: error.message }));
+  //   }
+  // },
 };
 
 export default saveBlogAction;

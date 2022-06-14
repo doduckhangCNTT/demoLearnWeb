@@ -8,6 +8,8 @@ router.post("/blog", authUser, blogCtrl.createBlog);
 
 router.get("/blog", blogCtrl.getBlogs);
 
+router.get("/blogs", blogCtrl.getListBlogs);
+
 router.get("/blog/draft", authUser, blogCtrl.getDraftBlogs);
 
 router.get("/blog/category", blogCtrl.getBlogsCategory);

@@ -12,6 +12,10 @@ export const blogSlice = createSlice({
       return [action.payload, ...state];
     },
 
+    updateAllBlogs: (state, action: any) => {
+      return [...state, action.payload];
+    },
+
     getBlog: (state, action: IGetBlogType) => {
       return action.payload;
     },

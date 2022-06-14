@@ -3,10 +3,93 @@ import mongoose from "mongoose";
 import { IReqAuth } from "../config/interface";
 import Blogs from "../models/blogModel";
 import DraftBlog from "../models/draftBlogsModel";
-import SavedBlog from "../models/saveBlogModel";
+
+const PageConfig = (req: Request) => {
+  console.log({ limit: req.params.limit, page: req.params.page });
+
+  const limit = Number(req.query.limit) * 1 || 3;
+  const page = Number(req.query.page) * 1 || 1;
+
+  const skip = (page - 1) * limit;
+
+  return { page, limit, skip };
+};
 
 const blogCtrl = {
   getBlogs: async (req: Request, res: Response) => {
+    console.log("Req: ", req.query.limit);
+    const { limit, skip, page } = PageConfig(req);
+    console.log({ limit, skip, page });
+
+    try {
+      // const blogs = await Blogs.find().sort("-createdAt");
+      const Data = await Blogs.aggregate([
+        {
+          $facet: {
+            totalData: [
+              {
+                $lookup: {
+                  from: "users",
+                  let: { user_id: "$user" },
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$user_id"] } } },
+                    { $project: { password: 0 } },
+                  ],
+                  as: "user",
+                },
+              },
+              { $unwind: "$user" },
+
+              {
+                $lookup: {
+                  from: "categories",
+                  let: { category_id: "$category" },
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$category_id"] } } },
+                  ],
+                  as: "category",
+                },
+              },
+              { $unwind: "$category" },
+
+              { $sort: { createdAt: -1 } },
+              { $skip: skip },
+              { $limit: limit },
+            ],
+
+            totalCount: [{ $count: "count" }],
+          },
+        },
+        {
+          $project: {
+            count: { $arrayElemAt: ["$totalCount.count", 0] },
+            totalData: 1,
+          },
+        },
+      ]);
+
+      const blogs = Data[0].totalData;
+      const count = Data[0].count;
+
+      let total;
+      if (count % limit === 0) {
+        total = count / limit;
+      } else {
+        total = Math.floor(count / limit) + 1;
+      }
+      // Neu muon hien thi tong so trang
+      // res.json({ blogs, total });
+      res.json(blogs);
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  getListBlogs: async (req: Request, res: Response) => {
+    console.log("Req: ", req.query.limit);
+    const { limit, skip, page } = PageConfig(req);
+    console.log({ limit, skip, page });
+
     try {
       // const blogs = await Blogs.find().sort("-createdAt");
       const blogs = await Blogs.aggregate([
@@ -18,11 +101,9 @@ const blogCtrl = {
               { $match: { $expr: { $eq: ["$_id", "$$user_id"] } } },
               { $project: { password: 0 } },
             ],
-
             as: "user",
           },
         },
-
         { $unwind: "$user" },
 
         {
@@ -36,17 +117,6 @@ const blogCtrl = {
           },
         },
         { $unwind: "$category" },
-
-        { $sort: { createdAt: -1 } },
-
-        // {
-        //   $group: {
-        //     _id: "$category._id",
-        //     category: { $first: "$category" },
-        //     blogs: { $push: "$$ROOT" },
-        //     count: { $sum: 1 },
-        //   },
-        // },
       ]);
       res.json(blogs);
     } catch (error: any) {

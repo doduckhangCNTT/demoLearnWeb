@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -11,11 +11,16 @@ import {
 import CardBlog from "./Card/CardBlog";
 import BlogOfCategory from "./yourBlogs/BlogOfCategory";
 import saveBlogAction from "../../redux/action/saveBlogAction";
-import { IBookMarkBlogUser, IGetBlogsCategory } from "../../utils/Typescript";
+import {
+  IBlog,
+  IBookMarkBlogUser,
+  IGetBlogsCategory,
+} from "../../utils/Typescript";
 import blogAction from "../../redux/action/blogAction";
 import categoryAction from "../../redux/action/categoryAction";
 import { blogSlice } from "../../redux/reducers/blogSlice";
 import { categorySlice } from "../../redux/reducers/categorySlice";
+import useInfinityQuery from "../../hooks/useInfinityQuery";
 
 const Blogs = () => {
   const { option } = useParams();
@@ -29,13 +34,14 @@ const Blogs = () => {
   const dispatch = useDispatch();
 
   const [blogsOfCategory, setBlogsOfCategory] = useState<IGetBlogsCategory>();
+  // const [limit, setLimit] = useState(3);
 
   useEffect(() => {
     if (blogs.length > 0) {
       dispatch(blogSlice.actions.getBlog(blogs));
       dispatch(categorySlice.actions.getCategories(categories));
     } else {
-      blogAction.getBlogs(dispatch);
+      blogAction.getListBlogs(dispatch);
       categoryAction.getCategory(dispatch);
     }
   }, [dispatch, blogs.length, blogs, categories]);
@@ -52,6 +58,35 @@ const Blogs = () => {
     const blogCategory = blogsCategory.find((item) => item._id === option);
     setBlogsOfCategory(blogCategory);
   }, [blogsCategory, option]);
+
+  const [limit, setLimit] = useState(3);
+  const [qualityStart, setQualityStart] = useState(0);
+
+  const [listBlogs, setListBlogs] = useState<IBlog[]>([]);
+
+  console.log({ limit, qualityStart });
+  console.log("ListBlogs: ", listBlogs);
+  console.log("Blogs: ", blogs);
+
+  const { BtnRender } = useInfinityQuery({
+    limit,
+    setLimit,
+    qualityStart,
+    setQualityStart,
+    blogs,
+  });
+
+  useEffect(() => {
+    console.log("Value");
+    if (blogs && listBlogs.length < blogs?.length) {
+      blogs?.slice(qualityStart, limit).forEach((blog) => {
+        const res = listBlogs?.find((item) => item._id === blog._id);
+        if (!res) {
+          setListBlogs((prev) => [...prev, blog]);
+        }
+      });
+    }
+  }, [limit, qualityStart, listBlogs, blogs]);
 
   return (
     <>
@@ -74,22 +109,25 @@ const Blogs = () => {
           {option ? (
             <BlogOfCategory />
           ) : (
-            blogs.map((blog, index) => {
-              if (!blog._id) return [];
-              const res = (saveBlog as any).blogs?.find(
-                (item: { id_blog: string | undefined }) =>
-                  blog._id === item.id_blog
-              );
-              return (
-                <div className="" key={index}>
-                  {res ? (
-                    <CardBlog blog={blog} bookmark={res} />
-                  ) : (
-                    <CardBlog blog={blog} />
-                  )}
-                </div>
-              );
-            })
+            <div>
+              {listBlogs?.map((blog, index) => {
+                if (!blog._id) return [];
+                const res = (saveBlog as any).blogs?.find(
+                  (item: { id_blog: string | undefined }) =>
+                    blog._id === item.id_blog
+                );
+                return (
+                  <div className="" key={index}>
+                    {res ? (
+                      <CardBlog blog={blog} bookmark={res} />
+                    ) : (
+                      <CardBlog blog={blog} />
+                    )}
+                  </div>
+                );
+              })}
+              <div className=" flex justify-center">{BtnRender()}</div>
+            </div>
           )}
         </div>
 

@@ -64,11 +64,25 @@ const blogAction = {
     }
   },
 
-  getBlogs: async (dispatch: AppDispatch) => {
+  getBlogs: async (dispatch: AppDispatch, search = `?page=${1}`) => {
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
+      const limit = 3;
+      const value = search ? search : `?page=${1}`;
+      const res = await getApi(`blog${value}&limit=${limit}`);
+      // console.log("Res: ", res);
+      dispatch(blogSlice.actions.getBlog(res.data));
 
-      const res = await getApi("blog");
+      dispatch(alertSlice.actions.alertAdd({ loading: false }));
+    } catch (error: any) {
+      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
+    }
+  },
+  getListBlogs: async (dispatch: AppDispatch, search = `?page=${1}`) => {
+    try {
+      dispatch(alertSlice.actions.alertAdd({ loading: true }));
+      const res = await getApi(`blogs`);
+      // console.log("Res: ", res);
       dispatch(blogSlice.actions.getBlog(res.data));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));

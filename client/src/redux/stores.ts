@@ -8,6 +8,8 @@ import { blogsCategorySlice } from "./reducers/blogCategorySlice";
 import { blogsUserSlice } from "./reducers/blogsUserSlice";
 import { draftBlogSlice } from "./reducers/draftBlogSlice";
 import { saveBlogSlice } from "./reducers/saveBlogSlice";
+import { commentBlogSlice } from "./reducers/commentBlogSlice";
+import { replyCommentsBlogSlice } from "./reducers/replyCommentSlice/replyCommentBlogSlice";
 
 const store = configureStore({
   reducer: {
@@ -22,6 +24,9 @@ const store = configureStore({
     blogsUser: blogsUserSlice.reducer,
 
     saveBlog: saveBlogSlice.reducer,
+    commentsBlog: commentBlogSlice.reducer,
+
+    replyCommentsBlog: replyCommentsBlogSlice.reducer,
   },
 });
 

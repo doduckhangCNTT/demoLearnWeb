@@ -1,4 +1,4 @@
-import { ICategory } from "../../utils/Typescript";
+import { ICategory, IComment, ICommentBlog } from "../../utils/Typescript";
 
 export interface ICreateCategoryType {
   payload: ICategory;

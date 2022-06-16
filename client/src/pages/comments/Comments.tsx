@@ -1,60 +1,113 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import CommentBlogAction from "../../redux/action/commentBlogAction";
+import {
+  authSelector,
+  commentBlogSelector,
+} from "../../redux/selector/selectors";
+import {
+  FormSubmit,
+  IBlog,
+  IComment,
+  InputChangedEvent,
+  IUser,
+} from "../../utils/Typescript";
+import InputComments from "./InputComments";
+import ShowComment from "./ShowComment";
 
-const Comments = () => {
+interface IProps {
+  blog?: IBlog;
+}
+
+const Comments: React.FC<IProps> = ({ blog }) => {
+  const initialState = {
+    text: "",
+  };
+  const [comment, setComment] = useState(initialState);
+  const { commentsBlog } = useSelector(commentBlogSelector);
+  const { authUser } = useSelector(authSelector);
+
+  console.log("Comment Blog: ", commentsBlog);
+
+  const dispatch = useDispatch();
+  const [showComments, setShowComments] = useState<IComment[]>([]);
+
+  useEffect(() => {
+    if (!blog) return;
+    CommentBlogAction.getCommentsBlog(blog, dispatch);
+  }, [blog, dispatch]);
+
+  const handleChangeInput = (e: InputChangedEvent) => {
+    const { name, value } = e.target;
+    setComment({ ...comment, [name]: value });
+  };
+
+  const handleSubmit = (e: FormSubmit) => {
+    e.preventDefault();
+
+    const solution = async () => {
+      if (!blog) return;
+      if (!authUser.access_token) return;
+      const data = {
+        content: comment.text.trim(),
+        user: authUser.user as IUser,
+        blog_id: blog._id as string,
+        blog_of_userID: (blog.user as IUser)._id,
+        reply_comment: [],
+        createdAt: new Date().toISOString(),
+      };
+      // setShowComments([data, ...showComments]);
+      await CommentBlogAction.createCommentBlog(data, authUser, dispatch);
+      CommentBlogAction.getCommentsBlog(blog, dispatch);
+    };
+
+    solution();
+    setComment(initialState);
+  };
+
+  useEffect(() => {
+    setShowComments((commentsBlog as any).comments);
+  }, [blog?._id, commentsBlog]);
+
   return (
     <div>
-      <div className="">
-        <h1 className="font-bold text-[20px]">So luong binh luan</h1>
+      <div className="mt-[100px]">
+        <h1 className="font-bold text-[20px]">
+          So luong binh luan {showComments?.length}
+        </h1>
       </div>
 
       {/* Comment your comment */}
-      <div className="flex gap-2 items-center mt-5">
-        <div className="">
-          <img
-            src="https://images.unsplash.com/photo-1652068359232-a98e76719936?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=679&q=80"
-            alt=""
-            className="h-10 w-10 rounded-full"
-          />
+      {authUser.access_token ? (
+        <InputComments
+          comment={comment}
+          handleSubmit={handleSubmit}
+          handleChangeInput={handleChangeInput}
+        />
+      ) : (
+        <div className="mt-[10px]">
+          You need Login to comment
+          <Link to="/login" className="text-sky-600">
+            {" "}
+            Login{" "}
+          </Link>
         </div>
-
-        <div className="border-b-2 p-2 w-full">
-          <form action="" className="flex gap-2">
-            <input
-              type="text"
-              className="w-full outline-0"
-              placeholder="Comment your comment here ... "
-            />
-            <button className="bg-gray-300 rounded-lg hover:bg-sky-600 hover:text-white p-2">
-              Send
-            </button>
-          </form>
-        </div>
-      </div>
+      )}
 
       {/* List comment  */}
-      <div className="flex gap-3 mt-5">
-        <div className="">
-          <img
-            src="https://images.unsplash.com/photo-1652068359232-a98e76719936?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=679&q=80"
-            alt=""
-            className="h-12 w-12 rounded-full"
-          />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-2 bg-slate-300 rounded-lg p-2">
-            <div className="">
-              <h1 className="font-bold text-[20px]">Ten nguoi binh luan</h1>
-            </div>
-            <div className="">Noi dun binh luan</div>
-          </div>
-
-          <div className="flex gap-3">
-            <div className="">Like</div>
-            <div className="">Reply</div>
-            <div className="">Time Comment</div>
-          </div>
-        </div>
+      <div className="flex-col gap-2 w-full">
+        {showComments
+          ? showComments?.map(
+              (item: IComment, index: React.Key | null | undefined) => {
+                return (
+                  <div className="" key={index}>
+                    <ShowComment blog={blog} comment={item} />
+                  </div>
+                );
+              }
+            )
+          : ""}
       </div>
     </div>
   );

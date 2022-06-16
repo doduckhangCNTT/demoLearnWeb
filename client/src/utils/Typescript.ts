@@ -71,6 +71,36 @@ export interface IBlog {
   createdAt: string;
 }
 
+export interface IComment {
+  _id?: string;
+  user: IUser;
+  blog_id: string;
+  blog_of_userID: string;
+  content: string;
+  reply_comment: IComment[];
+  reply_user?: IUser;
+  comment_root?: string;
+  createdAt: string;
+}
+export interface IReplyCommentBlog {
+  _id?: string;
+  user: IUser;
+  blog_id: string;
+  blog_of_userID: string;
+  content: string;
+  reply_comment: IComment[];
+  reply_user?: IUser;
+  comment_root?: string;
+  createdAt: string;
+}
+
+export interface ICommentBlog {
+  _id: string;
+  userComment: IUser;
+  comments: IComment[];
+  count: number;
+}
+
 export interface IBookMarkBlogUser extends IBlog {
   id_blog?: string;
   userSaved?: string | IUser;
@@ -103,4 +133,11 @@ export interface IDeleteBlog {
 }
 export interface IDeleteSaveBlog {
   _id: string;
+}
+export interface IDeleteCommentBlog {
+  _id: string;
+}
+export interface IUpdateCommentBlog {
+  _id: string;
+  body: string;
 }

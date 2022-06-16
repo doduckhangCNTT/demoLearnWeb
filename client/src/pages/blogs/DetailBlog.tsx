@@ -109,7 +109,7 @@ const DetailBlog = () => {
             </div>
 
             <div className="m-10">
-              <Comments />
+              <Comments blog={blog} />
             </div>
           </div>
         </div>

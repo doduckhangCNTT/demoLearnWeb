@@ -64,9 +64,9 @@ const Blogs = () => {
 
   const [listBlogs, setListBlogs] = useState<IBlog[]>([]);
 
-  console.log({ limit, qualityStart });
-  console.log("ListBlogs: ", listBlogs);
-  console.log("Blogs: ", blogs);
+  // console.log({ limit, qualityStart });
+  // console.log("ListBlogs: ", listBlogs);
+  // console.log("Blogs: ", blogs);
 
   const { BtnRender } = useInfinityQuery({
     limit,
@@ -77,7 +77,7 @@ const Blogs = () => {
   });
 
   useEffect(() => {
-    console.log("Value");
+    // console.log("Value");
     if (blogs && listBlogs.length < blogs?.length) {
       blogs?.slice(qualityStart, limit).forEach((blog) => {
         const res = listBlogs?.find((item) => item._id === blog._id);

@@ -24,6 +24,27 @@ export interface INewUser {
   password: string;
 }
 
+export interface IComment extends Document {
+  user: string;
+  blog_id: string;
+  blog_user_id: string;
+  content: string;
+  replyCM: string[];
+  reply_user: string;
+  comment_root: string;
+  _doc: object;
+}
+export interface IReplyCommentBlog extends Document {
+  user: string;
+  blog_id: string;
+  blog_user_id: string;
+  content: string;
+  replyCM: string[];
+  reply_user: string;
+  rootComment_answeredId: string;
+  _doc: object;
+}
+
 export interface IBlog {
   _id?: string;
   user: string | IUser;

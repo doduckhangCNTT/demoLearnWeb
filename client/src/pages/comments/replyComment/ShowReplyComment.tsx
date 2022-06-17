@@ -1,32 +1,40 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import CommentBlogAction from "../../redux/action/commentBlogAction";
-import replyCommentsBlogAction from "../../redux/action/replyCommentAction/replyCommentBlogAction";
-import { authSelector } from "../../redux/selector/selectors";
+import CommentBlogAction from "../../../redux/action/commentBlogAction";
+import ReplyCommentsBlogAction from "../../../redux/action/replyCommentAction/replyCommentBlogAction";
+import {
+  authSelector,
+  commentBlogSelector,
+} from "../../../redux/selector/selectors";
 import {
   FormSubmit,
   IBlog,
   IComment,
   InputChangedEvent,
+  IReplyCommentBlog,
   IUser,
-} from "../../utils/Typescript";
-import InputReplyComment from "./replyComment/InputReplyComment";
+} from "../../../utils/Typescript";
+import replyCommentsBlogAction from "../../../redux/action/replyCommentAction/replyCommentBlogAction";
+import InputReplyComment from "./InputReplyComment";
+import replyCommentBlogAction from "../../../redux/action/replyCommentAction/replyCommentBlogAction";
+
 interface IProps {
-  comment: IComment;
+  comment: IReplyCommentBlog;
   blog?: IBlog;
 }
 
-const ShowComment: React.FC<IProps> = ({ blog, comment }) => {
-  const { authUser } = useSelector(authSelector);
-  const [checkEdit, setCheckEdit] = useState(false);
-  const [onReply, setOnReply] = useState(false);
-  const dispatch = useDispatch();
-
+const ShowReplyComment: React.FC<IProps> = ({ blog, comment }) => {
   const initialState = {
     text: "",
     bodyUpdate: "",
   };
   const [commentBody, setCommentBody] = useState(initialState);
+  const [checkEdit, setCheckEdit] = useState(false);
+  const [onReply, setOnReply] = useState(false);
+
+  const { authUser } = useSelector(authSelector);
+  const { commentsBlog } = useSelector(commentBlogSelector);
+  const dispatch = useDispatch();
 
   const handleChangeInput = (e: InputChangedEvent) => {
     const { name, value } = e.target;
@@ -36,26 +44,50 @@ const ShowComment: React.FC<IProps> = ({ blog, comment }) => {
   const handleSaveCommentBlog = () => {
     if (!authUser.access_token || !blog) return;
     const body = { ...comment, content: commentBody.bodyUpdate.trim() };
-    CommentBlogAction.updateCommentBlog(body, authUser.access_token, dispatch);
-
-    // setCommentBody({ ...commentBody, text: body.content });
+    replyCommentBlogAction.updateReplyCommentBlog(
+      body,
+      authUser.access_token,
+      dispatch
+    );
 
     setCheckEdit(false);
   };
 
-  const handleUpdateCommentBlog = () => {
+  const handleUpdateReplyCommentBlog = () => {
     if (!authUser.access_token) return;
     setCheckEdit(true);
     setCommentBody({ ...commentBody, bodyUpdate: comment.content });
   };
 
-  const handleDeleteCommentBlog = () => {
-    if (!authUser.access_token) return;
-    CommentBlogAction.deleteCommentBlog(
-      comment,
-      authUser.access_token,
-      dispatch
-    );
+  const handleDeleteReplyCommentBlog = () => {
+    const solution = async () => {
+      if (!authUser.access_token || !blog) return;
+      console.log("Comment id: ", comment?._id);
+      const commentRoot = (commentsBlog as any).comments.find(
+        (item: { _id: any }) => item._id === comment.rootComment_answeredId
+      );
+      console.log("Comment: ", commentRoot);
+
+      const value = commentRoot?.reply_comment?.map((item: any) => item);
+
+      console.log("Value: ", value);
+
+      const replyComment = commentRoot?.reply_comment?.filter(
+        (item: string) => item !== comment?._id
+      );
+
+      console.log("ReplyComment: ", replyComment);
+
+      await replyCommentBlogAction.deleteReplyCommentBlog(
+        { comment: comment, replyComment: replyComment },
+        authUser.access_token,
+        dispatch
+      );
+
+      CommentBlogAction.getCommentsBlog(blog, dispatch);
+    };
+
+    solution();
   };
 
   const handleSubmit = (e: FormSubmit) => {
@@ -74,7 +106,7 @@ const ShowComment: React.FC<IProps> = ({ blog, comment }) => {
         createdAt: new Date().toISOString(),
       };
 
-      await replyCommentsBlogAction.createCommentBlog(
+      await ReplyCommentsBlogAction.createCommentBlog(
         data,
         authUser.access_token,
         dispatch
@@ -153,7 +185,7 @@ const ShowComment: React.FC<IProps> = ({ blog, comment }) => {
                 </button>
               ) : (
                 <button
-                  onClick={handleUpdateCommentBlog}
+                  onClick={handleUpdateReplyCommentBlog}
                   className="border rounded hover:bg-cyan-600 hover:text-white transition p-1"
                 >
                   Update
@@ -161,7 +193,7 @@ const ShowComment: React.FC<IProps> = ({ blog, comment }) => {
               )}
 
               <button
-                onClick={handleDeleteCommentBlog}
+                onClick={handleDeleteReplyCommentBlog}
                 className="border rounded hover:bg-cyan-600 hover:text-white transition p-1"
               >
                 Delete
@@ -169,7 +201,7 @@ const ShowComment: React.FC<IProps> = ({ blog, comment }) => {
             </div>
           ) : (blog?.user as IUser)._id === authUser.user?._id ? (
             <button
-              onClick={handleDeleteCommentBlog}
+              onClick={handleDeleteReplyCommentBlog}
               className="border rounded hover:bg-cyan-600 hover:text-white transition p-1"
             >
               Delete
@@ -191,4 +223,4 @@ const ShowComment: React.FC<IProps> = ({ blog, comment }) => {
   );
 };
 
-export default ShowComment;
+export default ShowReplyComment;

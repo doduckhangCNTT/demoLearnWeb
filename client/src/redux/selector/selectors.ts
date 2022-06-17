@@ -13,3 +13,4 @@ export const saveBlogUserSelector = (state: RootState) => state;
 export const saveBlogsOfUserSelector = (state: RootState) => state;
 
 export const commentBlogSelector = (state: RootState) => state;
+export const replyCommentBlogSelector = (state: RootState) => state;

@@ -99,6 +99,29 @@ const commentBlogCtrl = {
     }
   },
 
+  deleteCommentRootBlog: async (req: IReqAuth, res: Response) => {
+    try {
+      console.log({ body: req.body });
+      console.log({ id: req.params.id });
+      const comment = await CommentBlog.findOneAndUpdate(
+        {
+          _id: req.params.id,
+        },
+        { reply_comment: req.body?.replyComment }
+      );
+
+      if (!comment) {
+        return res
+          .status(400)
+          .json({ success: false, msg: "ReplyComment not found" });
+      }
+
+      res.json(comment);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   deleteCommentBlog: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
       return res.status(400).json({ msg: "Invalid Authentication" });

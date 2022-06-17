@@ -1,6 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { IReplyCommentBlog } from "../../../utils/Typescript";
 import {
+  IDeleteCommentBlogType,
+  IUpdateCommentBlogType,
+} from "../../types/blogType";
+import {
   IGetReplyCommentBlogType,
   IReplyCommentBlogType,
 } from "../../types/replyCommentType";
@@ -12,14 +16,15 @@ export const replyCommentsBlogSlice = createSlice({
   initialState,
   reducers: {
     createComment: (state, action: IReplyCommentBlogType) => {
-      if (!(state as any)?.comments) {
+      console.log("Action: ", action.payload);
+      if (!(state as any)?.replyComments) {
         return;
       }
 
       return {
         ...state,
-        comments: [action.payload, ...(state as any)?.comments],
-        count: (state as any).comments.length + 1,
+        replyComments: [action.payload, ...(state as any)?.replyComments],
+        count: (state as any).replyComments.length + 1,
       };
     },
 
@@ -27,29 +32,31 @@ export const replyCommentsBlogSlice = createSlice({
       return action.payload;
     },
 
-    // updateComment: (state, action: IUpdateCommentBlogType) => {
-    //   const result = (state as any).comments.map((item: { _id: string }) => {
-    //     return action.payload._id === item._id
-    //       ? { ...item, content: action.payload.body }
-    //       : item;
-    //   });
+    updateComment: (state, action: IUpdateCommentBlogType) => {
+      const result = (state as any).replyComments.map(
+        (item: { _id: string }) => {
+          return action.payload._id === item._id
+            ? { ...item, content: action.payload.body }
+            : item;
+        }
+      );
 
-    //   return {
-    //     ...state,
-    //     comments: result,
-    //   };
-    // },
+      return {
+        ...state,
+        replyComments: result,
+      };
+    },
 
-    // deleteComment: (state, action: IDeleteCommentBlogType) => {
-    //   const comments = (state as any).comments.filter(
-    //     (item: { _id: string }) => action.payload._id !== item._id
-    //   );
+    deleteComment: (state, action: IDeleteCommentBlogType) => {
+      const replyComments = (state as any).replyComments.filter(
+        (item: { _id: string }) => action.payload._id !== item._id
+      );
 
-    //   return {
-    //     ...state,
-    //     comments: comments,
-    //     count: comments.length,
-    //   };
-    // },
+      return {
+        ...state,
+        replyComments: replyComments,
+        count: replyComments.length,
+      };
+    },
   },
 });

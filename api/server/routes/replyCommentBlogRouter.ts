@@ -4,7 +4,10 @@ import authUser from "../middleware/auth/authUser";
 
 const router = express.Router();
 
-router.get("/reply/comment", replyCommentsBlogCtrl.getCommentsReplyBlog);
+router.get(
+  "/reply/comment/blog/:id",
+  replyCommentsBlogCtrl.getCommentsReplyBlog
+);
 
 router.post(
   "/reply/comment",
@@ -16,5 +19,9 @@ router
   .route("/reply/comment/:id")
   .patch(authUser, replyCommentsBlogCtrl.updateCommentReplyBlog)
   .delete(authUser, replyCommentsBlogCtrl.deleteCommentReplyBlog);
+
+router
+  .route("/reply/comment/root/:id")
+  .patch(authUser, replyCommentsBlogCtrl.deleteCommentRootBlog);
 
 export default router;

@@ -13,4 +13,7 @@ router
   .patch(authUser, commentBlogCtrl.updateCommentBlog)
   .delete(authUser, commentBlogCtrl.deleteCommentBlog);
 
+// router
+//   .route("/comment/root/:id")
+//   .patch(authUser, commentBlogCtrl.deleteCommentRootBlog);
 export default router;

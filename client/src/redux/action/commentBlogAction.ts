@@ -32,10 +32,11 @@ const CommentBlogAction = {
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
-      const res = await getApi(`/comment/blog/${blog._id}`);
+      const res = await getApi(`comment/blog/${blog._id}`);
       const comments = res.data.find(
         (item: { _id: string | undefined }) => item._id === blog._id
       );
+
       if (!comments) dispatch(commentBlogSlice.actions.getComments([]));
       else {
         dispatch(commentBlogSlice.actions.getComments(comments));

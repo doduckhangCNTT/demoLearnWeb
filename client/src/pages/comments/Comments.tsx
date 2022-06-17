@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import CommentBlogAction from "../../redux/action/commentBlogAction";
+import ReplyCommentsBlogAction from "../../redux/action/replyCommentAction/replyCommentBlogAction";
 import {
   authSelector,
   commentBlogSelector,
+  replyCommentBlogSelector,
 } from "../../redux/selector/selectors";
 import {
   FormSubmit,
@@ -14,6 +16,7 @@ import {
   IUser,
 } from "../../utils/Typescript";
 import InputComments from "./InputComments";
+import ShowReplyComment from "./replyComment/ShowReplyComment";
 import ShowComment from "./ShowComment";
 
 interface IProps {
@@ -26,6 +29,7 @@ const Comments: React.FC<IProps> = ({ blog }) => {
   };
   const [comment, setComment] = useState(initialState);
   const { commentsBlog } = useSelector(commentBlogSelector);
+  const { replyCommentsBlog } = useSelector(replyCommentBlogSelector);
   const { authUser } = useSelector(authSelector);
 
   console.log("Comment Blog: ", commentsBlog);
@@ -36,6 +40,7 @@ const Comments: React.FC<IProps> = ({ blog }) => {
   useEffect(() => {
     if (!blog) return;
     CommentBlogAction.getCommentsBlog(blog, dispatch);
+    ReplyCommentsBlogAction.getReplyCommentsBlog(blog, dispatch);
   }, [blog, dispatch]);
 
   const handleChangeInput = (e: InputChangedEvent) => {
@@ -80,11 +85,13 @@ const Comments: React.FC<IProps> = ({ blog }) => {
 
       {/* Comment your comment */}
       {authUser.access_token ? (
-        <InputComments
-          comment={comment}
-          handleSubmit={handleSubmit}
-          handleChangeInput={handleChangeInput}
-        />
+        <div className="mb-5">
+          <InputComments
+            comment={comment}
+            handleSubmit={handleSubmit}
+            handleChangeInput={handleChangeInput}
+          />
+        </div>
       ) : (
         <div className="mt-[10px]">
           You need Login to comment
@@ -96,13 +103,47 @@ const Comments: React.FC<IProps> = ({ blog }) => {
       )}
 
       {/* List comment  */}
-      <div className="flex-col gap-2 w-full">
+      <div className="flex-col gap-2 w-full ">
         {showComments
           ? showComments?.map(
               (item: IComment, index: React.Key | null | undefined) => {
                 return (
                   <div className="" key={index}>
                     <ShowComment blog={blog} comment={item} />
+                    <div>
+                      {item.reply_comment
+                        ? item.reply_comment?.map((i, index) => {
+                            const checkReply = (
+                              replyCommentsBlog as any
+                            ).replyComments?.find(
+                              (replyComment: { _id: IComment }) =>
+                                replyComment._id === i
+                            );
+
+                            if (checkReply) {
+                              return (
+                                <div
+                                  key={index}
+                                  className="ml-[50px] relative mt-0 "
+                                >
+                                  <small className="absolute top-0 right-0 p-1">
+                                    {checkReply.user.name} to{" "}
+                                    <span className="text-sky-600 underline ">
+                                      {checkReply.reply_user.name}
+                                    </span>
+                                  </small>
+                                  <ShowReplyComment
+                                    blog={blog}
+                                    comment={checkReply}
+                                  />
+                                </div>
+                              );
+                            } else {
+                              return [];
+                            }
+                          })
+                        : " "}
+                    </div>
                   </div>
                 );
               }

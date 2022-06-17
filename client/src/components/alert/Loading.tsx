@@ -1,6 +1,6 @@
 const Loading = () => {
   return (
-    <div className="absolute z-[1000] w-full flex justify-center items-center text-center min-h-screen opacity-[0.5] bg-slate-600">
+    <div className="absolute z-[1000] h-full w-full flex justify-center items-center text-center min-h-screen opacity-[0.5] bg-slate-600">
       <svg
         role="status"
         className="w-10 h-10 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600 right-0 left-0"

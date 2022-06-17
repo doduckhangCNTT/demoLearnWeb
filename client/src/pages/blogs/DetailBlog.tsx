@@ -44,7 +44,7 @@ const DetailBlog = () => {
   }, [blog?._id, saveBlog]);
 
   return (
-    <div className="h-full">
+    <div className="h-full relative">
       <div className="flex gap-5 w-4/5 mx-auto">
         <div className="w-[20%] fixed p-3 top-1/5">
           <div className=" shadow-lg rounded w-2/3 p-3">
@@ -92,13 +92,14 @@ const DetailBlog = () => {
           })}
         </div>
       </div>
+
       {toggle ? (
         <div className="flex absolute transition top-0 right-0 bottom-0 h-full w-full">
           <div
             onClick={() => setToggle(!toggle)}
             className="opacity-50 w-[55%] cursor-pointer bg-slate-300 "
           ></div>
-          <div className=" w-[45%] bg-white shadow-md ">
+          <div className=" w-[45%] bg-white shadow-md h-full overflow-auto touch-pan-y">
             <div className="relative">
               <button
                 onClick={() => setToggle(!toggle)}

@@ -90,7 +90,7 @@ export interface IReplyCommentBlog {
   content: string;
   reply_comment: IComment[];
   reply_user?: IUser;
-  comment_root?: string;
+  rootComment_answeredId?: string;
   createdAt: string;
 }
 

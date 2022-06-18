@@ -62,21 +62,15 @@ const ShowReplyComment: React.FC<IProps> = ({ blog, comment }) => {
   const handleDeleteReplyCommentBlog = () => {
     const solution = async () => {
       if (!authUser.access_token || !blog) return;
-      console.log("Comment id: ", comment?._id);
+
+      // Tìm kiếm comment gốc chứa id của reply comment
       const commentRoot = (commentsBlog as any).comments.find(
         (item: { _id: any }) => item._id === comment.rootComment_answeredId
       );
-      console.log("Comment: ", commentRoot);
-
-      const value = commentRoot?.reply_comment?.map((item: any) => item);
-
-      console.log("Value: ", value);
-
+        // Lọc ra các id reply mà ko phải reply muốn xóa
       const replyComment = commentRoot?.reply_comment?.filter(
         (item: string) => item !== comment?._id
       );
-
-      console.log("ReplyComment: ", replyComment);
 
       await replyCommentBlogAction.deleteReplyCommentBlog(
         { comment: comment, replyComment: replyComment },
@@ -84,7 +78,8 @@ const ShowReplyComment: React.FC<IProps> = ({ blog, comment }) => {
         dispatch
       );
 
-      CommentBlogAction.getCommentsBlog(blog, dispatch);
+      await CommentBlogAction.getCommentsBlog(blog, dispatch);
+      ReplyCommentsBlogAction.getReplyCommentsBlog(blog, dispatch);
     };
 
     solution();
@@ -102,6 +97,8 @@ const ShowReplyComment: React.FC<IProps> = ({ blog, comment }) => {
         blog_of_userID: (blog.user as IUser)._id,
         reply_comment: [],
         reply_user: comment.user,
+        // rootComment_answeredId: comment._id,
+        originCommentHightestId: comment.rootComment_answeredId,
         rootComment_answeredId: comment._id,
         createdAt: new Date().toISOString(),
       };
@@ -126,7 +123,7 @@ const ShowReplyComment: React.FC<IProps> = ({ blog, comment }) => {
         <img
           src={comment?.user.avatar}
           alt=""
-          className="h-12 w-12 rounded-full object-cover"
+          className="h-10 w-10 rounded-full object-cover"
         />
       </div>
 
@@ -159,19 +156,21 @@ const ShowReplyComment: React.FC<IProps> = ({ blog, comment }) => {
         </div>
 
         <div className="flex justify-between">
-          <div className="flex gap-3">
-            <div className="hover:text-sky-600 transition cursor-pointer">
-              Like
+          <div className="flex gap-1">
+            <div className="flex gap-3">
+              <div className="hover:text-sky-600 transition cursor-pointer">
+                Like
+              </div>
+              <div
+                onClick={() => setOnReply(!onReply)}
+                className="hover:text-sky-600 transition cursor-pointer"
+              >
+                Reply
+              </div>
             </div>
-            <div
-              onClick={() => setOnReply(!onReply)}
-              className="hover:text-sky-600 transition cursor-pointer"
-            >
-              Reply
-            </div>
-            <div className="">
+            <small className="">
               {new Date(comment.createdAt).toLocaleString()}
-            </div>
+            </small>
           </div>
 
           {comment.user._id === authUser.user?._id ? (

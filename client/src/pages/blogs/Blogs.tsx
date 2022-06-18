@@ -79,7 +79,7 @@ const Blogs = () => {
   useEffect(() => {
     // console.log("Value");
     if (blogs && listBlogs.length < blogs?.length) {
-      blogs?.slice(qualityStart, limit).forEach((blog) => {
+      blogs?.slice(qualityStart, limit).forEach((blog: IBlog) => {
         const res = listBlogs?.find((item) => item._id === blog._id);
         if (!res) {
           setListBlogs((prev) => [...prev, blog]);

@@ -16,6 +16,10 @@ const replyCommentsBlogSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "replyCommentsBlog",
     },
+    originCommentHightestId: {
+      type: mongoose.Types.ObjectId,
+      ref: "replyCommentsBlog",
+    },
   },
   { timestamps: true }
 );

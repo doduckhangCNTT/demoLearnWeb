@@ -12,6 +12,7 @@ const replyCommentsBlogCtrl = {
         blog_id,
         blog_of_userID,
         rootComment_answeredId,
+        originCommentHightestId,
         reply_user,
       } = req.body;
 
@@ -21,13 +22,23 @@ const replyCommentsBlogCtrl = {
         blog_id,
         blog_of_userID,
 
+        originCommentHightestId,
         rootComment_answeredId,
         reply_user: reply_user._id,
       });
 
-      await CommentBlogModel.findOneAndUpdate(
+      await ReplyCommentBlogModel.findOneAndUpdate(
         {
           _id: rootComment_answeredId,
+        },
+        {
+          $push: { reply_comment: newReplyComment._id },
+        }
+      );
+
+      await CommentBlogModel.findOneAndUpdate(
+        {
+          _id: originCommentHightestId || rootComment_answeredId,
         },
         {
           $push: { reply_comment: newReplyComment._id },
@@ -135,6 +146,27 @@ const replyCommentsBlogCtrl = {
           .json({ success: false, msg: "ReplyComment not found" });
       }
 
+      // Kiểm tra xem reply có reply khác trả lời ko
+
+      if ((replyComment as any).reply_comment) {
+        await ReplyCommentBlogModel.deleteMany({
+          _id: { $in: (replyComment as any).reply_comment },
+        });
+
+        // Chưa hoàn thành việc xóa id của reply comment trên reply_comment của comment gốc
+        await CommentBlogModel.findOneAndUpdate(
+          { _id: (replyComment as any)?.rootComment_answeredId },
+          {
+            $pull: {
+              reply_comment: { $in: (replyComment as any)?.reply_comment },
+            },
+          }
+        );
+
+        console.log("Type : ", typeof (replyComment as any)?.reply_comment[0]);
+        console.log("Check : ", (replyComment as any)?.reply_comment[0]);
+      }
+
       res.json(replyComment);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -151,6 +183,8 @@ const replyCommentsBlogCtrl = {
         },
         { reply_comment: req.body?.replyComment }
       );
+
+      if (!comment) return res.status(400).json({ msg: "Comment not found" });
 
       if (!comment) {
         return res

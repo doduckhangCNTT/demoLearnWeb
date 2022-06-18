@@ -13,6 +13,7 @@ import {
   IBlog,
   IComment,
   InputChangedEvent,
+  IReplyCommentBlog,
   IUser,
 } from "../../utils/Typescript";
 import InputComments from "./InputComments";
@@ -110,6 +111,7 @@ const Comments: React.FC<IProps> = ({ blog }) => {
                 return (
                   <div className="" key={index}>
                     <ShowComment blog={blog} comment={item} />
+
                     <div>
                       {item.reply_comment
                         ? item.reply_comment?.map((i, index) => {

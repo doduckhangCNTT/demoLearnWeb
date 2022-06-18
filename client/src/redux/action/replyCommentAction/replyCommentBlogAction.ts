@@ -86,23 +86,22 @@ const ReplyCommentsBlogAction = {
     token: string,
     dispatch: AppDispatch
   ) => {
-    console.log("Data: ", data);
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
-
+      // Xóa reply hiện tại
       const res = await deleteApi(
         `reply/comment/${data.comment?._id}`,
         access_token
       );
-      const response = await patchApi(
+      // Loại bỏ id reply trong tin nhắn gốc cao nhất
+      await patchApi(
         `reply/comment/root/${data.comment.rootComment_answeredId}`,
         { replyComment: data.replyComment },
         access_token
       );
-      console.log("Res: ", res);
-      console.log("Response: ", response);
+
       dispatch(
         replyCommentsBlogSlice.actions.deleteComment({
           _id: res.data?._id,

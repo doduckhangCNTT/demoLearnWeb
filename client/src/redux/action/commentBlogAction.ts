@@ -1,8 +1,10 @@
+import { useRef } from "react";
 import { checkTokenExp } from "../../utils/CheckTokenExp";
 import { deleteApi, getApi, patchApi, postApi } from "../../utils/FetchData";
 import { AppDispatch, IBlog, IComment } from "../../utils/Typescript";
 import { alertSlice } from "../reducers/alertSlice";
 import { commentBlogSlice } from "../reducers/commentBlogSlice";
+// import { socketSlice } from "../reducers/socketSlice";
 import { IAuth } from "../types/authType";
 
 const CommentBlogAction = {
@@ -14,6 +16,7 @@ const CommentBlogAction = {
     if (!authUser.access_token) return;
     const result = await checkTokenExp(authUser.access_token, dispatch);
     const access_token = result ? result : authUser.access_token;
+
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
@@ -86,6 +89,16 @@ const CommentBlogAction = {
 
       const res = await deleteApi(`comment/${data._id}`, access_token);
       dispatch(commentBlogSlice.actions.deleteComment(res.data));
+
+      dispatch(alertSlice.actions.alertAdd({ loading: false }));
+    } catch (error: any) {
+      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
+    }
+  },
+
+  socketComment: async (data: any, dispatch: AppDispatch) => {
+    try {
+      dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {

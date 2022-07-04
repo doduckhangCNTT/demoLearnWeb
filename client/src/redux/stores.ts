@@ -10,6 +10,8 @@ import { draftBlogSlice } from "./reducers/draftBlogSlice";
 import { saveBlogSlice } from "./reducers/saveBlogSlice";
 import { commentBlogSlice } from "./reducers/commentBlogSlice";
 import { replyCommentsBlogSlice } from "./reducers/replyCommentSlice/replyCommentBlogSlice";
+import { socketSlice } from "./reducers/socketSlice";
+// import socketReducer from "./reducers/socketSlice";
 
 const store = configureStore({
   reducer: {
@@ -27,7 +29,13 @@ const store = configureStore({
     commentsBlog: commentBlogSlice.reducer,
 
     replyCommentsBlog: replyCommentsBlogSlice.reducer,
+    socket: socketSlice.reducer,
   },
+
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 export default store;

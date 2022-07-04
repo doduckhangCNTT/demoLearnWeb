@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { saveBlogUserSelector } from "../../redux/selector/selectors";
+import {
+  saveBlogUserSelector,
+  socketSelector,
+} from "../../redux/selector/selectors";
 import { getApi } from "../../utils/FetchData";
 import { IBlog, IBookMarkBlogUser, IUser } from "../../utils/Typescript";
 import Comments from "../comments/Comments";
@@ -16,6 +19,8 @@ const DetailBlog = () => {
   const [blog, setBlog] = useState<IBlog>();
   const [blogsCategory, setBlogsCategory] = useState<IBlog[]>([]);
   const [bookMarkBlog, setBookMarkBlog] = useState<IBookMarkBlogUser>();
+
+  const { socket } = useSelector(socketSelector);
 
   useEffect(() => {
     const getBlog = async () => {
@@ -42,6 +47,17 @@ const DetailBlog = () => {
     );
     setBookMarkBlog(res);
   }, [blog?._id, saveBlog]);
+
+  // Join Room
+  // useEffect(() => {
+  //   if (!id || !socket) return;
+  //   socket && socket.emit("joinRoom", id);
+
+  //   console.log("RUN");
+  //   return () => {
+  //     socket.emit("outRoom");
+  //   };
+  // }, [socket, id]);
 
   return (
     <div className="h-full relative">

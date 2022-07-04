@@ -8,6 +8,10 @@ import morgan from "morgan";
 import routes from "./routes";
 const fileUpload = require("express-fileupload");
 
+import { Server, Socket } from "socket.io";
+import { createServer } from "http";
+import { SocketServer } from "./config/socket";
+
 // Middleware
 const app = express();
 app.use(express.json());
@@ -21,14 +25,28 @@ app.use(
   })
 );
 
-// Routes
+// ---------------- Setup Socket ----------------------
+const http = createServer(app);
+export const io = new Server(http, {
+  cors: { origin: "http://localhost:3000" },
+});
+
+io.on("connection", (socket: Socket) => {
+  console.log(socket.id + " connected");
+  SocketServer(socket);
+});
+
+// ------------------ Routes --------------------------
 app.use("/api", routes);
 
-// Database
+// ------------------ Database ------------------------
 import "./config/database";
 
-// Server Listening
+// ------------------ Config Socket -------------------
+// import { SocketServer } from "./config/socket";
+
+// ------------------ Server Listening ----------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+http.listen(PORT, () => {
   console.log("Server listening on port ", PORT);
 });

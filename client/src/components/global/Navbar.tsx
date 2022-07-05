@@ -18,7 +18,7 @@ const Navbar = () => {
           />
         </svg>
       ),
-      path: "/add_blogs",
+      path: "/create_blog",
       name: "Add Blogs",
     },
     {

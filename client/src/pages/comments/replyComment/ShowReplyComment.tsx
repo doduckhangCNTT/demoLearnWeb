@@ -67,7 +67,7 @@ const ShowReplyComment: React.FC<IProps> = ({ blog, comment }) => {
       const commentRoot = (commentsBlog as any).comments.find(
         (item: { _id: any }) => item._id === comment.rootComment_answeredId
       );
-        // Lọc ra các id reply mà ko phải reply muốn xóa
+      // Lọc ra các id reply mà ko phải reply muốn xóa
       const replyComment = commentRoot?.reply_comment?.filter(
         (item: string) => item !== comment?._id
       );
@@ -109,8 +109,8 @@ const ShowReplyComment: React.FC<IProps> = ({ blog, comment }) => {
         dispatch
       );
 
-      await replyCommentsBlogAction.getReplyCommentsBlog(blog, dispatch);
-      CommentBlogAction.getCommentsBlog(blog, dispatch);
+      // await replyCommentsBlogAction.getReplyCommentsBlog(blog, dispatch);
+      // CommentBlogAction.getCommentsBlog(blog, dispatch);
     };
 
     solution();

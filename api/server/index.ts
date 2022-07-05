@@ -31,19 +31,13 @@ export const io = new Server(http, {
   cors: { origin: "http://localhost:3000" },
 });
 
-io.on("connection", (socket: Socket) => {
-  console.log(socket.id + " connected");
-  SocketServer(socket);
-});
+io.on("connection", (socket: Socket) => SocketServer(socket));
 
 // ------------------ Routes --------------------------
 app.use("/api", routes);
 
 // ------------------ Database ------------------------
 import "./config/database";
-
-// ------------------ Config Socket -------------------
-// import { SocketServer } from "./config/socket";
 
 // ------------------ Server Listening ----------------
 const PORT = process.env.PORT || 5000;

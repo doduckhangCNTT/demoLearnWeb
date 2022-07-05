@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { Socket } from "socket.io-client";
 import {
   saveBlogUserSelector,
   socketSelector,
@@ -13,14 +14,13 @@ import InfoCreator from "./InfoCreator";
 
 const DetailBlog = () => {
   const { saveBlog } = useSelector(saveBlogUserSelector);
+  const { socket } = useSelector(socketSelector);
 
   const { id } = useParams();
   const [toggle, setToggle] = useState(false);
   const [blog, setBlog] = useState<IBlog>();
   const [blogsCategory, setBlogsCategory] = useState<IBlog[]>([]);
   const [bookMarkBlog, setBookMarkBlog] = useState<IBookMarkBlogUser>();
-
-  const { socket } = useSelector(socketSelector);
 
   useEffect(() => {
     const getBlog = async () => {
@@ -48,16 +48,15 @@ const DetailBlog = () => {
     setBookMarkBlog(res);
   }, [blog?._id, saveBlog]);
 
-  // Join Room
-  // useEffect(() => {
-  //   if (!id || !socket) return;
-  //   socket && socket.emit("joinRoom", id);
+  // --------------------- Socket - JoinRoom --------------------
+  useEffect(() => {
+    if (!id || !socket) return;
+    socket && (socket.value as Socket).emit("joinRoom", id);
 
-  //   console.log("RUN");
-  //   return () => {
-  //     socket.emit("outRoom");
-  //   };
-  // }, [socket, id]);
+    return () => {
+      (socket.value as Socket).emit("outRoom", id);
+    };
+  }, [socket, id]);
 
   return (
     <div className="h-full relative">

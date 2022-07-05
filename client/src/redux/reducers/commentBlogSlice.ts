@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IComment } from "../../utils/Typescript";
+import { IComment, IDeleteCommentBlog } from "../../utils/Typescript";
 import {
   IDeleteCommentBlogType,
   IDeleteSaveBlogType,
@@ -43,9 +43,50 @@ export const commentBlogSlice = createSlice({
       };
     },
 
+    updateReplyComment: (state, action: IUpdateCommentBlogType) => {
+      const result = (state as any).comments.map(
+        (item: { _id: string; reply_comment: IComment[] }) => {
+          return action.payload._id === item._id
+            ? {
+                ...item,
+                reply_comment: [...item.reply_comment, action.payload.idReply],
+              }
+            : item;
+        }
+      );
+
+      return {
+        ...state,
+        comments: result,
+      };
+    },
+
+    deleteReplyComment: (state, action: IDeleteCommentBlogType) => {
+      const idReply = action.payload.idReply;
+
+      if (!idReply) return;
+      const result = (state as any).comments.map(
+        (comment: { _id: string; reply_comment: string[] }) => {
+          return action.payload._id === comment._id
+            ? {
+                ...comment,
+                reply_comment: comment.reply_comment.filter(
+                  (item) => item !== idReply
+                ),
+              }
+            : comment;
+        }
+      );
+
+      return {
+        ...state,
+        comments: result,
+      };
+    },
+
     deleteComment: (state, action: IDeleteCommentBlogType) => {
       const comments = (state as any).comments.filter(
-        (item: { _id: string }) => action.payload._id !== item._id
+        (item: { _id: string }) => action.payload?._id !== item._id
       );
 
       return {

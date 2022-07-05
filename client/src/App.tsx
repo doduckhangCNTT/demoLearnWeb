@@ -39,7 +39,7 @@ function App() {
       </div>
 
       <div className="flex flex-1">
-        <div className="h-full max-w-[100px] flex flex-col flex-shrink top-0">
+        <div className=" max-w-[100px] flex flex-col flex-shrink top-0">
           <Navbar />
         </div>
         <div className="w-full h-full">
@@ -47,7 +47,7 @@ function App() {
         </div>
       </div>
 
-      <div className="bottom-0 bg-black">
+      <div className="relative bottom-0 bg-black">
         <Footer />
       </div>
     </div>

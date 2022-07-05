@@ -13,7 +13,6 @@ import {
   IBlog,
   IComment,
   InputChangedEvent,
-  IReplyCommentBlog,
   IUser,
 } from "../../utils/Typescript";
 import InputComments from "./InputComments";
@@ -32,8 +31,6 @@ const Comments: React.FC<IProps> = ({ blog }) => {
   const { commentsBlog } = useSelector(commentBlogSelector);
   const { replyCommentsBlog } = useSelector(replyCommentBlogSelector);
   const { authUser } = useSelector(authSelector);
-
-  console.log("Comment Blog: ", commentsBlog);
 
   const dispatch = useDispatch();
   const [showComments, setShowComments] = useState<IComment[]>([]);

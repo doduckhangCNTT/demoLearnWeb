@@ -16,10 +16,9 @@ export const replyCommentsBlogSlice = createSlice({
   initialState,
   reducers: {
     createComment: (state, action: IReplyCommentBlogType) => {
-      console.log("Action: ", action.payload);
-      if (!(state as any)?.replyComments) {
-        return;
-      }
+      if (!(state as any)?.replyComments) return;
+
+      console.log("Action Reply: ", action.payload);
 
       return {
         ...state,

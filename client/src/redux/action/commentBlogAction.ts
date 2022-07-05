@@ -21,8 +21,8 @@ const CommentBlogAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await postApi("comment", data, access_token);
-      const result = { ...res.data.newCommentBlog, user: authUser.user };
-      dispatch(commentBlogSlice.actions.createComment(result));
+      // const result = { ...res.data.newCommentBlog, user: authUser.user };
+      // dispatch(commentBlogSlice.actions.createComment(result));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
@@ -31,7 +31,6 @@ const CommentBlogAction = {
   },
 
   getCommentsBlog: async (blog: IBlog, dispatch: AppDispatch) => {
-    console.log("Blog: ", blog);
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
@@ -56,20 +55,18 @@ const CommentBlogAction = {
     token: string,
     dispatch: AppDispatch
   ) => {
-    console.log("Data: ", data);
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await patchApi(`comment/${data._id}`, data, access_token);
-      console.log("Res: ", res);
-      dispatch(
-        commentBlogSlice.actions.updateComment({
-          _id: res.data._id,
-          body: data.content,
-        })
-      );
+      // dispatch(
+      //   commentBlogSlice.actions.updateComment({
+      //     _id: res.data._id,
+      //     body: data.content,
+      //   })
+      // );
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
@@ -88,17 +85,7 @@ const CommentBlogAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await deleteApi(`comment/${data._id}`, access_token);
-      dispatch(commentBlogSlice.actions.deleteComment(res.data));
-
-      dispatch(alertSlice.actions.alertAdd({ loading: false }));
-    } catch (error: any) {
-      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
-    }
-  },
-
-  socketComment: async (data: any, dispatch: AppDispatch) => {
-    try {
-      dispatch(alertSlice.actions.alertAdd({ loading: true }));
+      // dispatch(commentBlogSlice.actions.deleteComment(res.data));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {

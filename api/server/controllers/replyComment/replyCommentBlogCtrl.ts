@@ -3,6 +3,7 @@ import { IReqAuth } from "../../config/interface";
 import ReplyCommentBlogModel from "../../models/replyCommentBlogModel";
 import CommentBlogModel from "../../models/commentBlogModel";
 import mongoose from "mongoose";
+import { io } from "../../index";
 
 const replyCommentsBlogCtrl = {
   createCommentReplyBlog: async (req: IReqAuth, res: Response) => {
@@ -16,6 +17,7 @@ const replyCommentsBlogCtrl = {
         reply_user,
       } = req.body;
 
+      console.log("Reply user: ", reply_user);
       const newReplyComment = new ReplyCommentBlogModel({
         user: req.user?._id,
         content,
@@ -27,6 +29,8 @@ const replyCommentsBlogCtrl = {
         reply_user: reply_user._id,
       });
 
+      console.log("New Reply Comment: ", newReplyComment);
+
       await ReplyCommentBlogModel.findOneAndUpdate(
         {
           _id: rootComment_answeredId,
@@ -36,7 +40,7 @@ const replyCommentsBlogCtrl = {
         }
       );
 
-      await CommentBlogModel.findOneAndUpdate(
+      const comment = await CommentBlogModel.findOneAndUpdate(
         {
           _id: originCommentHightestId || rootComment_answeredId,
         },
@@ -44,6 +48,15 @@ const replyCommentsBlogCtrl = {
           $push: { reply_comment: newReplyComment._id },
         }
       );
+
+      const data = {
+        ...newReplyComment._doc,
+        user: req.user,
+        idComment: comment?._id,
+        createAt: new Date().toISOString(),
+      };
+
+      io.to(`${blog_id}`).emit("replyCommentBlog", data);
 
       await newReplyComment.save();
       res.json(newReplyComment);
@@ -122,12 +135,18 @@ const replyCommentsBlogCtrl = {
         {
           _id: req.params.id,
         },
-        { content: req.body?.content }
+        { content: req.body?.content },
+        { new: true }
       );
 
       if (!replyComment)
         return res.status(400).json({ msg: "ReplyComment not found" });
 
+      // console.log("update reply: ", replyComment);
+      io.to(`${replyComment.blog_id}`).emit(
+        "updateReplyCommentBlog",
+        replyComment
+      );
       res.json(replyComment);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -163,9 +182,15 @@ const replyCommentsBlogCtrl = {
           }
         );
 
-        console.log("Type : ", typeof (replyComment as any)?.reply_comment[0]);
-        console.log("Check : ", (replyComment as any)?.reply_comment[0]);
+        // console.log("Type : ", typeof (replyComment as any)?.reply_comment[0]);
+        // console.log("Check : ", (replyComment as any)?.reply_comment[0]);
       }
+
+      const data = {
+        ...replyComment._doc,
+        idComment: replyComment.rootComment_answeredId,
+      };
+      io.to(`${replyComment.blog_id}`).emit("deleteReplyCommentBlog", data);
 
       res.json(replyComment);
     } catch (error: any) {
@@ -175,8 +200,6 @@ const replyCommentsBlogCtrl = {
 
   deleteCommentRootBlog: async (req: IReqAuth, res: Response) => {
     try {
-      console.log({ body: req.body });
-      console.log({ id: req.params.id });
       const comment = await CommentBlogModel.findOneAndUpdate(
         {
           _id: req.params.id,

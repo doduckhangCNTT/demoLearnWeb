@@ -3,14 +3,12 @@ import mongoose from "mongoose";
 import { IReqAuth } from "../config/interface";
 import ReplyCommentBlogModel from "../models/replyCommentBlogModel";
 import CommentBlog from "../models/commentBlogModel";
+import { io } from "../index";
 
 const commentBlogCtrl = {
   createCommentBlog: async (req: IReqAuth, res: Response) => {
     try {
       const { content, blog_id, blog_of_userID } = req.body;
-
-      console.log({ content, blog_id, blog_of_userID });
-
       const newCommentBlog = new CommentBlog({
         user: req.user?._id,
         content,
@@ -18,8 +16,15 @@ const commentBlogCtrl = {
         blog_of_userID,
       });
 
-      await newCommentBlog.save();
+      const data = {
+        ...newCommentBlog._doc,
+        user: req.user,
+        createdAt: new Date().toISOString(),
+      };
 
+      io.to(`${blog_id}`).emit("createCommentBlog", data);
+
+      await newCommentBlog.save();
       res.json({
         success: true,
         msg: "Created comment Blog successfully",
@@ -54,7 +59,7 @@ const commentBlogCtrl = {
                 },
               },
               { $unwind: "$user" },
-
+              { $sort: { createdAt: -1 } },
               {
                 $group: {
                   _id: "$blog_id",
@@ -89,10 +94,12 @@ const commentBlogCtrl = {
           _id: req.params.id,
           user: req.user?.id,
         },
-        { content: req.body?.content }
+        { content: req.body?.content },
+        { new: true }
       );
-
       if (!comment) return res.status(400).json({ msg: "Comment not found" });
+
+      io.to(`${comment.blog_id}`).emit("updateCommentBlog", comment);
 
       res.json(comment);
     } catch (error: any) {
@@ -118,6 +125,9 @@ const commentBlogCtrl = {
           _id: { $in: (comment as any).reply_comment },
         });
       }
+
+      io.to(`${comment.blog_id}`).emit("deleteCommentBlog", comment);
+
       res.json(comment);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

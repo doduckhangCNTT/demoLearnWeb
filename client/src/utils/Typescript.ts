@@ -136,9 +136,11 @@ export interface IDeleteSaveBlog {
   _id: string;
 }
 export interface IDeleteCommentBlog {
-  _id: string;
+  _id?: string;
+  idReply?: string;
 }
 export interface IUpdateCommentBlog {
   _id: string;
   body: string;
+  idReply?: string;
 }

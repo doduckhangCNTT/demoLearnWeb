@@ -14,16 +14,14 @@ const ReplyCommentsBlogAction = {
     token: string,
     dispatch: AppDispatch
   ) => {
-    console.log("Data: ", data);
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await postApi("reply/comment", data, access_token);
-      console.log("Res: ", res);
 
-      dispatch(replyCommentsBlogSlice.actions.createComment(res.data));
+      // dispatch(replyCommentsBlogSlice.actions.createComment(res.data));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
@@ -56,7 +54,6 @@ const ReplyCommentsBlogAction = {
     token: string,
     dispatch: AppDispatch
   ) => {
-    console.log("Data: ", data);
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
     try {
@@ -68,12 +65,12 @@ const ReplyCommentsBlogAction = {
         access_token
       );
 
-      dispatch(
-        replyCommentsBlogSlice.actions.updateComment({
-          _id: res.data?._id,
-          body: data.content,
-        })
-      );
+      // dispatch(
+      //   replyCommentsBlogSlice.actions.updateComment({
+      //     _id: res.data?._id,
+      //     body: data.content,
+      //   })
+      // );
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
@@ -102,11 +99,11 @@ const ReplyCommentsBlogAction = {
         access_token
       );
 
-      dispatch(
-        replyCommentsBlogSlice.actions.deleteComment({
-          _id: res.data?._id,
-        })
-      );
+      // dispatch(
+      //   replyCommentsBlogSlice.actions.deleteComment({
+      //     _id: res.data?._id,
+      //   })
+      // );
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {

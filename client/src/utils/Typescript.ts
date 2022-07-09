@@ -20,6 +20,7 @@ export interface IUserRegister extends IUserLogin {
 }
 
 export interface IUser extends IUserLogin {
+  text?: string;
   avatar: string;
   createdAt: string;
   name: string;
@@ -143,4 +144,24 @@ export interface IUpdateCommentBlog {
   _id: string;
   body: string;
   idReply?: string;
+}
+
+export interface IMessage {
+  createdAt?: string;
+  sender: IUser;
+  recipient: string;
+  text: string;
+  media?: any[];
+  _id?: string;
+}
+
+export interface IConversation {
+  recipients: IUser[];
+  text: string;
+  media: any[];
+}
+
+export interface INewArrUserChatted extends IUser {
+  text: string;
+  media: any[];
 }

@@ -6,6 +6,7 @@ import blogRouter from "./blogRouter";
 import saveBlogRouter from "./saveBlogRouter";
 import commentBlogRouter from "./commentBlogRouter";
 import replyCommentBlogRouter from "./replyCommentBlogRouter";
+import messageRouter from "./messageRouter";
 
 const routes = [
   authRouter,
@@ -17,6 +18,8 @@ const routes = [
 
   commentBlogRouter,
   replyCommentBlogRouter,
+
+  messageRouter,
 ];
 
 export default routes;

@@ -42,12 +42,12 @@ function App() {
         <div className=" max-w-[100px] flex flex-col flex-shrink top-0">
           <Navbar />
         </div>
-        <div className="w-full h-full">
+        <div className="w-full h-full mt-[12px]">
           <HandleRouter />
         </div>
       </div>
 
-      <div className="relative bottom-0 bg-black">
+      <div className="relative bottom-0 bg-black w-full z-10">
         <Footer />
       </div>
     </div>

@@ -1,11 +1,12 @@
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
+import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { Link } from "react-router-dom";
 import { authSelector } from "../../redux/selector/selectors";
 import { useDispatch, useSelector } from "react-redux";
 import actionAuth from "../../redux/action/actionAuth";
 import LazyLoadingImg from "../LazyLoadingImg/LazyLoadingImg";
+import Information from "../../pages/option/Information";
 
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
@@ -30,6 +31,10 @@ const listInfoOfUser = {
   settingUser: {
     name: "Setting",
     path: "/your_setting",
+  },
+  chats: {
+    name: "Chats",
+    path: "/chats",
   },
   createCategory: {
     name: "Create Category",
@@ -130,13 +135,7 @@ export default function Header() {
                       <>
                         {/* Icon Information */}
                         <div className="inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                          <button
-                            type="button"
-                            className="p-1 rounded-full text-gray-400 hover:text-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-                          >
-                            <span className="sr-only">View notifications</span>
-                            <BellIcon className="h-6 w-6" aria-hidden="true" />
-                          </button>
+                          <Information />
 
                           {/* Profile dropdown */}
                           <Menu as="div" className="ml-3 relative">
@@ -190,9 +189,24 @@ export default function Header() {
                                   )}
                                 </Menu.Item>
 
+                                {/* Chats */}
+                                <Menu.Item>
+                                  {({ active }) => (
+                                    <Link
+                                      to={`${listInfoOfUser.chats.path}`}
+                                      className={classNames(
+                                        active ? "bg-gray-100" : "",
+                                        "block px-4 py-2 text-sm text-gray-700"
+                                      )}
+                                    >
+                                      {listInfoOfUser.chats.name}
+                                    </Link>
+                                  )}
+                                </Menu.Item>
+
                                 {/* Create Categories */}
-                                <div className="border-t-2">
-                                  {authUser.user.role === "admin" ? (
+                                {authUser.user.role === "admin" ? (
+                                  <div className="border-t-2">
                                     <Menu.Item>
                                       {({ active }) => (
                                         <Link
@@ -208,10 +222,10 @@ export default function Header() {
                                         </Link>
                                       )}
                                     </Menu.Item>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
+                                  </div>
+                                ) : (
+                                  ""
+                                )}
 
                                 {/* Create Blogs */}
                                 <div className="border-t-2">

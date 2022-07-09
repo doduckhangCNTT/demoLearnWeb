@@ -15,4 +15,5 @@ export const saveBlogsOfUserSelector = (state: RootState) => state;
 export const commentBlogSelector = (state: RootState) => state;
 export const replyCommentBlogSelector = (state: RootState) => state;
 
+export const messageSelector = (state: RootState) => state;
 export const socketSelector = (state: RootState) => state;

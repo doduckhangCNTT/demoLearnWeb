@@ -78,6 +78,7 @@ const blogAction = {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
     }
   },
+
   getListBlogs: async (dispatch: AppDispatch, search = `?page=${1}`) => {
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));

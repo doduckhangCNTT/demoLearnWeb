@@ -20,6 +20,26 @@ const userCtrl = {
     }
   },
 
+  getUserSearch: async (req: IReqAuth, res: Response) => {
+    if (!req.user) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Invalid Authentication" });
+    }
+    try {
+      const users = await Users.find({
+        name: { $regex: req.query.username },
+      })
+        .limit(10)
+        .select("-password")
+        .sort("-createdAt");
+
+      res.json({ users });
+    } catch (error: any) {
+      res.status(500).json({ success: false, msg: error.message });
+    }
+  },
+
   getUser: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
       return res

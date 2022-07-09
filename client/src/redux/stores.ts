@@ -11,6 +11,7 @@ import { saveBlogSlice } from "./reducers/saveBlogSlice";
 import { commentBlogSlice } from "./reducers/commentBlogSlice";
 import { replyCommentsBlogSlice } from "./reducers/replyCommentSlice/replyCommentBlogSlice";
 import { socketSlice } from "./reducers/socketSlice";
+import { messageSlice } from "./reducers/message/messageSlice";
 // import socketReducer from "./reducers/socketSlice";
 
 const store = configureStore({
@@ -29,6 +30,9 @@ const store = configureStore({
     commentsBlog: commentBlogSlice.reducer,
 
     replyCommentsBlog: replyCommentsBlogSlice.reducer,
+
+    conversation: messageSlice.reducer,
+
     socket: socketSlice.reducer,
   },
 

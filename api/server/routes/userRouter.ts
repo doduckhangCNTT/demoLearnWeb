@@ -17,6 +17,8 @@ router.patch(
 
 router.get("/users", authUser, authAdmin, userCtrl.getUsers);
 
+router.get("/search_user", authUser, userCtrl.getUserSearch);
+
 router.get("/users/:id", authUser, userCtrl.getUser);
 
 router.delete("/users/:id", authUser, authAdmin, userCtrl.deleteUser);

@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import SaveBlog from "../pages/blogs/SaveBlog";
+import ContentChat from "../pages/chats/ContentChat";
 
 // React Lazy
 const PagesCommon = React.lazy(() => import("../pages/PagesCommon"));
@@ -23,6 +24,9 @@ const UserProfile = React.lazy(() => import("../pages/user/UserProfile"));
 const UserSetting = React.lazy(() => import("../pages/user/UserSetting"));
 const LearningPaths = React.lazy(() => import("./LearningPaths"));
 const Courses = React.lazy(() => import("../pages/Courses"));
+const Chats = React.lazy(() => import("../pages/chats/Chats"));
+const RoomChat = React.lazy(() => import("../pages/chats/RoomChat"));
+const MainChat = React.lazy(() => import("../pages/chats/Index"));
 const ActiveUser = React.lazy(() => import("../pages/active/ActiveUser"));
 const NotFound = React.lazy(() => import("../components/global/NotFound"));
 
@@ -70,6 +74,12 @@ const HandleRouter = () => {
             path="reset_password/:access_token"
             element={<ResetPassWord />}
           />
+
+          <Route path="chats" element={<Chats />}>
+            <Route index element={<MainChat />} />
+            <Route path="chat/:id" element={<ContentChat />} />
+            <Route path="newRoom" element={<RoomChat />} />
+          </Route>
           <Route path="create_category" element={<CreateCategory />} />
 
           <Route path="your_profile" element={<UserProfile />} />

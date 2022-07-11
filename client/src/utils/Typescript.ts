@@ -2,7 +2,7 @@ import { ChangeEvent, FormEvent } from "react";
 import store from "../redux/stores";
 
 export type InputChangedEvent = ChangeEvent<
-  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+  (HTMLInputElement & EventTarget) | HTMLTextAreaElement | HTMLSelectElement
 >;
 
 export type FormSubmit = FormEvent<HTMLFormElement>;
@@ -149,7 +149,7 @@ export interface IUpdateCommentBlog {
 export interface IMessage {
   createdAt?: string;
   sender: IUser;
-  recipient: string;
+  recipient: IUser | string;
   text: string;
   media?: any[];
   _id?: string;

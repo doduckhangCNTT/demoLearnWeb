@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { checkTokenExp } from "../../../utils/CheckTokenExp";
-import { deleteApi, getApi, postApi } from "../../../utils/FetchData";
+import {
+  deleteApi,
+  deleteApiUpload,
+  getApi,
+  postApi,
+} from "../../../utils/FetchData";
 import {
   AppDispatch,
   IConversation,
   IMessage,
   INewArrUserChatted,
-  IUser,
 } from "../../../utils/Typescript";
 import { alertSlice } from "../../reducers/alertSlice";
 import { messageSlice } from "../../reducers/message/messageSlice";
@@ -25,6 +30,13 @@ const messageAction = {
       const res = await postApi("message", msg, access_token);
       console.log("Res: ", res);
       dispatch(messageSlice.actions.createMessage(res.data));
+      dispatch(
+        messageSlice.actions.updateMessageConversation({
+          id: res.data?.recipient,
+          text: res.data.text || "files",
+        })
+      );
+
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
@@ -81,8 +93,8 @@ const messageAction = {
 
       const value = {
         sender: authUser,
-        recipient: res.data.messages[0].recipient,
-        idConversation: res.data.messages[0].conversation,
+        recipient: res.data.messages[0]?.recipient,
+        idConversation: res.data.messages[0]?.conversation,
         messages: res.data.messages,
         result: res.data.result,
       };
@@ -113,7 +125,21 @@ const messageAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await deleteApi(`message/${id}`, access_token);
-
+      res.data?.message.media.forEach(async (item: { public_id: string }) => {
+        (item as any).mimetype === "jpg" ||
+        (item as any).mimetype === "jpeg" ||
+        (item as any).mimetype === "png"
+          ? await deleteApiUpload(
+              "destroy",
+              { public_id: item.public_id },
+              access_token
+            )
+          : await deleteApiUpload(
+              "destroyVideo",
+              { public_id: item.public_id },
+              access_token
+            );
+      });
       dispatch(
         messageSlice.actions.deleteMessage({ id: res.data.message._id })
       );

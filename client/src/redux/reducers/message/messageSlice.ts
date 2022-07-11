@@ -1,11 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { INewArrUserChatted } from "../../../utils/Typescript";
-import { IMessageType } from "../../types/messageType";
+import {
+  IDeleteMessageType,
+  IGetMessageType,
+  IMessageType,
+  IUpdateMessageConversationType,
+} from "../../types/messageType";
 
 const initialState = {
   usersChatted: [] as INewArrUserChatted[],
   resultUsers: 0,
-  data: [] as any[],
+  data: [] as IGetMessageType[],
   firstLoad: false,
 };
 
@@ -23,6 +28,20 @@ export const messageSlice = createSlice({
       };
     },
 
+    updateMessageConversation: (
+      state,
+      action: IUpdateMessageConversationType
+    ) => {
+      return {
+        ...state,
+        usersChatted: state.usersChatted.map((item) => {
+          return item._id === action.payload.id
+            ? { ...item, text: action.payload.text }
+            : item;
+        }),
+      };
+    },
+
     getConversations: (state, action: IMessageType) => {
       return {
         ...state,
@@ -32,14 +51,14 @@ export const messageSlice = createSlice({
       };
     },
 
-    getMessages: (state, action: any) => {
+    getMessages: (state, action) => {
       return {
         ...state,
         data: action.payload,
       };
     },
 
-    deleteMessage: (state, action) => {
+    deleteMessage: (state, action: IDeleteMessageType) => {
       return {
         ...state,
         data: {

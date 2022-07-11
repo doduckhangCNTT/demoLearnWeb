@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import Icons from "../../components/Icons";
+import AddIcons from "../../components/icons/AddIcons";
+import {
+  closeIcon,
+  iconOnInputMessage,
+  optionsCall,
+} from "../../components/icons/Icons";
 import messageAction from "../../redux/action/message/messageAction";
+import { alertSlice } from "../../redux/reducers/alertSlice";
 import { authSelector, messageSelector } from "../../redux/selector/selectors";
-import { getApi } from "../../utils/FetchData";
+import { getApi, postApi } from "../../utils/FetchData";
 import {
   FormSubmit,
   IMessage,
@@ -14,74 +20,14 @@ import {
 import ShowMessages from "./ShowMessages";
 
 const ContentChat = () => {
-  const options = [
-    {
-      name: "Telephone",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-          />
-        </svg>
-      ),
-    },
-    {
-      name: "Video Call",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-          />
-        </svg>
-      ),
-    },
-  ];
-
-  const Uploads = {
-    name: "Image",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-      >
-        <path
-          fillRule="evenodd"
-          d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
-  };
-
   const { authUser } = useSelector(authSelector);
   const { conversation } = useSelector(messageSelector);
-
   const dispatch = useDispatch();
 
   const { id } = useParams();
   const [user, setUser] = useState<IUser>();
   const [text, setText] = useState("");
-  const [media, setMedia] = useState([]);
+  const [media, setMedia] = useState<File[]>([]);
 
   useEffect(() => {
     const solution = async () => {
@@ -98,23 +44,73 @@ const ContentChat = () => {
     messageAction.getMessages(id, authUser, dispatch);
   }, [authUser, dispatch, id]);
 
+  const handleChangeMedia = (e: InputChangedEvent) => {
+    const target = e.target as HTMLInputElement;
+    const files = Array.from(target.files ? target.files : []);
+
+    let err: string[] = [];
+    let newArr: any[] = [];
+
+    files.forEach((file) => {
+      if (!files) return err.push("File no longer exists: " + file);
+      if (file.size > 1024 * 1024 * 1024) err.push("File too large: " + file);
+      if (err.length > 0)
+        return dispatch(alertSlice.actions.alertAdd({ error: err.toString() }));
+
+      return newArr.push(file);
+    });
+    setMedia([...media, ...newArr]);
+  };
+
+  const handleDelete = (index: number) => {
+    const newArr = [...media];
+    newArr.splice(index, 1);
+    setMedia(newArr);
+  };
+
   const handleChangeInput = (e: InputChangedEvent) => {
     const { value } = e.target;
     setText(value);
   };
 
-  const handleSubmit = (e: FormSubmit) => {
+  const handleSubmit = async (e: FormSubmit) => {
     e.preventDefault();
     if (!authUser.access_token || !authUser.user || !id) return;
+
+    let imgArr = [];
+    if (media.length > 0) {
+      for (const item of media) {
+        let formData = new FormData();
+        if ((item as any).camera) {
+          formData.append("file", (item as any).camera);
+        } else {
+          formData.append("file", item);
+        }
+
+        const res = await postApi(
+          "upload_imgVideo",
+          formData,
+          authUser.access_token
+        );
+
+        console.log("Res Upload: ", res);
+        const data = await res.data;
+        imgArr.push({
+          mimetype: data.format,
+          public_id: data.public_id,
+          url: data.secure_url,
+        });
+      }
+    }
     const msg = {
       sender: authUser.user,
       recipient: id,
       text,
-      media,
+      media: imgArr,
     };
-
     messageAction.createMessage(msg, authUser.access_token, dispatch);
     setText("");
+    setMedia([]);
   };
 
   return (
@@ -139,7 +135,7 @@ const ContentChat = () => {
 
         {/* Options */}
         <div className="flex gap-2 items-center">
-          {options.map((option, index) => {
+          {optionsCall.map((option, index) => {
             return (
               <div className="flex gap-2 hover:opacity-[0.8]" key={index}>
                 {option.icon}
@@ -149,9 +145,9 @@ const ContentChat = () => {
         </div>
       </div>
 
-      {/* Contents */}
-      <div className="flex h-[100vh] flex-col justify-end ">
-        <div className="">
+      <div className="flex h-[100vh] flex-col justify-end  ">
+        {/* Contents */}
+        <div className="h-[100vh] flex flex-col justify-end ">
           {(conversation?.data as any).messages?.map(
             (msg: IMessage, index: React.Key | null | undefined) => {
               return (
@@ -163,8 +159,48 @@ const ContentChat = () => {
           )}
         </div>
 
-        <div className="flex gap-3 items-center">
-          <form action="" onSubmit={handleSubmit} className="w-full my-3">
+        <div className="mt-2">
+          {/* Show image video */}
+          <div
+            className={`flex gap-2 p-2 ${media.length > 0 ? "border-2" : ""}`}
+          >
+            {media.map((m, index) => {
+              return (
+                <div key={index} className="relative group">
+                  <div className="inline-block h-[100px]">
+                    {(m as File).type === "video/mp4" ? (
+                      <video controls className="h-full">
+                        <source
+                          type="video/mp4"
+                          src={URL.createObjectURL(m)}
+                        ></source>
+                      </video>
+                    ) : (
+                      <img
+                        src={URL.createObjectURL(m)}
+                        alt="images"
+                        className="h-full"
+                      />
+                    )}
+                  </div>
+
+                  {/* Delete Image Video */}
+                  <button
+                    onClick={() => handleDelete(index)}
+                    className="absolute top-0 right-0 hidden group-hover:block transition hover:bg-sky-300 hover:text-white rounded-full"
+                  >
+                    {closeIcon.icon}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <form
+            action=""
+            onSubmit={handleSubmit}
+            className="w-full my-3 flex gap-3 items-center"
+          >
             <input
               type="text"
               value={text}
@@ -172,15 +208,34 @@ const ContentChat = () => {
               className="bg-slate-200 w-full rounded-full p-3 outline-none"
               onChange={handleChangeInput}
             />
+            {/* Icon, Image */}
+            <div className="flex gap-2 items-center">
+              <AddIcons text={text} setText={setText} />
+              <div>
+                <div className="flex justify-center items-center w-full">
+                  <label
+                    htmlFor="dropzone-file"
+                    className="flex flex-col justify-center items-center w-full  cursor-pointer "
+                  >
+                    <div className="flex flex-col justify-center items-center">
+                      {iconOnInputMessage.image.icon}
+                    </div>
+                    <input
+                      id="dropzone-file"
+                      type="file"
+                      name="file"
+                      multiple
+                      accept="image/*,video/*"
+                      className="hidden"
+                      onChange={handleChangeMedia}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <button type="submit" className="opacity-0"></button>
           </form>
-
-          {/* Icon, Image */}
-          <div className="flex gap-2">
-            <Icons text={text} setText={setText} />
-
-            <span>{Uploads.icon}</span>
-          </div>
         </div>
       </div>
     </div>

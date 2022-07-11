@@ -14,7 +14,7 @@ const ShowMessages: React.FC<IProps> = ({ msg }) => {
 
   return (
     <div className="relative">
-      <div className="flex flex-col justify-end overflow-auto touch-auto px-3 h-full">
+      <div className="flex flex-col justify-end overflow-auto touch-auto px-3">
         {(msg.sender._id || msg.sender) !== authUser.user?._id ? (
           <div className="">
             <div className="flex flex-col gap-1">
@@ -32,23 +32,52 @@ const ShowMessages: React.FC<IProps> = ({ msg }) => {
                 </span>
               </div>
 
-              <div className="">
+              <div className="flex justify-end">
                 <small>{moment(msg.createdAt).fromNow()}</small>
               </div>
             </div>
           </div>
         ) : (
           <div className="flex justify-end group ">
-            <div className="flex flex-col gap-1">
-              <div className="text-right flex gap-2 justify-end">
-                <div className="hidden group-hover:block ">
-                  <OptionMessage msg={msg} />
+            <div className="flex flex-col">
+              <div className="flex flex-col gap-1">
+                <div className="text-right h-full flex gap-2 justify-end items-center ">
+                  <span className="rounded-full bg-slate-200 p-2 mt-2 relative ">
+                    <div className="hidden group-hover:block h-full absolute -left-[50px]">
+                      <OptionMessage msg={msg} />
+                    </div>
+
+                    {msg.text}
+                  </span>
                 </div>
-                <span className="rounded-full bg-slate-200 p-2 mt-2">
-                  {msg.text}
-                </span>
+
+                <small className="flex justify-end">
+                  {moment(msg.createdAt).fromNow()}
+                </small>
               </div>
-              <small>{moment(msg.createdAt).fromNow()}</small>
+
+              <div className="flex flex-col gap-1 text-right">
+                {msg.media?.map((item, index) => {
+                  console.log("Type: ", item.type);
+                  return (
+                    <div key={index} className="h-[200px]">
+                      {item.mimetype === "jpg" ||
+                      item.mimetype === "jpeg" ||
+                      item.mimetype === "png" ? (
+                        <img
+                          src={item.url}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <video controls className="h-full">
+                          <source type="video/mp4" src={item.url}></source>
+                        </video>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}

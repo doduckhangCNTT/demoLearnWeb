@@ -8,6 +8,7 @@ const messageCtrl = {
     try {
       const { sender, recipient, text, media } = req.body;
 
+      console.log("Media: ", media);
       const newConversation = await Conversations.findOneAndUpdate(
         {
           $or: [
@@ -71,13 +72,6 @@ const messageCtrl = {
         messages,
         result: messages.length,
       });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-  updateMessage: async (req: IReqAuth, res: Response) => {
-    try {
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

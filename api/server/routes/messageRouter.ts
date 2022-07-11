@@ -10,9 +10,6 @@ router.post("/message", authUser, messageCtrl.createMessage);
 
 router.get("/conversations", authUser, messageCtrl.getConversations);
 
-router
-  .route("/message/:id")
-  .patch(authUser, messageCtrl.updateMessage)
-  .delete(authUser, messageCtrl.deleteMessage);
+router.route("/message/:id").delete(authUser, messageCtrl.deleteMessage);
 
 export default router;

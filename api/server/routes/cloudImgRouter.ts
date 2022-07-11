@@ -6,6 +6,10 @@ const router = express.Router();
 
 router.post("/upload", authUser, uploadImgCtrl.uploadImg);
 
-router.post("/destroy", authUser, uploadImgCtrl.destroyImg); //
+router.post("/upload_imgVideo", authUser, uploadImgCtrl.uploadImgAndVideo);
+
+router.post("/destroy", authUser, uploadImgCtrl.destroyImg);
+
+router.post("/destroyVideo", authUser, uploadImgCtrl.destroyVideo);
 
 export default router;

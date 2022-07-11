@@ -126,10 +126,8 @@ const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
   const handleChangeFile = (e: InputChangedEvent) => {
     const target = e.target as HTMLInputElement;
     const files = target.files;
-    console.log("FILE: ", files);
     if (files) {
       const file = files[0];
-      // setBlog({ ...blog, thumbnail: file });
       setBlog({ ...blog, thumbnail: { public_id: "", url: file } });
     }
   };

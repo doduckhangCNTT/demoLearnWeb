@@ -1,16 +1,16 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Socket } from "socket.io-client";
-import { commentBlogSlice } from "./redux/reducers/commentBlogSlice";
-import { replyCommentsBlogSlice } from "./redux/reducers/replyCommentSlice/replyCommentBlogSlice";
-import { authSelector, socketSelector } from "./redux/selector/selectors";
-import { IComment, IReplyCommentBlog } from "./utils/Typescript";
+import { commentBlogSlice } from "../redux/reducers/commentBlogSlice";
+import { replyCommentsBlogSlice } from "../redux/reducers/replyCommentSlice/replyCommentBlogSlice";
+import { socketSelector } from "../redux/selector/selectors";
+import { IComment } from "../utils/Typescript";
 
-const SocketClient = () => {
+const SocketClientComment = () => {
   const { socket } = useSelector(socketSelector);
   const dispatch = useDispatch();
 
-  // ------------------ Comment Blog --------------------------------
+  // --------------------- Comment Blog --------------------------------
   useEffect(() => {
     (socket.value as Socket)?.on("createCommentBlog", (data: any) => {
       dispatch(commentBlogSlice.actions.createComment(data));
@@ -108,4 +108,4 @@ const SocketClient = () => {
   return <div></div>;
 };
 
-export default SocketClient;
+export default SocketClientComment;

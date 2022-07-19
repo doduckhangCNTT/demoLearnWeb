@@ -147,12 +147,13 @@ export interface IUpdateCommentBlog {
 }
 
 export interface IMessage {
+  conversation?: string;
   createdAt?: string;
+  media?: any[];
+  _id?: string;
   sender: IUser;
   recipient: IUser | string;
   text: string;
-  media?: any[];
-  _id?: string;
 }
 
 export interface IConversation {
@@ -164,4 +165,26 @@ export interface IConversation {
 export interface INewArrUserChatted extends IUser {
   text: string;
   media: any[];
+}
+
+export interface IRoomChat {
+  nameRoom: string;
+  listUser: IUser[];
+}
+
+export interface IRoomChatList {
+  _id?: string;
+  name: string;
+  users: IUser[];
+  admin: IUser;
+}
+
+export interface IMessageRoom {
+  roomId?: string;
+  media?: any[];
+  _id?: string;
+  createdAt?: string;
+  sender: IUser;
+  text: string;
+  roomChat?: IRoomChatList;
 }

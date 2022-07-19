@@ -1,13 +1,14 @@
 import { Menu } from "@headlessui/react";
 import React, { Fragment } from "react";
 import { Transition } from "@headlessui/react";
-import { IMessage } from "../../utils/Typescript";
+import { IMessage, IMessageRoom, IUser } from "../../utils/Typescript";
 import messageAction from "../../redux/action/message/messageAction";
 import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "../../redux/selector/selectors";
+import messageRoomChatAction from "../../redux/action/roomChat/messageRoomChatAction";
 
 interface IProps {
-  msg: IMessage;
+  msg: IMessage | IMessageRoom;
 }
 
 const OptionMessage: React.FC<IProps> = ({ msg }) => {
@@ -16,11 +17,17 @@ const OptionMessage: React.FC<IProps> = ({ msg }) => {
 
   const handleDelete = () => {
     if (!authUser.access_token) return;
-    messageAction.deleteMessage(
-      msg._id ? msg._id : "",
-      authUser.access_token,
-      dispatch
-    );
+
+    // Check roomChat and Message Chat
+    if (((msg as IMessageRoom).roomChat?.users as IUser[])?.length > 0) {
+      messageRoomChatAction.deleteMessage(msg, authUser.access_token, dispatch);
+    } else {
+      messageAction.deleteMessage(
+        msg as IMessage,
+        authUser.access_token,
+        dispatch
+      );
+    }
   };
 
   return (

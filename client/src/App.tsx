@@ -1,5 +1,5 @@
 import { DefaultEventsMap } from "@socket.io/component-emitter";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import io, { Socket } from "socket.io-client";
 import Alert from "./components/alert/Alert";
@@ -9,7 +9,7 @@ import Navbar from "./components/global/Navbar";
 import actionAuth from "./redux/action/actionAuth";
 import { socketSlice } from "./redux/reducers/socketSlice";
 import HandleRouter from "./routes/HandleRouter";
-import SocketClient from "./SocketClient";
+import SocketClient from "./socket/SocketClient";
 
 function App() {
   const dispatch = useDispatch();
@@ -30,6 +30,12 @@ function App() {
     actionAuth.refreshAction(dispatch);
   }, [dispatch]);
 
+  const refTop = useRef<HTMLButtonElement>(null);
+
+  const handleScrollTop = () => {
+    window.scrollTo(0, 0);
+  };
+
   return (
     <div className="h-[100vh] flex flex-col">
       <SocketClient />
@@ -47,7 +53,14 @@ function App() {
         </div>
       </div>
 
-      <div className="relative bottom-0 bg-black w-full z-10">
+      <button
+        ref={refTop}
+        onClick={handleScrollTop}
+        className="bg-sky-600 p-2 rounded-full hover:opacity-[0.8] text-white fixed right-[10px] bottom-[20px] z-10"
+      >
+        Up Top
+      </button>
+      <div className="relative bottom-0 bg-black w-full z-9">
         <Footer />
       </div>
     </div>

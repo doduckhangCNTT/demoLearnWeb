@@ -16,4 +16,7 @@ export const commentBlogSelector = (state: RootState) => state;
 export const replyCommentBlogSelector = (state: RootState) => state;
 
 export const messageSelector = (state: RootState) => state;
+export const roomChatSelector = (state: RootState) => state;
+export const messageRoomChatSelector = (state: RootState) => state;
+
 export const socketSelector = (state: RootState) => state;

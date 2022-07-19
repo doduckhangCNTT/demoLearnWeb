@@ -5,19 +5,24 @@ interface IProps {
   users: IUser[];
   listUserToJoinRoom: IUser[];
   setListUserToJoinRoom: (value: any) => void;
-  setUserName: (value: any) => void;
+  room: { userName: string; roomName: string };
+  setRoom: (value: any) => void;
 }
 
 const ShowUserSearch: React.FC<IProps> = ({
   users,
   listUserToJoinRoom,
   setListUserToJoinRoom,
-  setUserName,
+  room,
+  setRoom,
 }) => {
   const handleAddUser = (user: IUser) => {
-    if (listUserToJoinRoom.includes(user)) return;
+    if (listUserToJoinRoom.find((item) => item._id === user._id)) {
+      setRoom({ ...room, userName: "" });
+      return;
+    }
     setListUserToJoinRoom([...listUserToJoinRoom, user]);
-    setUserName("");
+    setRoom({ ...room, userName: "" });
   };
 
   return (

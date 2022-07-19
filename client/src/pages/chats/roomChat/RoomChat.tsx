@@ -1,22 +1,52 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import ShowUserSearch from "../../components/chats/ShowUserSearch";
-import { closeIcon } from "../../components/icons/Icons";
-import useDebounce from "../../hooks/useDebounce";
-import { authSelector } from "../../redux/selector/selectors";
-import { getApi } from "../../utils/FetchData";
-import { InputChangedEvent, IUser } from "../../utils/Typescript";
+import { useDispatch, useSelector } from "react-redux";
+import ShowUserSearch from "../../../components/chats/ShowUserSearch";
+import { closeIcon } from "../../../components/icons/Icons";
+import useDebounce from "../../../hooks/useDebounce";
+import roomChatAction from "../../../redux/action/roomChat/roomChatAction";
+import { authSelector } from "../../../redux/selector/selectors";
+import { getApi } from "../../../utils/FetchData";
+import {
+  FormSubmit,
+  InputChangedEvent,
+  IUser,
+} from "../../../utils/Typescript";
 
 const RoomChat = () => {
+  const initialRoom = {
+    userName: "",
+    roomName: "",
+  };
+
   const { authUser } = useSelector(authSelector);
   const [users, setUsers] = useState<IUser[]>([]);
-  const [userName, setUserName] = useState("");
+
+  const [room, setRoom] = useState(initialRoom);
   const [listUserToJoinRoom, setListUserToJoinRoom] = useState<IUser[]>([]);
-  const debounced = useDebounce(userName, 800);
+  const debounced = useDebounce(room.userName, 800);
+
+  const dispatch = useDispatch();
+
+  const handleDeleteUser = (index: number) => {
+    const listUser = [...listUserToJoinRoom];
+    listUser.splice(index, 1);
+
+    setListUserToJoinRoom(listUser);
+  };
 
   const handleChangeInput = (e: InputChangedEvent) => {
-    const { value } = e.target;
-    setUserName(value);
+    const { name, value } = e.target;
+    setRoom({ ...room, [name]: value });
+  };
+
+  const handleSubmit = (e: FormSubmit) => {
+    e.preventDefault();
+    if (!authUser.access_token) return;
+    const data = {
+      nameRoom: room.roomName,
+      listUser: listUserToJoinRoom,
+    };
+    roomChatAction.createRoomChat(data, dispatch, authUser.access_token);
   };
 
   useEffect(() => {
@@ -32,25 +62,34 @@ const RoomChat = () => {
 
   return (
     <div className="mt-[20px]">
-      <form action="flex gap-2">
+      <form action="flex gap-2" onSubmit={handleSubmit}>
         <div className="flex gap-2">
           <div className="flex flex-col w-full">
             <input
               type="text"
-              value={userName}
+              name="roomName"
               className="p-3 shadow-md w-full outline-none"
+              placeholder="Name Room chat"
+              onChange={handleChangeInput}
+            />
+            <input
+              type="text"
+              name="userName"
+              value={room.userName}
+              className="p-3 shadow-md w-full outline-none mt-2"
               placeholder="Search user you want to join"
               onChange={handleChangeInput}
             />
             {/* Show User search  */}
             <div className="relative">
-              {userName ? (
+              {room.userName ? (
                 <div className="absolute bg-white w-full shadow-md z-10 ">
                   <ShowUserSearch
                     users={users}
                     listUserToJoinRoom={listUserToJoinRoom}
                     setListUserToJoinRoom={setListUserToJoinRoom}
-                    setUserName={setUserName}
+                    room={room}
+                    setRoom={setRoom}
                   />
                 </div>
               ) : (
@@ -76,7 +115,10 @@ const RoomChat = () => {
               className="flex gap-2 p-2 bg-sky-500 rounded-full mt-[10px] relative peer"
             >
               <span className="">{item.name}</span>
-              <button className="transition absolute -top-[10px] -right-[10px] hover:bg-red-200 rounded-full cursor-pointer p-1">
+              <button
+                onClick={() => handleDeleteUser(index)}
+                className="transition absolute -top-[10px] -right-[10px] hover:bg-red-200 rounded-full cursor-pointer p-1"
+              >
                 {closeIcon.icon}
               </button>
             </div>

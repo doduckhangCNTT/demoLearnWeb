@@ -5,11 +5,8 @@ import Blogs from "../models/blogModel";
 import DraftBlog from "../models/draftBlogsModel";
 
 const PageConfig = (req: Request) => {
-  console.log({ limit: req.params.limit, page: req.params.page });
-
   const limit = Number(req.query.limit) * 1 || 3;
   const page = Number(req.query.page) * 1 || 1;
-
   const skip = (page - 1) * limit;
 
   return { page, limit, skip };
@@ -17,9 +14,7 @@ const PageConfig = (req: Request) => {
 
 const blogCtrl = {
   getBlogs: async (req: Request, res: Response) => {
-    console.log("Req: ", req.query.limit);
     const { limit, skip, page } = PageConfig(req);
-    console.log({ limit, skip, page });
 
     try {
       // const blogs = await Blogs.find().sort("-createdAt");

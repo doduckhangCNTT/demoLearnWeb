@@ -3,12 +3,17 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { conversationIcons, searchIcon } from "../../components/icons/Icons";
 import useDebounce from "../../hooks/useDebounce";
-import { authSelector, messageSelector } from "../../redux/selector/selectors";
+import {
+  authSelector,
+  messageSelector,
+  roomChatSelector,
+} from "../../redux/selector/selectors";
 import { getApi } from "../../utils/FetchData";
 import { InputChangedEvent, IUser } from "../../utils/Typescript";
 
 const Conversations = () => {
   const { authUser } = useSelector(authSelector);
+  const { roomChats } = useSelector(roomChatSelector);
   const { conversation } = useSelector(messageSelector);
 
   const [searchUser, setSearchUser] = useState("");
@@ -26,7 +31,6 @@ const Conversations = () => {
         `search_user?username=${debounced}`,
         authUser.access_token
       );
-      console.log(listUserSearch);
       setUsers(listUserSearch?.data.users);
     };
 
@@ -72,8 +76,49 @@ const Conversations = () => {
           </div>
         </div>
 
-        {/* Lists of conversations */}
         <div className="flex flex-col touch-pan-y">
+          {/* List room joined */}
+          <ul>
+            {roomChats.rooms?.map((room, index) => {
+              return (
+                <li key={index}>
+                  <Link
+                    to={`roomChat/${room._id}`}
+                    className="flex justify-between p-2 border-2"
+                  >
+                    <div>
+                      <h1 className="text-[20p] font-bold">{room.name}</h1>
+                      <small>abc</small>
+                    </div>
+
+                    <div>
+                      <div className="mt-3 flex -space-x-2 overflow-hidden">
+                        {room.users.slice(0, 3).map((user, index) => {
+                          return (
+                            <img
+                              key={index}
+                              className="inline-block h-5 w-5 rounded-full ring-2 ring-white"
+                              src={user.avatar}
+                              alt=""
+                            />
+                          );
+                        })}
+                      </div>
+                      <div className="mt-3 text-sm font-medium">
+                        <div className="text-blue-500">
+                          {room.users.length - 3 < 0
+                            ? ""
+                            : `+${room.users.length - 3} others`}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Lists of conversations */}
           <ul className="w-full">
             {(searchUser ? users : conversation.usersChatted).map(
               (user, index) => {

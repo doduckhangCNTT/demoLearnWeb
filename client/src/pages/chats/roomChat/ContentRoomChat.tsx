@@ -1,51 +1,63 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { Socket } from "socket.io-client";
+import messageRoomChatAction from "../../../redux/action/roomChat/messageRoomChatAction";
+import {
+  authSelector,
+  messageRoomChatSelector,
+  socketSelector,
+} from "../../../redux/selector/selectors";
+import { getApi, postApi } from "../../../utils/FetchData";
+import {
+  FormSubmit,
+  IMessageRoom,
+  IRoomChatList,
+} from "../../../utils/Typescript";
+import ShowContentChat from "../ShowContentChat";
+import ShowMessages from "../ShowMessages";
 
-import messageAction from "../../redux/action/message/messageAction";
-import { authSelector, messageSelector } from "../../redux/selector/selectors";
-import { getApi, postApi } from "../../utils/FetchData";
-import { FormSubmit, IMessage, IUser } from "../../utils/Typescript";
-import ShowContentChat from "./ShowContentChat";
-import ShowMessages from "./ShowMessages";
-
-const ContentChat = () => {
-  const { authUser } = useSelector(authSelector);
-  const { conversation } = useSelector(messageSelector);
-  const dispatch = useDispatch();
-
-  const { id } = useParams();
-  const [user, setUser] = useState<IUser>();
+const ContentRoomChat = () => {
+  const { roomId } = useParams();
   const [text, setText] = useState("");
   const [media, setMedia] = useState<File[]>([]);
   const refDisplay = useRef<HTMLDivElement>(null);
-  const refPageEnd = useRef<HTMLButtonElement>(null);
-  const [page, setPage] = useState(1);
+  const [roomChat, setRoomChat] = useState<IRoomChatList>();
+
+  const { authUser } = useSelector(authSelector);
+  const { messageRoom } = useSelector(messageRoomChatSelector);
+  const { socket } = useSelector(socketSelector);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const solution = async () => {
-      const res = await getApi(`users/${id}`, authUser.access_token);
-      setUser(res.data.user);
+      const res = await getApi(`roomChat/${roomId}`, authUser.access_token);
+      console.log("Res: ", res);
+      setRoomChat(res.data);
     };
-
     solution();
-  }, [authUser.access_token, id]);
+  }, [authUser.access_token, roomId]);
 
   useEffect(() => {
-    if (!id || !authUser.access_token) return;
-    messageAction.getMessages(id, page, authUser, dispatch);
-    if (refDisplay.current) {
-      refDisplay.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
-    }
-  }, [authUser, dispatch, id, page]);
+    if (!roomId || !authUser.access_token) return;
+
+    messageRoomChatAction.getMessages(roomId, authUser.access_token, dispatch);
+  }, [authUser.access_token, dispatch, roomId]);
+
+  // Socket
+  useEffect(() => {
+    if (!roomId || !socket) return;
+    socket && (socket.value as Socket).emit("joinRoom", roomId);
+
+    return () => {
+      (socket.value as Socket).emit("outRoom", roomId);
+    };
+  }, [roomId, socket]);
 
   const handleSubmit = async (e: FormSubmit) => {
     e.preventDefault();
     if (text.trim().length === 0 && media.length === 0) return;
-    if (!authUser.access_token || !authUser.user || !id) return;
+    if (!authUser.access_token || !authUser.user || !roomId) return;
 
     // Upload Img Video
     let imgArr = [];
@@ -74,12 +86,12 @@ const ContentChat = () => {
       }
     }
     const msg = {
+      roomId,
       sender: authUser.user,
-      recipient: id,
       text,
       media: imgArr,
     };
-    messageAction.createMessage(msg, authUser.access_token, dispatch);
+    messageRoomChatAction.createMessage(msg, authUser.access_token, dispatch);
     setText("");
     setMedia([]);
 
@@ -91,25 +103,25 @@ const ContentChat = () => {
   return (
     <div>
       <ShowContentChat
-        value={user}
+        value={roomChat}
         text={text}
         media={media}
         setText={setText}
         setMedia={setMedia}
         handleSubmit={handleSubmit}
       >
-        {(conversation?.data as any).messages?.map(
-          (msg: IMessage, index: React.Key | null | undefined) => {
+        <>
+          {messageRoom.messages?.map((msg: IMessageRoom, index) => {
             return (
               <div key={index} className="mt-2">
                 <ShowMessages msg={msg} />
               </div>
             );
-          }
-        )}
+          })}
+        </>
       </ShowContentChat>
     </div>
   );
 };
 
-export default ContentChat;
+export default ContentRoomChat;

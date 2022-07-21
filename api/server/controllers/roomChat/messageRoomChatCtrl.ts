@@ -46,7 +46,15 @@ const messageRoomChatCtrl = {
         roomChat: req.params.roomId,
       })
         .populate("sender", "-password -rf_token")
-        .populate("roomChat");
+        .populate("roomChat")
+        .populate({
+          path: "roomChat",
+          populate: { path: "users" },
+        })
+        .populate({
+          path: "roomChat",
+          populate: { path: "admin" },
+        });
 
       res.json(messages);
     } catch (error: any) {

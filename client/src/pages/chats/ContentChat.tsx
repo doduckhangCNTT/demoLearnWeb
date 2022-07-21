@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-
 import messageAction from "../../redux/action/message/messageAction";
 import { authSelector, messageSelector } from "../../redux/selector/selectors";
 import { getApi, postApi } from "../../utils/FetchData";
@@ -19,7 +18,6 @@ const ContentChat = () => {
   const [text, setText] = useState("");
   const [media, setMedia] = useState<File[]>([]);
   const refDisplay = useRef<HTMLDivElement>(null);
-  const refPageEnd = useRef<HTMLButtonElement>(null);
   const [page, setPage] = useState(1);
 
   useEffect(() => {

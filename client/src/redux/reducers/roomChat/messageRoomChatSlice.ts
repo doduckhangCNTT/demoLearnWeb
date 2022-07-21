@@ -35,5 +35,45 @@ export const messageRoomSlice = createSlice({
         ),
       };
     },
+
+    addUserRoomChat: (state, action: any) => {
+      return {
+        ...state,
+        room: {
+          ...state.room,
+          users: [...state.room.users, action.payload.user],
+        },
+      };
+    },
+
+    addUserAdminRoomChat: (state, action: any) => {
+      return {
+        ...state,
+        room: {
+          ...state.room,
+          admin: [...state.room.admin, action.payload.user],
+        },
+      };
+    },
+
+    deleteUserRoomChat: (state, action: any) => {
+      return {
+        ...state,
+        room: {
+          ...state.room,
+          users: action.payload.usersInRoom.users,
+        },
+      };
+    },
+
+    deleteUserAdminRoomChat: (state, action: any) => {
+      return {
+        ...state,
+        room: {
+          ...state.room,
+          admin: action.payload.adminsInRoom.admin,
+        },
+      };
+    },
   },
 });

@@ -176,7 +176,7 @@ export interface IRoomChatList {
   _id?: string;
   name: string;
   users: IUser[];
-  admin: IUser;
+  admin: IUser[];
 }
 
 export interface IMessageRoom {

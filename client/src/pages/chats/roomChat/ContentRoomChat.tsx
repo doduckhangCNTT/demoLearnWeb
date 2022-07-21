@@ -2,13 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { Socket } from "socket.io-client";
+import NotFound from "../../../components/global/NotFound";
 import messageRoomChatAction from "../../../redux/action/roomChat/messageRoomChatAction";
 import {
   authSelector,
   messageRoomChatSelector,
+  roomChatSelector,
   socketSelector,
 } from "../../../redux/selector/selectors";
-import { getApi, postApi } from "../../../utils/FetchData";
+import { postApi } from "../../../utils/FetchData";
 import {
   FormSubmit,
   IMessageRoom,
@@ -26,17 +28,19 @@ const ContentRoomChat = () => {
 
   const { authUser } = useSelector(authSelector);
   const { messageRoom } = useSelector(messageRoomChatSelector);
+  const { roomChats } = useSelector(roomChatSelector);
   const { socket } = useSelector(socketSelector);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const solution = async () => {
-      const res = await getApi(`roomChat/${roomId}`, authUser.access_token);
-      console.log("Res: ", res);
-      setRoomChat(res.data);
+      const roomChat = roomChats.rooms?.find(
+        (roomChat) => roomChat._id === roomId
+      );
+      setRoomChat(roomChat);
     };
     solution();
-  }, [authUser.access_token, roomId]);
+  }, [roomChats.rooms, roomId]);
 
   useEffect(() => {
     if (!roomId || !authUser.access_token) return;
@@ -100,6 +104,9 @@ const ContentRoomChat = () => {
     }
   };
 
+  if (!roomChat?.users.some((user) => user._id === authUser.user?._id)) {
+    return <NotFound />;
+  }
   return (
     <div>
       <ShowContentChat
@@ -109,6 +116,7 @@ const ContentRoomChat = () => {
         setText={setText}
         setMedia={setMedia}
         handleSubmit={handleSubmit}
+        room={roomChat}
       >
         <>
           {messageRoom.messages?.map((msg: IMessageRoom, index) => {

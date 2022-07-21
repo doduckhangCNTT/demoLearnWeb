@@ -9,7 +9,7 @@ const RoomChatModel = new mongoose.Schema(
       minLength: 5,
       maxLength: 20,
     },
-    admin: { type: mongoose.Types.ObjectId, ref: "users" },
+    admin: [{ type: mongoose.Types.ObjectId, ref: "users" }],
     users: [{ type: mongoose.Types.ObjectId, ref: "users" }],
     text: String,
     media: Array,

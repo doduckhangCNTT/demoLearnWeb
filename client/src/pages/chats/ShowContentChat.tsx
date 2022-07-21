@@ -16,6 +16,7 @@ import {
   IRoomChatList,
   IUser,
 } from "../../utils/Typescript";
+import TabOption from "./tab/TabOption";
 
 interface IProps {
   value?: IUser | IRoomChatList;
@@ -26,6 +27,8 @@ interface IProps {
   setMedia: (media: File[]) => void;
   handleSubmit: (e: FormSubmit) => void;
   children?: JSX.Element;
+
+  room?: IRoomChatList;
 }
 
 const ShowContentChat: React.FC<IProps> = ({
@@ -36,12 +39,14 @@ const ShowContentChat: React.FC<IProps> = ({
   setMedia,
   handleSubmit,
   children,
+  room,
 }) => {
   const { conversation } = useSelector(messageSelector);
   const dispatch = useDispatch();
   const refDisplay = useRef<HTMLDivElement>(null);
   const refPageEnd = useRef<HTMLButtonElement>(null);
   const [page, setPage] = useState(1);
+  const [toggleTab, setToggleTab] = useState(false);
 
   useEffect(() => {
     // if(page > conversation.)
@@ -96,8 +101,13 @@ const ShowContentChat: React.FC<IProps> = ({
         {/* Info User / Room */}
         <div className="">
           <div className="flex hover:bg-slate-200 transition p-2 mt-2 rounded-md">
+            {/* Check Room  */}
             {(value as IRoomChatList)?.users?.length > 0 ? (
-              <div className="flex gap-2 items-center">
+              <div
+                className="flex gap-2 items-center cursor-pointer"
+                onClick={() => setToggleTab(!toggleTab)}
+              >
+                {/* Image Users in Room  */}
                 <div className="mt-3 grid grid-cols-2 grid-rows-2 overflow-hidden">
                   {(value as IRoomChatList)?.users
                     .slice(0, 4)
@@ -119,7 +129,7 @@ const ShowContentChat: React.FC<IProps> = ({
                 </div>
               </div>
             ) : (
-              <div>
+              <div className="flex gap-2 items-center">
                 <img
                   className="h-10 w-10 rounded-full object-cover"
                   src={`${(value as IUser)?.avatar}`}
@@ -147,6 +157,14 @@ const ShowContentChat: React.FC<IProps> = ({
           })}
         </div>
       </div>
+      {/* Tab Options  */}
+      {toggleTab ? (
+        <div className="absolute h-full w-full z-10 bg-white opacity-[0.8]">
+          <TabOption room={room} />
+        </div>
+      ) : (
+        ""
+      )}
 
       <div className="flex h-[100vh] flex-col justify-end  ">
         {/* Contents */}

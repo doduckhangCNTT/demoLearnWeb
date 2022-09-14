@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, SelectorIcon } from "@heroicons/react/solid";
-import { IBlog, ICategory, InputChangedEvent } from "../utils/Typescript";
+import { IBlog, ICategory } from "../utils/Typescript";
 
 const people = [
   { name: "Wade Cooper" },

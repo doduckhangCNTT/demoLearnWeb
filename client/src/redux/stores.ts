@@ -14,6 +14,9 @@ import { socketSlice } from "./reducers/socketSlice";
 import { messageSlice } from "./reducers/message/messageSlice";
 import { roomChatSlice } from "./reducers/roomChat/roomChatSlice";
 import { messageRoomSlice } from "./reducers/roomChat/messageRoomChatSlice";
+import { quickTestSlice } from "./reducers/quickTest/quickTestSlice";
+import { idQuickTestSlice } from "./reducers/quickTest/IdQuickTestNow";
+import { chooseQuestionSlice } from "./reducers/quickTest/chooseQuestionSlice";
 // import socketReducer from "./reducers/socketSlice";
 
 const store = configureStore({
@@ -36,6 +39,10 @@ const store = configureStore({
     conversation: messageSlice.reducer,
     roomChats: roomChatSlice.reducer,
     messageRoom: messageRoomSlice.reducer,
+
+    quickTests: quickTestSlice.reducer,
+    quickTestNow: idQuickTestSlice.reducer,
+    chooseQuestion: chooseQuestionSlice.reducer,
 
     socket: socketSlice.reducer,
   },

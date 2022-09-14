@@ -1,5 +1,5 @@
 import { checkTokenExp } from "../../../utils/CheckTokenExp";
-import { getApi, patchApi, postApi } from "../../../utils/FetchData";
+import { deleteApi, getApi, patchApi, postApi } from "../../../utils/FetchData";
 import {
   AppDispatch,
   IRoomChat,
@@ -22,6 +22,8 @@ const roomChatAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await postApi("roomChat", room, access_token);
+      console.log("Res room: ", res);
+      dispatch(roomChatSlice.actions.createRoomChat(res.data));
 
       dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
     } catch (error: any) {
@@ -36,9 +38,9 @@ const roomChatAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       const res = await getApi("roomChats", access_token);
-      console.log("Res: ", res);
+      // console.log("Res: ", res);
 
-      dispatch(roomChatSlice.actions.roomsChat(res.data));
+      dispatch(roomChatSlice.actions.getRoomsChat(res.data));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
@@ -138,7 +140,7 @@ const roomChatAction = {
         access_token
       );
 
-      console.log("Res: ", res);
+      // console.log("Res: ", res);
       await dispatch(
         messageRoomSlice.actions.deleteUserAdminRoomChat(res.data)
       );
@@ -150,11 +152,31 @@ const roomChatAction = {
     }
   },
 
-  updateRoomChat: async (dispatch: AppDispatch, token: string) => {
+  updateRoomChat: async (
+    value: { room: IRoomChatList; name: string },
+    dispatch: AppDispatch,
+    token: string
+  ) => {
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
+      const data = {
+        nameRoom: value.name,
+      };
+      const res = await patchApi(
+        `roomChat/${value.room._id}`,
+        data,
+        access_token
+      );
+      console.log("Res: ", res);
+
+      dispatch(
+        roomChatSlice.actions.updateRoomChat({
+          roomChat: value.room,
+          name: value.name,
+        })
+      );
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
@@ -162,11 +184,20 @@ const roomChatAction = {
     }
   },
 
-  deleteRoomChat: async (dispatch: AppDispatch, token: string) => {
+  deleteRoomChat: async (
+    room: IRoomChatList,
+    dispatch: AppDispatch,
+    token: string
+  ) => {
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
+
+      const res = await deleteApi(`roomChat/${room._id}`, access_token);
+      // console.log("Res delete room: ", res);
+      dispatch(roomChatSlice.actions.deleteRoomChat(res.data));
+      await deleteApi(`messages/roomChat/${room._id}`, access_token);
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {

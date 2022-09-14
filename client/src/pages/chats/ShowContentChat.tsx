@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AddIcons from "../../components/icons/AddIcons";
 import {
   closeIcon,
@@ -8,8 +8,13 @@ import {
   optionsCall,
 } from "../../components/icons/Icons";
 import LazyLoadingImg from "../../components/LazyLoadingImg/LazyLoadingImg";
+import roomChatAction from "../../redux/action/roomChat/roomChatAction";
 import { alertSlice } from "../../redux/reducers/alertSlice";
-import { messageSelector } from "../../redux/selector/selectors";
+import {
+  authSelector,
+  messageSelector,
+  roomChatSelector,
+} from "../../redux/selector/selectors";
 import {
   FormSubmit,
   InputChangedEvent,
@@ -42,11 +47,15 @@ const ShowContentChat: React.FC<IProps> = ({
   room,
 }) => {
   const { conversation } = useSelector(messageSelector);
+  const { authUser } = useSelector(authSelector);
+  const { roomChats } = useSelector(roomChatSelector);
+
   const dispatch = useDispatch();
   const refDisplay = useRef<HTMLDivElement>(null);
   const refPageEnd = useRef<HTMLButtonElement>(null);
   const [page, setPage] = useState(1);
   const [toggleTab, setToggleTab] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // if(page > conversation.)
@@ -95,6 +104,15 @@ const ShowContentChat: React.FC<IProps> = ({
     setText(value);
   };
 
+  const handleDeleteRoom = () => {
+    if (!authUser.access_token || !room) return;
+
+    if (window.confirm("Are you sure you want to delete")) {
+      roomChatAction.deleteRoomChat(room, dispatch, authUser.access_token);
+      navigate("/chats");
+    }
+  };
+
   return (
     <div className="relative">
       <div className="sticky top-[60px] z-10 flex justify-between p-2 shadow-md bg-white">
@@ -103,31 +121,33 @@ const ShowContentChat: React.FC<IProps> = ({
           <div className="flex hover:bg-slate-200 transition p-2 mt-2 rounded-md">
             {/* Check Room  */}
             {(value as IRoomChatList)?.users?.length > 0 ? (
-              <div
-                className="flex gap-2 items-center cursor-pointer"
-                onClick={() => setToggleTab(!toggleTab)}
-              >
-                {/* Image Users in Room  */}
-                <div className="mt-3 grid grid-cols-2 grid-rows-2 overflow-hidden">
-                  {(value as IRoomChatList)?.users
-                    .slice(0, 4)
-                    .map((user, index) => {
-                      return (
-                        <div key={index}>
-                          <img
-                            className="inline-block h-5 w-5 rounded-full ring-2 ring-white"
-                            src={user.avatar}
-                            alt=""
-                          />
-                        </div>
-                      );
-                    })}
-                </div>
+              <>
+                <div
+                  className="flex gap-2 items-center cursor-pointer "
+                  onClick={() => setToggleTab(!toggleTab)}
+                >
+                  {/* Image Users in Room  */}
+                  <div className="mt-3 grid grid-cols-2 grid-rows-2 overflow-hidden">
+                    {(value as IRoomChatList)?.users
+                      .slice(0, 4)
+                      .map((user, index) => {
+                        return (
+                          <div key={index}>
+                            <img
+                              className="inline-block h-5 w-5 rounded-full ring-2 ring-white"
+                              src={user.avatar}
+                              alt=""
+                            />
+                          </div>
+                        );
+                      })}
+                  </div>
 
-                <div className="text-[20px] font-bold">
-                  {(value as IRoomChatList)?.name}
+                  <div className="text-[20px] font-bold">
+                    {(value as IRoomChatList)?.name}
+                  </div>
                 </div>
-              </div>
+              </>
             ) : (
               <div className="flex gap-2 items-center">
                 <img
@@ -148,6 +168,20 @@ const ShowContentChat: React.FC<IProps> = ({
 
         {/* Options */}
         <div className="flex gap-2 items-center">
+          {roomChats.rooms.map((roomChat) => {
+            return roomChat._id === room?._id
+              ? roomChat.admin.map((ad) =>
+                  ad._id === authUser.user?._id ? (
+                    <button key={roomChat._id} onClick={handleDeleteRoom}>
+                      Delete
+                    </button>
+                  ) : (
+                    ""
+                  )
+                )
+              : "";
+          })}
+
           {optionsCall.map((option, index) => {
             return (
               <div className="flex gap-2 hover:opacity-[0.8]" key={index}>

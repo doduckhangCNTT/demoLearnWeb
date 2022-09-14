@@ -19,4 +19,8 @@ export const messageSelector = (state: RootState) => state;
 export const roomChatSelector = (state: RootState) => state;
 export const messageRoomChatSelector = (state: RootState) => state;
 
+export const quickTestsSelector = (state: RootState) => state;
+export const quickTestNowSelector = (state: RootState) => state;
+export const chooseQuestionSelector = (state: RootState) => state;
+
 export const socketSelector = (state: RootState) => state;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -11,11 +11,7 @@ import {
 import CardBlog from "./Card/CardBlog";
 import BlogOfCategory from "./yourBlogs/BlogOfCategory";
 import saveBlogAction from "../../redux/action/saveBlogAction";
-import {
-  IBlog,
-  IBookMarkBlogUser,
-  IGetBlogsCategory,
-} from "../../utils/Typescript";
+import { IBlog, IGetBlogsCategory } from "../../utils/Typescript";
 import blogAction from "../../redux/action/blogAction";
 import categoryAction from "../../redux/action/categoryAction";
 import { blogSlice } from "../../redux/reducers/blogSlice";
@@ -34,6 +30,9 @@ const Blogs = () => {
   const dispatch = useDispatch();
 
   const [blogsOfCategory, setBlogsOfCategory] = useState<IGetBlogsCategory>();
+  const [limit, setLimit] = useState(3);
+  const [qualityStart, setQualityStart] = useState(0);
+  const [listBlogs, setListBlogs] = useState<IBlog[]>([]);
   // const [limit, setLimit] = useState(3);
 
   useEffect(() => {
@@ -59,11 +58,6 @@ const Blogs = () => {
     setBlogsOfCategory(blogCategory);
   }, [blogsCategory, option]);
 
-  const [limit, setLimit] = useState(3);
-  const [qualityStart, setQualityStart] = useState(0);
-
-  const [listBlogs, setListBlogs] = useState<IBlog[]>([]);
-
   // console.log({ limit, qualityStart });
   // console.log("ListBlogs: ", listBlogs);
   // console.log("Blogs: ", blogs);
@@ -77,7 +71,6 @@ const Blogs = () => {
   });
 
   useEffect(() => {
-    // console.log("Value");
     if (blogs && listBlogs.length < blogs?.length) {
       blogs?.slice(qualityStart, limit).forEach((blog: IBlog) => {
         const res = listBlogs?.find((item) => item._id === blog._id);

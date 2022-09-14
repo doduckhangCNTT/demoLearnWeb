@@ -1,11 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IComment, IDeleteCommentBlog } from "../../utils/Typescript";
+import { IComment } from "../../utils/Typescript";
 import {
   IDeleteCommentBlogType,
-  IDeleteSaveBlogType,
   IUpdateCommentBlogType,
 } from "../types/blogType";
-import { IUser } from "../../utils/Typescript";
 import { ICommentType, IGetCommentType } from "../types/commentType";
 
 const initialState: IComment[] = [];

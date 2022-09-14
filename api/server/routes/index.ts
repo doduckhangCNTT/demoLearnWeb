@@ -9,6 +9,7 @@ import replyCommentBlogRouter from "./replyCommentBlogRouter";
 import messageRouter from "./messageRouter";
 import roomChatRouter from "./roomChat/roomChatRouter";
 import messageRoomCharRouter from "./roomChat/messageRoomChatRouter";
+import quickTestRouter from "./quickTestRouter";
 
 const routes = [
   authRouter,
@@ -24,6 +25,8 @@ const routes = [
   messageRouter,
   messageRoomCharRouter,
   roomChatRouter,
+
+  quickTestRouter,
 ];
 
 export default routes;

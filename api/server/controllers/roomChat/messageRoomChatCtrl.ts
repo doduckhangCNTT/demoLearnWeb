@@ -64,13 +64,28 @@ const messageRoomChatCtrl = {
 
   deleteMessage: async (req: IReqAuth, res: Response) => {
     try {
-      const { msgId } = req.params;
+      const { msgId, roomChatId } = req.params;
 
       const message = await MessageRoomChatModel.findOneAndDelete({
         _id: msgId,
       });
       console.log("Delete Msg: ", message);
       io.to(`${message.roomChat}`).emit("deleteMsg", message);
+
+      res.json(message);
+    } catch (error: any) {
+      res.status(500).json({ msg: error.message });
+    }
+  },
+
+  deleteMessageRoom: async (req: IReqAuth, res: Response) => {
+    try {
+      const { roomId } = req.params;
+
+      const message = await MessageRoomChatModel.deleteMany({
+        roomChat: roomId,
+      });
+      console.log("Delete Msg: ", message);
 
       res.json(message);
     } catch (error: any) {

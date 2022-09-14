@@ -89,3 +89,21 @@ export interface IUserParams {
   avatar?: string;
   type: string;
 }
+
+export interface IQuickTests {
+  user: string | IUser;
+  titleTest: string;
+  category: string;
+  time: number;
+  description: string;
+  image: { url: string | File; public_id: string };
+  numberOfTimes: number;
+  questions: [
+    {
+      titleQuestion: string;
+      typeQuestion: string;
+      correctly: string;
+      answers: [{ content: string }];
+    }
+  ];
+}

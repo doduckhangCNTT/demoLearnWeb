@@ -188,3 +188,41 @@ export interface IMessageRoom {
   text: string;
   roomChat?: IRoomChatList;
 }
+
+// -------------- quick test interface --------------
+export interface IQuickTest {
+  _id?: string;
+  user?: IUser | string;
+  titleTest: string;
+  category: string;
+  time: number;
+  description: string;
+  image: {
+    url: string | File;
+    public_id: string;
+  };
+  numberOfTimes: number;
+  questions?: IQuestion[];
+  idQuickTest?: string;
+  // questions: [
+  //   {
+  //     titleQuestion: string;
+  //     typeQuestion: string;
+  //     correctly: string;
+  //     answers: [{ content: string }];
+  //   }
+  // ];
+  createdAt?: string;
+}
+
+export interface IQuestion {
+  _id?: string;
+  titleQuestion: string;
+  typeQuestion: string;
+  correctly: string;
+  answers: IAnswer[];
+}
+
+export interface IAnswer {
+  content: string;
+}

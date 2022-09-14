@@ -5,6 +5,7 @@ import { conversationIcons, searchIcon } from "../../components/icons/Icons";
 import useDebounce from "../../hooks/useDebounce";
 import {
   authSelector,
+  messageRoomChatSelector,
   messageSelector,
   roomChatSelector,
 } from "../../redux/selector/selectors";
@@ -15,6 +16,7 @@ const Conversations = () => {
   const { authUser } = useSelector(authSelector);
   const { roomChats } = useSelector(roomChatSelector);
   const { conversation } = useSelector(messageSelector);
+  const { messageRoom } = useSelector(messageRoomChatSelector);
 
   const [searchUser, setSearchUser] = useState("");
   const [users, setUsers] = useState<IUser[]>([]);
@@ -83,17 +85,24 @@ const Conversations = () => {
               return (
                 <li key={index}>
                   <Link
-                    to={`roomChat/${room._id}`}
+                    to={`roomChat/${room?._id}`}
                     className="flex justify-between p-2 border-2"
                   >
+                    {/* Title && text chat */}
                     <div>
-                      <h1 className="text-[20p] font-bold">{room.name}</h1>
-                      <small>abc</small>
+                      <h1 className="text-[20p] font-bold">{room?.name}</h1>
+                      <small>
+                        {
+                          messageRoom.messages[messageRoom.messages.length - 1]
+                            ?.text
+                        }
+                      </small>
                     </div>
 
+                    {/* Show a little users in Room Chat */}
                     <div>
                       <div className="mt-3 flex -space-x-2 overflow-hidden">
-                        {room.users.slice(0, 3).map((user, index) => {
+                        {room?.users.slice(0, 3).map((user, index) => {
                           return (
                             <img
                               key={index}
@@ -106,9 +115,9 @@ const Conversations = () => {
                       </div>
                       <div className="mt-3 text-sm font-medium">
                         <div className="text-blue-500">
-                          {room.users.length - 3 < 0
+                          {room?.users.length - 3 < 0
                             ? ""
-                            : `+${room.users.length - 3} others`}
+                            : `+${room?.users.length - 3} others`}
                         </div>
                       </div>
                     </div>

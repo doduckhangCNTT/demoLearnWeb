@@ -4,13 +4,19 @@ import TabAllUser from "./TabAllUser";
 import TabAdmin from "./TabAdmin";
 import TabAddUser from "./TabAddUser";
 import { IRoomChatList } from "../../../utils/Typescript";
+import TabEditRoom from "./TabEditRoom";
 
 interface IProps {
   room?: IRoomChatList;
 }
 
 const TabOption: React.FC<IProps> = ({ room }) => {
-  const tabs = [{ name: "All User" }, { name: "Admins" }, { name: "Add User" }];
+  const tabs = [
+    { name: "All User" },
+    { name: "Admins" },
+    { name: "Add User" },
+    { name: "Edit Room Chat" },
+  ];
 
   return (
     <div className="w-2/3 px-2 py-16 sm:px-0 m-auto">
@@ -38,6 +44,9 @@ const TabOption: React.FC<IProps> = ({ room }) => {
           <Tab.Panel>
             <TabAddUser room={room} />
           </Tab.Panel>
+
+          {/* Tab Edit Room */}
+          <Tab.Panel>{room && <TabEditRoom room={room} />}</Tab.Panel>
         </Tab.Panels>
       </Tab.Group>
     </div>

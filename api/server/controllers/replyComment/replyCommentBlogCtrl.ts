@@ -17,7 +17,7 @@ const replyCommentsBlogCtrl = {
         reply_user,
       } = req.body;
 
-      console.log("Reply user: ", reply_user);
+      // console.log("Reply user: ", reply_user);
       const newReplyComment = new ReplyCommentBlogModel({
         user: req.user?._id,
         content,
@@ -29,7 +29,7 @@ const replyCommentsBlogCtrl = {
         reply_user: reply_user._id,
       });
 
-      console.log("New Reply Comment: ", newReplyComment);
+      // console.log("New Reply Comment: ", newReplyComment);
 
       await ReplyCommentBlogModel.findOneAndUpdate(
         {

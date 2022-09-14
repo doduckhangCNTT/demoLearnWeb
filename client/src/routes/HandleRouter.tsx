@@ -21,6 +21,14 @@ const ResetPassWord = React.lazy(
 const CreateCategory = React.lazy(
   () => import("../pages/category/CreateCategory")
 );
+
+// Quick Test
+const QuickTest = React.lazy(() => import("../pages/quickTest/QuickTest"));
+const ShowPrevious = React.lazy(
+  () => import("../pages/quickTest/showPrevious/ShowPrevious")
+);
+
+// User
 const UserProfile = React.lazy(() => import("../pages/user/UserProfile"));
 const UserSetting = React.lazy(() => import("../pages/user/UserSetting"));
 const LearningPaths = React.lazy(() => import("./LearningPaths"));
@@ -31,6 +39,7 @@ const MainChat = React.lazy(() => import("../pages/chats/Index"));
 const ActiveUser = React.lazy(() => import("../pages/active/ActiveUser"));
 const NotFound = React.lazy(() => import("../components/global/NotFound"));
 
+// Blog
 const Blogs = React.lazy(() => import("../pages/blogs/Blogs"));
 const CreateBlog = React.lazy(() => import("../pages/blogs/CreateBlog"));
 const UpdateBlog = React.lazy(
@@ -83,6 +92,10 @@ const HandleRouter = () => {
             <Route path="newRoom" element={<RoomChat />} />
           </Route>
           <Route path="create_category" element={<CreateCategory />} />
+
+          <Route path="quick_test" element={<QuickTest />} />
+          <Route path="quick_test/question/:id" element={<QuickTest />} />
+          <Route path="quick_test/show_previous" element={<ShowPrevious />} />
 
           <Route path="your_profile" element={<UserProfile />} />
           <Route path="your_setting" element={<UserSetting />} />

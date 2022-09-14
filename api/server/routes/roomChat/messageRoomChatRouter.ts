@@ -18,4 +18,8 @@ router.delete(
   messageRoomChatCtrl.deleteMessage
 );
 
+router
+  .route("/messages/roomChat/:roomId")
+  .delete(authUser, messageRoomChatCtrl.deleteMessageRoom);
+
 export default router;

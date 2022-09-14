@@ -36,6 +36,10 @@ const listInfoOfUser = {
     name: "Chats",
     path: "/chats",
   },
+  quickTest: {
+    name: "Quick Test",
+    path: "/quick_test",
+  },
   createCategory: {
     name: "Create Category",
     path: "/create_category",
@@ -204,9 +208,10 @@ export default function Header() {
                                   )}
                                 </Menu.Item>
 
-                                {/* Create Categories */}
+                                {/* Create Categories and Quick test */}
                                 {authUser.user.role === "admin" ? (
                                   <div className="border-t-2">
+                                    {/* Categories */}
                                     <Menu.Item>
                                       {({ active }) => (
                                         <Link
@@ -219,6 +224,21 @@ export default function Header() {
                                           )}
                                         >
                                           {listInfoOfUser.createCategory.name}
+                                        </Link>
+                                      )}
+                                    </Menu.Item>
+
+                                    {/* Quick Test */}
+                                    <Menu.Item>
+                                      {({ active }) => (
+                                        <Link
+                                          to={listInfoOfUser.quickTest.path}
+                                          className={classNames(
+                                            active ? "bg-gray-100" : "",
+                                            "block px-4 py-2 text-sm text-gray-700"
+                                          )}
+                                        >
+                                          {listInfoOfUser.quickTest.name}
                                         </Link>
                                       )}
                                     </Menu.Item>

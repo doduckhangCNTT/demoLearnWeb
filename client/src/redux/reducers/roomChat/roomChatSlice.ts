@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { IRoomChatList, IUser } from "../../../utils/Typescript";
 import {
   IAddUserRoomChat,
+  ICreateRoomChatType,
   IDeleteUserAdminRoomChat,
   IDeleteUserRoomChat,
 } from "../../types/roomChatType";
@@ -14,13 +15,20 @@ export const roomChatSlice = createSlice({
   name: "roomChat",
   initialState,
   reducers: {
-    roomsChat: (state, action: any) => {
+    getRoomsChat: (state, action: any) => {
       if (state.rooms.every((room) => room._id !== action.payload[0]._id)) {
         return {
           ...state,
           rooms: [...state.rooms, ...action.payload],
         };
       }
+    },
+
+    createRoomChat: (state, action: ICreateRoomChatType) => {
+      return {
+        ...state,
+        rooms: [...state.rooms, action.payload.roomChat],
+      };
     },
 
     addUserRoomChat: (state, action: IAddUserRoomChat) => {
@@ -62,6 +70,25 @@ export const roomChatSlice = createSlice({
         rooms: state.rooms.map((room) =>
           room._id === action.payload.adminsInRoom?._id
             ? { ...room, admin: action.payload.adminsInRoom.admin as IUser[] }
+            : room
+        ),
+      };
+    },
+    deleteRoomChat: (state, action: any) => {
+      return {
+        ...state,
+        rooms: state.rooms.filter(
+          (room) => room?._id !== action.payload.roomChat?._id
+        ),
+      };
+    },
+
+    updateRoomChat: (state, action: any) => {
+      return {
+        ...state,
+        rooms: state.rooms.map((room) =>
+          room?._id === action.payload.roomChat?._id
+            ? { ...room, name: action.payload.name }
             : room
         ),
       };

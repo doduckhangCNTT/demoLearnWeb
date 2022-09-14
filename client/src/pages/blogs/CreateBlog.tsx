@@ -19,7 +19,7 @@ interface IProps {
 }
 
 const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
-  console.log({ id, valueId });
+  // console.log({ id, valueId });
   const initialState = {
     user: "",
     title: "",
@@ -39,9 +39,9 @@ const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
   const [oldData, setOldData] = useState<IBlog>(initialState);
   const [blog, setBlog] = useState<IBlog>(initialState);
 
-  const dispatch = useDispatch();
   const { categories } = useSelector(categorySelector);
   const { authUser } = useSelector(authSelector);
+  const dispatch = useDispatch();
 
   const divRef = useRef<HTMLDivElement>(null);
 

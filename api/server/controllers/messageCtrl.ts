@@ -114,7 +114,7 @@ const messageCtrl = {
       const message = await Messages.findOneAndDelete({ _id: req.params.id });
       // Socket
       const user = usersActive.find(
-        (user) => user.id === message.recipient.toString()
+        (user) => user.id === message.recipient?.toString()
       );
       user && io.to(`${user?.socketId}`)?.emit("deleteMessage", message);
 

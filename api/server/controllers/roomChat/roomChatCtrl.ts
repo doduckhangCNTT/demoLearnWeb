@@ -1,6 +1,8 @@
 import { Response } from "express";
+import { io } from "../../index";
 import { IReqAuth } from "../../config/interface";
 import RoomChatModel from "../../models/roomChatModel";
+import { usersActive } from "../../config/socket";
 
 const roomChatCtrl = {
   createRoomChat: async (req: IReqAuth, res: Response) => {
@@ -18,7 +20,24 @@ const roomChatCtrl = {
 
       await roomChat.save();
 
-      res.json({ msg: "Create Room Chat successfully!" });
+      const data = {
+        ...roomChat._doc,
+        admin: [req.user],
+        users: listUser,
+      };
+
+      console.log("Data: ", data);
+
+      listUser.forEach((user: any) => {
+        const userLive = usersActive.find(
+          (userActive) => userActive.id === user._id
+        );
+        if (userLive) {
+          io.to(`${userLive.socketId}`).emit("createRoom", data);
+        }
+      });
+
+      res.json({ msg: "Create Room Chat successfully!", roomChat: data });
     } catch (error: any) {
       res.status(500).json({ msg: error.message });
     }
@@ -159,6 +178,17 @@ const roomChatCtrl = {
 
   updateRoomChat: async (req: IReqAuth, res: Response) => {
     try {
+      const { nameRoom } = req.body;
+
+      const roomChat = await RoomChatModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { name: nameRoom },
+        { new: true }
+      )
+        .populate("users", "-password -rf_token")
+        .populate("admin", "-password -rf_token");
+
+      res.json({ msg: "Update Room Chat successfully", roomChat });
     } catch (error: any) {
       res.status(500).json({ msg: error.message });
     }
@@ -166,6 +196,16 @@ const roomChatCtrl = {
 
   deleteRoomChat: async (req: IReqAuth, res: Response) => {
     try {
+      // const { admin } = req.body;
+
+      // if (admin._id !== req.user?._id)
+      //   return res.status(400).json({ msg: "You aren't admin of Room Chat" });
+
+      const roomChat = await RoomChatModel.findOneAndDelete({
+        _id: req.params.id,
+      });
+
+      res.json({ msg: "Delete Room Chat successfully", roomChat });
     } catch (error: any) {
       res.status(500).json({ msg: error.message });
     }

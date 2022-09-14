@@ -1,6 +1,5 @@
 import { AppDispatch } from "./Typescript";
 import jwt_decode from "jwt-decode";
-import actionAuth from "../redux/action/actionAuth";
 import { getApi } from "./FetchData";
 
 interface IDecode {

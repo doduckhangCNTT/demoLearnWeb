@@ -20,6 +20,7 @@ import {
   IQuickTest,
   IQuestion,
   IUser,
+  IQuestionNow,
 } from "../../utils/Typescript";
 import { useParams } from "react-router-dom";
 
@@ -50,6 +51,8 @@ const QuickTest = () => {
     numberOfTimes: 1,
   };
   const [quickTest, setQuickTest] = useState<IQuickTest>(initialState);
+  const [questionNow, setQuestionNow] = useState<IQuestionNow>();
+  const { id } = useParams();
 
   const { categories } = useSelector(categorySelector);
   const { authUser } = useSelector(authSelector);
@@ -57,12 +60,7 @@ const QuickTest = () => {
   const { quickTestNow } = useSelector(quickTestNowSelector);
   const dispatch = useDispatch();
 
-  const [questionNow, setQuestionNow] = useState();
-  console.log("Question: ", questionNow);
-  const { id } = useParams();
-
-  console.log("ID: ", id);
-
+  // Lay question voi id tuong ung
   const handleGetQuestion = useCallback(async () => {
     if (id) {
       const res = await getApi(
@@ -120,10 +118,8 @@ const QuickTest = () => {
   const handleInputFile = (e: InputChangedEvent) => {
     const target = e.target as HTMLInputElement;
     const files = target.files;
-    // console.log("Files: ", files);
     if (files) {
       const file = files[0];
-      // console.log("File: ", files[0]);
       setQuickTest({ ...quickTest, image: { public_id: "", url: file } });
     }
   };
@@ -172,8 +168,8 @@ const QuickTest = () => {
       {/* Navbar */}
       <NavbarQuickTest />
 
-      {/* Content */}
       <div className="flex gap-2">
+        {/* Content */}
         <div className="w-2/3 shadow-md mt-5 p-2">
           <div className="">
             <h1 className="font-bold text-[30px] mx-auto">

@@ -4,9 +4,9 @@ import QuickTestModel from "../models/quickTestModel";
 
 const quickTestCtrl = {
   getQuickTests: async (req: IReqAuth, res: Response) => {
-    // if (!req.user) {
-    //   return res.status(400).json({ msg: "Invalid Authentication" });
-    // }
+    if (!req.user) {
+      return res.status(400).json({ msg: "Invalid Authentication" });
+    }
     try {
       const quickTests = await QuickTestModel.find().populate("user");
 
@@ -76,7 +76,38 @@ const quickTestCtrl = {
     }
   },
 
-  getQuestion: async (req: Request, res: Response) => {
+  updateQuickTest: async (req: IReqAuth, res: Response) => {
+    if (!req.user)
+      return res.status(400).json({ msg: "Invalid Authentication" });
+
+    try {
+      const { quickTest } = req.body;
+      console.log("Quick Test: ", quickTest);
+      await QuickTestModel.findOneAndUpdate(
+        {
+          _id: req.params.id,
+          user: req.user._id,
+        },
+        quickTest
+      );
+
+      return res.json({ success: true, message: "Added a question" });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  deleteQuickTest: async (req: IReqAuth, res: Response) => {
+    try {
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  getQuestion: async (req: IReqAuth, res: Response) => {
+    if (!req.user)
+      return res.status(400).json({ msg: "Invalid Authentication" });
+
     if (!req.params.id) {
       return res
         .status(400)
@@ -102,7 +133,10 @@ const quickTestCtrl = {
     }
   },
 
-  updateQuestion: async (req: Request, res: Response) => {
+  updateQuestion: async (req: IReqAuth, res: Response) => {
+    if (!req.user)
+      return res.status(400).json({ msg: "Invalid Authentication" });
+
     if (!req.params.id) {
       return res
         .status(400)
@@ -125,13 +159,16 @@ const quickTestCtrl = {
           .json({ success: false, message: "Quick test not found" });
       }
 
-      return res.json({ quickQuestion });
+      return res.json({ quickQuestion, msg: "Update question successfully" });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }
   },
 
-  deleteQuestion: async (req: Request, res: Response) => {
+  deleteQuestion: async (req: IReqAuth, res: Response) => {
+    if (!req.user)
+      return res.status(400).json({ msg: "Invalid Authentication" });
+
     if (!req.params.id) {
       return res
         .status(400)
@@ -153,34 +190,6 @@ const quickTestCtrl = {
       }
 
       return res.json({ quickQuestion });
-    } catch (error: any) {
-      res.status(500).json({ success: false, error: error.message });
-    }
-  },
-
-  updateQuickTest: async (req: IReqAuth, res: Response) => {
-    if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
-
-    try {
-      const { quickTest } = req.body;
-      console.log("Quick Test: ", quickTest);
-      await QuickTestModel.findOneAndUpdate(
-        {
-          _id: req.params.id,
-          user: req.user._id,
-        },
-        quickTest
-      );
-
-      return res.json({ success: true, message: "Added a question" });
-    } catch (error: any) {
-      res.status(500).json({ success: false, error: error.message });
-    }
-  },
-
-  deleteQuickTest: async (req: IReqAuth, res: Response) => {
-    try {
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }

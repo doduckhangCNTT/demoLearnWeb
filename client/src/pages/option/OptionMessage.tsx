@@ -20,10 +20,10 @@ const OptionMessage: React.FC<IProps> = ({ msg }) => {
 
     // Check roomChat and Message Chat
     if (((msg as IMessageRoom).roomChat?.users as IUser[])?.length > 0) {
-      console.log("Room Chat");
+      // console.log("Room Chat");
       messageRoomChatAction.deleteMessage(msg, authUser.access_token, dispatch);
     } else {
-      console.log("Message Chat");
+      // console.log("Message Chat");
 
       messageAction.deleteMessage(
         msg as IMessage,

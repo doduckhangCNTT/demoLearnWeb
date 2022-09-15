@@ -1,4 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { alertSlice } from "../../../redux/reducers/alertSlice";
+import {
+  authSelector,
+  quickTestNowSelector,
+  quickTestsSelector,
+} from "../../../redux/selector/selectors";
+import { getApi } from "../../../utils/FetchData";
+import { IQuickTest } from "../../../utils/Typescript";
 
 const ShowPrevious = () => {
   const numberQuestions = [
@@ -63,31 +72,56 @@ const ShowPrevious = () => {
     },
   ];
 
+  const [quickTest, setQuickTest] = useState<IQuickTest>();
+
+  const { quickTests } = useSelector(quickTestsSelector);
+  const { quickTestNow } = useSelector(quickTestNowSelector);
+  const { authUser } = useSelector(authSelector);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const handle = async () => {
+      if (!authUser.access_token) {
+        return dispatch(
+          alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+        );
+      }
+      const res = await getApi(
+        `quickTest/${quickTestNow.id}`,
+        authUser.access_token
+      );
+
+      setQuickTest(res.data.quickTest);
+    };
+
+    handle();
+  }, [authUser.access_token, dispatch, quickTestNow.id]);
+
   return (
     <div className="flex gap-2 w-2/3 mx-auto">
       <div className="flex flex-col gap-2 w-2/3 shadow-md p-3">
         {/* Title of quickTest  */}
         <div className="">
-          <h1 className="font-bold text-[30px]">Tieu de bai test</h1>
+          <h1 className="font-bold text-[30px]">{quickTest?.titleTest}</h1>
         </div>
 
         {/* Show all questions of quickTest */}
         <div className="w-full">
           <form action="">
-            {questions.map((q, index) => {
+            {quickTest?.questions?.map((q, index) => {
               return (
                 <div key={index} className="mt-2">
                   <h1 className="text-[20px]">
-                    Cau {index + 1}: {q.title}
+                    Cau {index + 1}: {q.titleQuestion}
                   </h1>
                   <div className="ml-[20px]">
                     {q.answers.map((a, i) => {
                       return (
                         <div key={i} className="flex gap-2">
                           <input
-                            type="radio"
+                            type={q.typeQuestion}
                             id={`${a.content}`}
-                            name={`${q.title}`}
+                            name={`${q.titleQuestion}`}
                           />
                           <label
                             htmlFor={`${a.content}`}
@@ -121,7 +155,7 @@ const ShowPrevious = () => {
         <div>
           <h2>Tat ca cac cau da lam</h2>
           <div className="grid gap-2 lg:grid-cols-10 md:grid-cols-6 sm:grid-cols-5">
-            {numberQuestions.map((n, index) => {
+            {quickTest?.questions?.map((n, index) => {
               return (
                 <div
                   key={index}
@@ -131,7 +165,7 @@ const ShowPrevious = () => {
                     flex items-center justify-center
                   hover:bg-green-500 hover:text-white cursor-pointer"
                 >
-                  {n.name}
+                  {index + 1}
                 </div>
               );
             })}

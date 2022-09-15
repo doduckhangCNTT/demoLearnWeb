@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "../../redux/selector/selectors";
 import { IQuestion, IQuickTest } from "../../utils/Typescript";
 import { chooseQuestionSlice } from "../../redux/reducers/quickTest/chooseQuestionSlice";
+import quickTestAction from "../../redux/action/quickTestAction";
+import { alertSlice } from "../../redux/reducers/alertSlice";
 
 interface IProps {
   quickTest_OfQuestion: IQuickTest;
@@ -23,13 +25,15 @@ const OptionQuestion: React.FC<IProps> = ({
   const { authUser } = useSelector(authSelector);
   const dispatch = useDispatch();
 
-  const handleUpdateQuestion = (question: IQuestion) => {
-    dispatch(
-      chooseQuestionSlice.actions.createQuestionAndQuickTestNow({
-        question: question,
-        quickTest_OfQuestion,
-      })
-    );
+  const handleDeleteQuestion = (question: IQuestion) => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+    if (window.confirm("Do you have want delete this question ?")) {
+      quickTestAction.deleteQuestion(question, authUser.access_token, dispatch);
+    }
   };
 
   return (
@@ -73,7 +77,7 @@ const OptionQuestion: React.FC<IProps> = ({
                       active ? "bg-gray-100" : "",
                       "block px-4 py-2 text-sm text-gray-700"
                     )}
-                    onClick={() => handleUpdateQuestion(question)}
+                    // onClick={() => handleUpdateQuestion(question)}
                   >
                     Edit
                   </Link>
@@ -84,7 +88,7 @@ const OptionQuestion: React.FC<IProps> = ({
               <Menu.Item>
                 {({ active }) => (
                   <button
-                    // onClick={handleDeleteBlog}
+                    onClick={() => handleDeleteQuestion(question)}
                     className={classNames(
                       active ? "bg-gray-100" : "",
                       "block px-4 py-2 text-sm text-gray-700 w-full text-left"

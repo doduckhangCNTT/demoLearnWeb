@@ -11,7 +11,7 @@ import {
 import { getApi } from "../../../utils/FetchData";
 import {
   InputChangedEvent,
-  IQuestion,
+  IQuestionNow,
   IQuickTest,
 } from "../../../utils/Typescript";
 
@@ -21,7 +21,7 @@ interface Field {
 
 interface IProps {
   quickTest: IQuickTest;
-  questionNow?: any;
+  questionNow?: IQuestionNow;
   setQuickTest: (quickTest: IQuickTest) => void;
 }
 
@@ -31,23 +31,15 @@ const Answer: React.FC<IProps> = ({ quickTest, questionNow, setQuickTest }) => {
     { type: "checkbox", name: "CheckBox" },
   ];
 
-  // const initialState = {
-  //   answers: [{ content: "" }],
-  //   value: [{ content: "" }],
-  // };
-
   const [typeAnswer, setTypeAnswer] = useState("radio");
   const [answerCorrectly, setAnswerCorrectly] = useState("");
   const [formFields, setFormFields] = useState([{ content: "" }]);
-  // const [formFields, setFormFields] = useState(initialState);
-  // const [showFormFields, setShowFormFields] = useState(initialState);
   const [body, setBody] = useState("");
   const [text, setText] = useState("");
   const divRef = useRef<HTMLDivElement>(null);
 
   const { authUser } = useSelector(authSelector);
   const { quickTestNow } = useSelector(quickTestNowSelector);
-  const { chooseQuestion } = useSelector(chooseQuestionSelector);
 
   const dispatch = useDispatch();
 
@@ -71,29 +63,7 @@ const Answer: React.FC<IProps> = ({ quickTest, questionNow, setQuickTest }) => {
       setFormFields(questionNow.questions[0].answers);
       setBody(questionNow.questions[0].titleQuestion);
     }
-  }, [questionNow]);
-
-  // useEffect(() => {
-  //   if (
-  //     (chooseQuestion.question.typeQuestion,
-  //     chooseQuestion.question.correctly,
-  //     chooseQuestion.question.answers,
-  //     chooseQuestion.question.titleQuestion)
-  //   ) {
-  //     setTypeAnswer(chooseQuestion.question?.typeQuestion);
-  //     setAnswerCorrectly(chooseQuestion.question?.correctly);
-  //     setFormFields({
-  //       ...formFields,
-  //       answers: chooseQuestion.question?.answers,
-  //     });
-  //     // setShowFormFields({
-  //     //   ...showFormFields,
-  //     //   test: chooseQuestion.question?.answers,
-  //     // });
-
-  //     setBody(chooseQuestion.question?.titleQuestion);
-  //   }
-  // }, [chooseQuestion.question, formFields]);
+  }, [questionNow?.questions]);
 
   const handleChangeInput_SelectType_Answer = (e: InputChangedEvent) => {
     const { value } = e.target;
@@ -110,21 +80,12 @@ const Answer: React.FC<IProps> = ({ quickTest, questionNow, setQuickTest }) => {
     const { name, value } = event.target;
     data[index][name as keyof typeof formFields[0]] = value;
     setFormFields(data);
-
-    // let data: Field[] = [...formFields.answers];
-    // const { name, value } = event.target;
-    // data[index][name as keyof typeof formFields.answers[0]] = value;
-    // setFormFields({ ...formFields, answers: data });
   };
 
   const removeAnswer = (index: number) => {
     let data = [...formFields];
     data.splice(index, 1);
     setFormFields(data);
-
-    // let data = [...formFields.answers];
-    // data.splice(index, 1);
-    // setFormFields({ ...formFields, answers: data });
   };
 
   const addAnswer = () => {
@@ -132,20 +93,11 @@ const Answer: React.FC<IProps> = ({ quickTest, questionNow, setQuickTest }) => {
       content: "",
     };
     setFormFields([...formFields, object]);
-
-    // let object = {
-    //   content: "",
-    // };
-    // setFormFields({
-    //   ...formFields,
-    //   answers: [...formFields.answers, object],
-    // });
   };
 
   const clearQuestion = () => {
     setTypeAnswer("radio");
     setAnswerCorrectly("");
-    // setFormFields({ ...formFields, answers: [{ content: "" }] });
     setFormFields([{ content: "" }]);
     setBody("");
   };
@@ -188,6 +140,36 @@ const Answer: React.FC<IProps> = ({ quickTest, questionNow, setQuickTest }) => {
     };
 
     handleUploadQuestion();
+  };
+
+  const handleSubmit_Form_Update_Question = () => {
+    const handleUpdateQuestion = async () => {
+      if (!authUser.access_token) {
+        return dispatch(
+          alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+        );
+      }
+
+      const newQuestion = {
+        titleQuestion: text,
+        typeQuestion: typeAnswer,
+        answers: formFields,
+        correctly: answerCorrectly,
+      };
+
+      clearQuestion();
+
+      quickTestAction.updateQuestion(
+        {
+          newQuestion: newQuestion,
+          idQuestionNow: questionNow?.questions[0]._id,
+        },
+        authUser.access_token,
+        dispatch
+      );
+    };
+
+    handleUpdateQuestion();
   };
 
   return (
@@ -238,7 +220,6 @@ const Answer: React.FC<IProps> = ({ quickTest, questionNow, setQuickTest }) => {
                     className=" outline-none border-2 w-full"
                     type="text"
                     name="content"
-                    // value={form.content}
                     value={form.content}
                     onChange={(event) => handleFormChange(event, index)}
                   />
@@ -277,12 +258,21 @@ const Answer: React.FC<IProps> = ({ quickTest, questionNow, setQuickTest }) => {
       </button>
 
       <div className="flex gap-2 justify-end mt-5">
-        <button
-          onClick={handleSubmit_Form_Question}
-          className="p-2 hover:bg-sky-500 hover:text-white border-2"
-        >
-          Create
-        </button>
+        {questionNow?.questions ? (
+          <button
+            onClick={handleSubmit_Form_Update_Question}
+            className="p-2 hover:bg-sky-500 hover:text-white border-2"
+          >
+            Update
+          </button>
+        ) : (
+          <button
+            onClick={handleSubmit_Form_Question}
+            className="p-2 hover:bg-sky-500 hover:text-white border-2"
+          >
+            Create
+          </button>
+        )}
       </div>
     </div>
   );

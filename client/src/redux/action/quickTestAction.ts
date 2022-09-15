@@ -1,11 +1,14 @@
 import { checkTokenExp } from "../../utils/CheckTokenExp";
-import { getApi, patchApi, postApi } from "../../utils/FetchData";
-import { AppDispatch, IQuickTest } from "../../utils/Typescript";
+import { deleteApi, getApi, patchApi, postApi } from "../../utils/FetchData";
+import { AppDispatch, IQuestion, IQuickTest } from "../../utils/Typescript";
 import { alertSlice } from "../reducers/alertSlice";
 import { quickTestSlice } from "../reducers/quickTest/quickTestSlice";
 import { idQuickTestSlice } from "../reducers/quickTest/IdQuickTestNow";
-import { quickTestNowSelector } from "../selector/selectors";
-import { useSelector } from "react-redux";
+
+interface IValue {
+  newQuestion: IQuestion;
+  idQuestionNow?: string;
+}
 
 const quickTestAction = {
   createQuickTest: async (
@@ -98,6 +101,53 @@ const quickTestAction = {
           quickTest,
         })
       );
+
+      dispatch(alertSlice.actions.alertAdd({ loading: false }));
+    } catch (error: any) {
+      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
+    }
+  },
+
+  updateQuestion: async (
+    value: IValue,
+    token: string,
+    dispatch: AppDispatch
+  ) => {
+    const result = await checkTokenExp(token, dispatch);
+    const access_token = result ? result : token;
+
+    try {
+      dispatch(alertSlice.actions.alertAdd({ loading: true }));
+
+      const res = await patchApi(
+        `quickTest/question/${value.idQuestionNow}`,
+        { newQuestion: value.newQuestion },
+        access_token
+      );
+      dispatch(quickTestSlice.actions.updateQuestion(res.data));
+
+      dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
+    } catch (error: any) {
+      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
+    }
+  },
+
+  deleteQuestion: async (
+    question: IQuestion,
+    token: string,
+    dispatch: AppDispatch
+  ) => {
+    const result = await checkTokenExp(token, dispatch);
+    const access_token = result ? result : token;
+
+    try {
+      dispatch(alertSlice.actions.alertAdd({ loading: true }));
+
+      const res = await deleteApi(
+        `quickTest/question/${question._id}`,
+        access_token
+      );
+      dispatch(quickTestSlice.actions.deleteQuestion(res.data));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {

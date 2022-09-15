@@ -204,14 +204,6 @@ export interface IQuickTest {
   numberOfTimes: number;
   questions?: IQuestion[];
   idQuickTest?: string;
-  // questions: [
-  //   {
-  //     titleQuestion: string;
-  //     typeQuestion: string;
-  //     correctly: string;
-  //     answers: [{ content: string }];
-  //   }
-  // ];
   createdAt?: string;
 }
 
@@ -225,4 +217,10 @@ export interface IQuestion {
 
 export interface IAnswer {
   content: string;
+}
+
+export interface IQuestionNow {
+  _id: string;
+  user: IUser;
+  questions: IQuestion[];
 }

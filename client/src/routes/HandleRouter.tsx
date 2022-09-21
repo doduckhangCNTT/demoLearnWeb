@@ -1,12 +1,9 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
-import SaveBlog from "../pages/blogs/SaveBlog";
-import ContentChat from "../pages/chats/ContentChat";
-import ContentRoomChat from "../pages/chats/roomChat/ContentRoomChat";
 
 // React Lazy
 const PagesCommon = React.lazy(() => import("../pages/PagesCommon"));
-const Home = React.lazy(() => import("../pages/Home"));
+const Home = React.lazy(() => import("../pages/home/Home"));
 const LoginPass = React.lazy(() => import("../components/auth/LoginPass"));
 const RegisterForm = React.lazy(
   () => import("../components/auth/RegisterForm")
@@ -31,12 +28,17 @@ const ShowPrevious = React.lazy(
 // User
 const UserProfile = React.lazy(() => import("../pages/user/UserProfile"));
 const UserSetting = React.lazy(() => import("../pages/user/UserSetting"));
-const LearningPaths = React.lazy(() => import("./LearningPaths"));
-const Courses = React.lazy(() => import("../pages/Courses"));
+const LearningPaths = React.lazy(
+  () => import("../pages/learnPath/LearningPaths")
+);
 const Chats = React.lazy(() => import("../pages/chats/Chats"));
 const RoomChat = React.lazy(() => import("../pages/chats/roomChat/RoomChat"));
 const MainChat = React.lazy(() => import("../pages/chats/Index"));
 const ActiveUser = React.lazy(() => import("../pages/active/ActiveUser"));
+const ContentChat = React.lazy(() => import("../pages/chats/ContentChat"));
+const ContentRoomChat = React.lazy(
+  () => import("../pages/chats/roomChat/ContentRoomChat")
+);
 const NotFound = React.lazy(() => import("../components/global/NotFound"));
 
 // Blog
@@ -45,6 +47,9 @@ const CreateBlog = React.lazy(() => import("../pages/blogs/CreateBlog"));
 const UpdateBlog = React.lazy(
   () => import("../pages/blogs/updateBlog/UpdateBlog")
 );
+
+const SaveBlog = React.lazy(() => import("../pages/blogs/SaveBlog"));
+
 const UpdateDraftBlog = React.lazy(
   () => import("../pages/blogs/updateBlog/UpdateDraftBlog")
 );
@@ -61,6 +66,17 @@ const PublishedBlogs = React.lazy(
 );
 const DraftsBlogs = React.lazy(
   () => import("../pages/blogs/yourBlogs/DraftsBlogs")
+);
+
+// Course
+const FullStack = React.lazy(
+  () => import("../pages/learnPath/category/FullStack")
+);
+const BackEnd = React.lazy(() => import("../pages/learnPath/category/BackEnd"));
+const FontEnd = React.lazy(() => import("../pages/learnPath/category/FontEnd"));
+const Devops = React.lazy(() => import("../pages/learnPath/category/Devops"));
+const DetailOrShowCourse = React.lazy(
+  () => import("../pages/home/course/DetailOrShowCourse")
 );
 
 const HandleRouter = () => {
@@ -100,8 +116,17 @@ const HandleRouter = () => {
           <Route path="your_profile" element={<UserProfile />} />
           <Route path="your_setting" element={<UserSetting />} />
 
-          <Route path="leaning-paths" element={<LearningPaths />} />
-          <Route path="courses" element={<Courses />} />
+          <Route path="leaning_paths" element={<LearningPaths />}>
+            <Route index element={<FullStack />} />
+            <Route path="fontEnd" element={<FontEnd />} />
+            <Route path="backEnd" element={<BackEnd />} />
+            <Route path="Devops" element={<Devops />} />
+          </Route>
+
+          <Route
+            path="course/:nameCourse/:courseId"
+            element={<DetailOrShowCourse />}
+          />
 
           <Route path="blogs" element={<Blogs />}>
             <Route path="category/:option" element={<BlogOfCategory />} />

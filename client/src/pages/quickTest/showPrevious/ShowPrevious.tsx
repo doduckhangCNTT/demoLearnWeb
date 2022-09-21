@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { alertSlice } from "../../../redux/reducers/alertSlice";
 import {
@@ -7,7 +7,11 @@ import {
   quickTestsSelector,
 } from "../../../redux/selector/selectors";
 import { getApi } from "../../../utils/FetchData";
-import { IQuickTest } from "../../../utils/Typescript";
+import {
+  FormSubmit,
+  InputChangedEvent,
+  IQuickTest,
+} from "../../../utils/Typescript";
 
 const ShowPrevious = () => {
   const numberQuestions = [
@@ -78,6 +82,9 @@ const ShowPrevious = () => {
   const { quickTestNow } = useSelector(quickTestNowSelector);
   const { authUser } = useSelector(authSelector);
   const dispatch = useDispatch();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const [test, setTest] = useState("");
 
   useEffect(() => {
     const handle = async () => {
@@ -97,6 +104,30 @@ const ShowPrevious = () => {
     handle();
   }, [authUser.access_token, dispatch, quickTestNow.id]);
 
+  let s = "";
+
+  const state = {
+    keyword: "test",
+  };
+  const handleChangeInput = (e: any) => {
+    const { name, value } = e.target;
+    if (e.target.type === "checkbox") {
+      if (e.target.checked) {
+        setTest(test.concat(value.toString()));
+        console.log("Checked", { name, test });
+      }
+    } else {
+      s = value;
+      console.log("Radio", { name, s });
+    }
+  };
+
+  const handleSubmit = (e: FormSubmit) => {
+    e.preventDefault();
+
+    // if(e.target.)
+  };
+
   return (
     <div className="flex gap-2 w-2/3 mx-auto">
       <div className="flex flex-col gap-2 w-2/3 shadow-md p-3">
@@ -107,7 +138,7 @@ const ShowPrevious = () => {
 
         {/* Show all questions of quickTest */}
         <div className="w-full">
-          <form action="">
+          <form action="" onSubmit={handleSubmit}>
             {quickTest?.questions?.map((q, index) => {
               return (
                 <div key={index} className="mt-2">
@@ -122,6 +153,9 @@ const ShowPrevious = () => {
                             type={q.typeQuestion}
                             id={`${a.content}`}
                             name={`${q.titleQuestion}`}
+                            value={i}
+                            onChange={(e) => handleChangeInput(e)}
+                            ref={inputRef}
                           />
                           <label
                             htmlFor={`${a.content}`}
@@ -133,9 +167,32 @@ const ShowPrevious = () => {
                       );
                     })}
                   </div>
+
+                  <div className="">
+                    {/* <input
+                      type="text"
+                      placeholder="DA"
+                      // value={inputRef.current.value}
+                      name="Cau {index}"
+                      value={index}
+                      className="border-2 outline-none"
+                    /> */}
+                    {/* {inputRef.current?.checked ? (
+                      <input
+                        type="text"
+                        placeholder="DA"
+                        value={inputRef.current.value}
+                        className="border-2 outline-none"
+                      />
+                    ) : (
+                      "HI"
+                    )} */}
+                  </div>
                 </div>
               );
             })}
+
+            <button className="" type="submit"></button>
           </form>
 
           <div className="w-full flex justify-end mt-5">
@@ -151,7 +208,7 @@ const ShowPrevious = () => {
       </div>
 
       <div className="w-1/3 shadow-md p-2 sticky">
-        <h1 className="font-bold text-[20px]">Time: 00.00</h1>
+        <h1 className="font-bold text-[20px]">Time: {quickTest?.time}.00</h1>
         <div>
           <h2>Tat ca cac cau da lam</h2>
           <div className="grid gap-2 lg:grid-cols-10 md:grid-cols-6 sm:grid-cols-5">

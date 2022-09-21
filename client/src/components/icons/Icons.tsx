@@ -264,7 +264,7 @@ export const quickTestIcons = [
         />
       </svg>
     ),
-    path: "show_previous",
+    path: "/quick_test/show_previous",
   },
   {
     name: "Setting",

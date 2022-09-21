@@ -224,3 +224,12 @@ export interface IQuestionNow {
   user: IUser;
   questions: IQuestion[];
 }
+
+export interface ICourse {
+  name: string;
+  url: string;
+  description: string;
+  price: string;
+  oldPrice: string;
+  link: string;
+}

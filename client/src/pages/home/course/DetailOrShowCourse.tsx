@@ -6,7 +6,6 @@ const DetailOrShowCourse = () => {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const id = urlParams.get("id");
-  console.log("Id: ", id);
 
   const [lessonId, setLessonId] = useState<string | null>();
 

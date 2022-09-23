@@ -10,6 +10,7 @@ import messageRouter from "./messageRouter";
 import roomChatRouter from "./roomChat/roomChatRouter";
 import messageRoomCharRouter from "./roomChat/messageRoomChatRouter";
 import quickTestRouter from "./quickTestRouter";
+import courseRouter from "./courseRouter";
 
 const routes = [
   authRouter,
@@ -27,6 +28,8 @@ const routes = [
   roomChatRouter,
 
   quickTestRouter,
+
+  courseRouter,
 ];
 
 export default routes;

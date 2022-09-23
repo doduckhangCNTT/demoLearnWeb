@@ -69,6 +69,9 @@ const DraftsBlogs = React.lazy(
 );
 
 // Course
+const CreateCourse = React.lazy(
+  () => import("../pages/home/course/CreateCourse")
+);
 const FullStack = React.lazy(
   () => import("../pages/learnPath/category/FullStack")
 );
@@ -101,6 +104,7 @@ const HandleRouter = () => {
             element={<ResetPassWord />}
           />
 
+          {/* Chat */}
           <Route path="chats" element={<Chats />}>
             <Route index element={<MainChat />} />
             <Route path="chat/:id" element={<ContentChat />} />
@@ -109,13 +113,16 @@ const HandleRouter = () => {
           </Route>
           <Route path="create_category" element={<CreateCategory />} />
 
+          {/* Quick Test */}
           <Route path="quick_test" element={<QuickTest />} />
           <Route path="quick_test/question/:id" element={<QuickTest />} />
           <Route path="quick_test/show_previous" element={<ShowPrevious />} />
 
+          {/* Profile */}
           <Route path="your_profile" element={<UserProfile />} />
           <Route path="your_setting" element={<UserSetting />} />
 
+          {/* Learn path  */}
           <Route path="leaning_paths" element={<LearningPaths />}>
             <Route index element={<FullStack />} />
             <Route path="fontEnd" element={<FontEnd />} />
@@ -123,11 +130,14 @@ const HandleRouter = () => {
             <Route path="Devops" element={<Devops />} />
           </Route>
 
+          {/* Course */}
           <Route
             path="course/:nameCourse/:courseId"
             element={<DetailOrShowCourse />}
           />
+          <Route path="/create_course" element={<CreateCourse />} />
 
+          {/* Blog */}
           <Route path="blogs" element={<Blogs />}>
             <Route path="category/:option" element={<BlogOfCategory />} />
           </Route>

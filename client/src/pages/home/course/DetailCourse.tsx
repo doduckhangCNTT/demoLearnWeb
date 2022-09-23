@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Fragment } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import ComboboxLessons from "./ComboboxLessons";
+import { getApi } from "../../../utils/FetchData";
+import { useSelector } from "react-redux";
+import { authSelector } from "../../../redux/selector/selectors";
+import { ICourses } from "../../../utils/Typescript";
+import CompactParam from "../../../components/CompactParam";
 
 const people = [
   { name: "Wade Cooper" },
@@ -14,19 +19,38 @@ const people = [
 ];
 
 const DetailCourse = () => {
-  const param = useParams();
+  const { courseId } = useParams();
   const location = useLocation();
-  console.log("Param: ", param);
-  console.log("Location: ", location.search);
+  const [course, setCourse] = useState<ICourses>();
+  const { authUser } = useSelector(authSelector);
+
+  const handleGetCourse = useCallback(
+    async (courseId: string) => {
+      const res = await getApi(`course/${courseId}`, authUser.access_token);
+      setCourse(res.data);
+    },
+    [authUser.access_token]
+  );
+
+  useEffect(() => {
+    if (courseId) {
+      handleGetCourse(courseId);
+    }
+  }, [handleGetCourse, courseId]);
 
   const [selected, setSelected] = useState(people[0]);
 
   return (
     <div className="flex gap-2">
       <div className="w-2/3 ">
-        <div className="">
-          <h1 className="font-bold text-[30px]">Tieu de khoa hoc</h1>
-          <p className="">Mieu ta khoa hoc</p>
+        <div className="my-3">
+          <h1 className="font-bold text-[30px]">{course?.name}</h1>
+          <div className="">
+            <CompactParam
+              param={course?.description ? course.description : ""}
+              quantitySlice={200}
+            />
+          </div>
         </div>
 
         <div className="flex justify-center">
@@ -124,7 +148,7 @@ const DetailCourse = () => {
           <div className="">
             <iframe
               className="w-full h-[300px]"
-              src="https://www.youtube.com/embed/ly36kn0ug4k"
+              src={course?.videoIntro}
               title="YouTube video player"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

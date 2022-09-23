@@ -11,7 +11,7 @@ const ShowVideoCourse = () => {
         <div className="">
           <iframe
             className="w-full h-[750px]"
-            src="https://www.youtube.com/embed/ly36kn0ug4k"
+            src="https://www.youtube.com/embed/QUT1VHiLmmI"
             title="YouTube video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

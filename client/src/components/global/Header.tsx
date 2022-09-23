@@ -40,6 +40,10 @@ const listInfoOfUser = {
     name: "Quick Test",
     path: "/quick_test",
   },
+  createCourse: {
+    name: "Create Course",
+    path: "/create_course",
+  },
   createCategory: {
     name: "Create Category",
     path: "/create_category",
@@ -239,6 +243,21 @@ export default function Header() {
                                           )}
                                         >
                                           {listInfoOfUser.quickTest.name}
+                                        </Link>
+                                      )}
+                                    </Menu.Item>
+
+                                    {/* Create Course */}
+                                    <Menu.Item>
+                                      {({ active }) => (
+                                        <Link
+                                          to={listInfoOfUser.createCourse.path}
+                                          className={classNames(
+                                            active ? "bg-gray-100" : "",
+                                            "block px-4 py-2 text-sm text-gray-700"
+                                          )}
+                                        >
+                                          {listInfoOfUser.createCourse.name}
                                         </Link>
                                       )}
                                     </Menu.Item>

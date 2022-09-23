@@ -1,5 +1,4 @@
 import { Request } from "express";
-import { LoginTicket } from "google-auth-library";
 import { Document } from "mongoose";
 
 export interface IUser extends Document {
@@ -104,6 +103,30 @@ export interface IQuickTests {
       typeQuestion: string;
       correctly: string;
       answers: [{ content: string }];
+    }
+  ];
+}
+
+export interface ICourses {
+  user: string | IUser;
+  name: string;
+  thumbnail: {
+    url: string | File;
+    public_id: string;
+  };
+  description: string;
+  accessModifier: string;
+  category: string;
+  videoIntro: string;
+  format: string;
+  price: Number;
+  oldPrice: Number;
+  course: [
+    {
+      chapter: {
+        name: String;
+        lessons: [name: String, url: String | File, description: String];
+      };
     }
   ];
 }

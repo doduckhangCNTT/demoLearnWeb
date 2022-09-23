@@ -233,3 +233,32 @@ export interface ICourse {
   oldPrice: string;
   link: string;
 }
+
+export interface ICourses {
+  _id?: string;
+  name: string;
+  thumbnail: {
+    public_id: string;
+    url: string | File;
+  };
+  description: string;
+  accessModifier: string;
+  category: string;
+  videoIntro: string;
+  format: string;
+  price: number;
+  oldPrice: number;
+  // courses: [{ name: "", lessons: [{ name: "", url: "", description: "" }] }],
+  courses: IChapter[];
+}
+
+export interface IChapter {
+  name: string;
+  lessons: ILesson[];
+}
+
+export interface ILesson {
+  name: string;
+  url: string | File;
+  description: string;
+}

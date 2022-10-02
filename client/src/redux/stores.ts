@@ -18,6 +18,8 @@ import { quickTestSlice } from "./reducers/quickTest/quickTestSlice";
 import { idQuickTestSlice } from "./reducers/quickTest/IdQuickTestNow";
 import { chooseQuestionSlice } from "./reducers/quickTest/chooseQuestionSlice";
 import { courseSlice } from "./reducers/course/courseSlice";
+import { courseNowSlice } from "./reducers/course/courseNowSlice";
+import { chooseLessonSlice } from "./reducers/course/chooseLessonSlice";
 
 // import socketReducer from "./reducers/socketSlice";
 
@@ -47,6 +49,8 @@ const store = configureStore({
     chooseQuestion: chooseQuestionSlice.reducer,
 
     courses: courseSlice.reducer,
+    courseNow: courseNowSlice.reducer,
+    chooseLesson: chooseLessonSlice.reducer,
 
     socket: socketSlice.reducer,
   },

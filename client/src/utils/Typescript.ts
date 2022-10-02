@@ -249,15 +249,17 @@ export interface ICourses {
   price: number;
   oldPrice: number;
   // courses: [{ name: "", lessons: [{ name: "", url: "", description: "" }] }],
-  courses: IChapter[];
+  content: IChapter[];
 }
 
 export interface IChapter {
+  _id?: string;
   name: string;
   lessons: ILesson[];
 }
 
 export interface ILesson {
+  _id?: string;
   name: string;
   url: string | File;
   description: string;

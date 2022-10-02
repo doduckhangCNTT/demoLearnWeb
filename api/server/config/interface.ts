@@ -108,6 +108,7 @@ export interface IQuickTests {
 }
 
 export interface ICourses {
+  _doc?: object;
   user: string | IUser;
   name: string;
   thumbnail: {
@@ -121,12 +122,12 @@ export interface ICourses {
   format: string;
   price: Number;
   oldPrice: Number;
-  course: [
+  content: [
     {
-      chapter: {
-        name: String;
-        lessons: [name: String, url: String | File, description: String];
-      };
+      name: String;
+      lessons: [name: String, url: String | File, description: String];
+      _id?: string;
+      _doc?: object;
     }
   ];
 }

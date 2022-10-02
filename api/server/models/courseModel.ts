@@ -29,14 +29,10 @@ const courseSchema = new mongoose.Schema(
 
     oldPrice: { type: Number, trim: true },
 
-    courses: [
+    content: [
       {
-        chapter: {
-          name: String,
-          lessons: [
-            { name: String, url: String || Object, description: String },
-          ],
-        },
+        name: String,
+        lessons: [{ name: String, url: String || Object, description: String }],
       },
     ],
   },

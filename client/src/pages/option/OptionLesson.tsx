@@ -2,36 +2,52 @@ import { Menu } from "@headlessui/react";
 import React, { Fragment } from "react";
 import { Transition } from "@headlessui/react";
 import { Link } from "react-router-dom";
+import lessonAction from "../../redux/action/course/lessonAction";
 import { useDispatch, useSelector } from "react-redux";
-import { authSelector } from "../../redux/selector/selectors";
-import { IQuestion, IQuickTest } from "../../utils/Typescript";
-import quickTestAction from "../../redux/action/quickTestAction";
+import { authSelector, courseSelector } from "../../redux/selector/selectors";
+import { IChapter, ILesson } from "../../utils/Typescript";
 import { alertSlice } from "../../redux/reducers/alertSlice";
+import courseAction from "../../redux/action/course/courseAction";
+import { chooseLessonSlice } from "../../redux/reducers/course/chooseLessonSlice";
+import { courseNowSlice } from "../../redux/reducers/course/courseNowSlice";
 
 interface IProps {
-  quickTest_OfQuestion: IQuickTest;
-  question: IQuestion;
+  chapter: IChapter;
+  lesson: ILesson;
 }
 
-const OptionQuestion: React.FC<IProps> = ({
-  quickTest_OfQuestion,
-  question,
-}) => {
-  function classNames(...classes: string[]) {
-    return classes.filter(Boolean).join(" ");
-  }
-
+const OptionLesson: React.FC<IProps> = ({ chapter, lesson }) => {
   const { authUser } = useSelector(authSelector);
+  const { courseNow } = useSelector(courseSelector);
   const dispatch = useDispatch();
 
-  const handleDeleteQuestion = (question: IQuestion) => {
-    if (!authUser.access_token) {
-      return dispatch(
-        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+  const handleUpdateLesson = () => {
+    console.log("Lesson: ", lesson);
+    dispatch(chooseLessonSlice.actions.getLesson(lesson));
+    dispatch(
+      courseNowSlice.actions.getChapterIdNow({
+        chapterId: chapter._id ? chapter._id : "",
+      })
+    );
+  };
+
+  const handleDeleteLesson = () => {
+    if (window.confirm("You have want to delete this lesson ?")) {
+      if (!authUser.access_token) {
+        return dispatch(
+          dispatch(
+            alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+          )
+        );
+      }
+
+      lessonAction.deleteLesson(
+        { courseId: courseNow.courseId, chapter, lesson },
+        authUser.access_token,
+        dispatch
       );
-    }
-    if (window.confirm("Do you have want delete this question ?")) {
-      quickTestAction.deleteQuestion(question, authUser.access_token, dispatch);
+
+      courseAction.getCourses(authUser.access_token, dispatch);
     }
   };
 
@@ -70,31 +86,24 @@ const OptionQuestion: React.FC<IProps> = ({
               {/* Update Question */}
               <Menu.Item>
                 {({ active }) => (
-                  <Link
-                    to={`/quick_test/question/${question._id}`}
-                    className={classNames(
-                      active ? "bg-gray-100" : "",
-                      "block px-4 py-2 text-sm text-gray-700"
-                    )}
-                    // onClick={() => handleUpdateQuestion(question)}
+                  <div
+                    className="p-2 hover:bg-slate-100 cursor-pointer"
+                    onClick={() => handleUpdateLesson()}
                   >
                     Edit
-                  </Link>
+                  </div>
                 )}
               </Menu.Item>
 
               {/* Delete blog */}
               <Menu.Item>
                 {({ active }) => (
-                  <button
-                    onClick={() => handleDeleteQuestion(question)}
-                    className={classNames(
-                      active ? "bg-gray-100" : "",
-                      "block px-4 py-2 text-sm text-gray-700 w-full text-left"
-                    )}
+                  <div
+                    className="p-2 hover:bg-slate-100 cursor-pointer"
+                    onClick={() => handleDeleteLesson()}
                   >
                     Delete
-                  </button>
+                  </div>
                 )}
               </Menu.Item>
             </div>
@@ -105,4 +114,4 @@ const OptionQuestion: React.FC<IProps> = ({
   );
 };
 
-export default OptionQuestion;
+export default OptionLesson;

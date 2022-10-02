@@ -1,5 +1,15 @@
-import { ICourses } from "../../utils/Typescript";
+import { IChapter, ICourses } from "../../utils/Typescript";
+
+export interface IGetCourseType {
+  payload: ICourses[];
+}
 
 export interface ICourseType {
-  payload: ICourses[];
+  payload: ICourses;
+}
+export interface ICreateChapterOfCourseType {
+  payload: {
+    courseId: string;
+    content: IChapter[];
+  };
 }

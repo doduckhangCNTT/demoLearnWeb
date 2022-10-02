@@ -23,5 +23,7 @@ export const quickTestsSelector = (state: RootState) => state;
 export const quickTestNowSelector = (state: RootState) => state;
 export const chooseQuestionSelector = (state: RootState) => state;
 export const courseSelector = (state: RootState) => state;
+export const courseNowSelector = (state: RootState) => state;
+export const chooseLessonSelector = (state: RootState) => state;
 
 export const socketSelector = (state: RootState) => state;

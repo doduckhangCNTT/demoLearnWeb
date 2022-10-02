@@ -1,103 +1,92 @@
 import React, { useState } from "react";
-import { Fragment } from "react";
-import { Listbox, Transition } from "@headlessui/react";
-import { Link } from "react-router-dom";
-
-const people = [
-  { name: "Wade Cooper" },
-  { name: "Arlene Mccoy" },
-  { name: "Devon Webb" },
-  { name: "Tom Cook" },
-  { name: "Tanya Fox" },
-  { name: "Hellen Schmidt" },
-];
+import { useSelector } from "react-redux";
+import { authSelector } from "../../../redux/selector/selectors";
+import { IChapter } from "../../../utils/Typescript";
+import OptionLesson from "../../option/OptionLesson";
 
 interface IProps {
-  lessons: any[];
+  chapter: IChapter;
 }
 
-const ComboboxLessons: React.FC<IProps> = ({ lessons }) => {
-  const [selected, setSelected] = useState(lessons[0]);
+const ComboboxLessons: React.FC<IProps> = ({ chapter }) => {
+  const [toggle, setToggle] = useState(false);
+  const { authUser } = useSelector(authSelector);
 
   return (
     <div className="">
-      <Listbox value={selected} onChange={setSelected}>
-        <div className="relative mt-1">
-          <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-            <span className="block truncate">{selected.name}</span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              {/* ChevronUpDownIcon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-                />
-              </svg>
-            </span>
-          </Listbox.Button>
+      {/* Name chapter */}
+      <button
+        className="
+                w-full flex justify-between 
+                text-sm px-4 py-2.5 border-2 
+                text-center items-center
+                hover:bg-slate-200 
+                focus:outline-none font-medium 
+                "
+        onClick={() => setToggle(!toggle)}
+      >
+        <h1 className="">{chapter.name}</h1>
+        <svg
+          className="ml-2 w-4 h-4"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M19 9l-7 7-7-7"
+          ></path>
+        </svg>
+      </button>
 
-          <Transition
-            as={Fragment}
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Listbox.Options className="mt-1 max-h-60 w-full overflow-auto bg-white py-1 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {lessons.map((lesson, index) => (
-                <Link key={index} to="/abc">
-                  <Listbox.Option
-                    className={({ active }) =>
-                      `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                        active ? "bg-amber-100 text-amber-900" : "text-gray-900"
-                      }`
-                    }
-                    value={lesson}
-                  >
-                    {({ selected }) => (
-                      <>
-                        <span
-                          className={`block truncate ${
-                            selected ? "font-medium" : "font-normal"
-                          }`}
-                        >
-                          {lesson.name}
-                        </span>
-                        {selected ? (
-                          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                            {/* Check Icon */}
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth="1.5"
-                              stroke="currentColor"
-                              className="w-6 h-6"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"
-                              />
-                            </svg>
-                          </span>
-                        ) : null}
-                      </>
+      <div
+        className={`${
+          toggle ? "" : "hidden"
+        } z-10 w-full bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600`}
+      >
+        {chapter.lessons.map((les, i) => {
+          return (
+            <ul
+              key={i}
+              className="p-3 space-y-3 text-sm text-gray-700 dark:text-gray-200"
+              aria-labelledby="dropdownRadioButton"
+            >
+              <li>
+                <div className="flex justify-between">
+                  <div className="hover:bg-slate-100 flex items-center w-full">
+                    <input
+                      id={les._id}
+                      type="radio"
+                      value=""
+                      name="default-radio"
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                    />
+                    <label
+                      htmlFor={les._id}
+                      className="ml-2 w-full py-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                    >
+                      {les.name}
+                    </label>
+                  </div>
+
+                  {/* Option */}
+                  <div className="">
+                    {authUser.user?.role === "admin" ? (
+                      <OptionLesson chapter={chapter} lesson={les} />
+                    ) : (
+                      ""
                     )}
-                  </Listbox.Option>
-                </Link>
-              ))}
-            </Listbox.Options>
-          </Transition>
-        </div>
-      </Listbox>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          );
+        })}
+      </div>
     </div>
   );
 };

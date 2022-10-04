@@ -1,8 +1,15 @@
 import { checkTokenExp } from "../../../utils/CheckTokenExp";
-import { getApi, postApi } from "../../../utils/FetchData";
+import { getApi, patchApi, postApi } from "../../../utils/FetchData";
 import { AppDispatch, ICourses, ILesson } from "../../../utils/Typescript";
 import { alertSlice } from "../../reducers/alertSlice";
 import { courseSlice } from "../../reducers/course/courseSlice";
+
+interface IDataLesson {
+  courseId: string;
+  chapterId: string;
+  lessonId: string;
+  newLessons: ILesson[];
+}
 
 const courseAction = {
   getCourses: async (token: string, dispatch: AppDispatch) => {
@@ -81,6 +88,7 @@ const courseAction = {
         courseId: string;
         chapterId: string;
       };
+      fileUpload: File | string | undefined;
     },
     token: string,
     dispatch: AppDispatch
@@ -88,10 +96,29 @@ const courseAction = {
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
 
+    // Neu ma fileUpload co gia tri thi mac dinh duong dan youtube se khong co gia tri
+    if (value.fileUpload) {
+      let formData = new FormData();
+      formData.append("file", value.fileUpload);
+      const res = await postApi("upload_imgVideo", formData, access_token);
+
+      console.log("Res Upload: ", res);
+      value.lesson = {
+        ...value.lesson,
+        url: "",
+        fileUpload: {
+          public_id: res.data.public_id,
+          secure_url: res.data.secure_url,
+          mimetype: res.data.resource_type,
+        },
+      };
+    }
+
     try {
+      console.log("URL: ", value.lesson.url);
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
       const res = await postApi(
-        `/course/${value.courseNow?.courseId}/chapter/${value.courseNow?.chapterId}/lesson`,
+        `course/${value.courseNow?.courseId}/chapter/${value.courseNow?.chapterId}/lesson`,
         value.lesson,
         access_token
       );
@@ -103,6 +130,7 @@ const courseAction = {
       );
 
       dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
+      // dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
     }
@@ -116,6 +144,31 @@ const courseAction = {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
+    } catch (error: any) {
+      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
+    }
+  },
+
+  updateLessonsOfChapter: async (
+    data: IDataLesson,
+    token: string,
+    dispatch: AppDispatch
+  ) => {
+    const result = await checkTokenExp(token, dispatch);
+    const access_token = result ? result : token;
+
+    try {
+      dispatch(alertSlice.actions.alertAdd({ loading: true }));
+      const { courseId, chapterId, lessonId, newLessons } = data;
+      const res = await patchApi(
+        `courses/${courseId}/chapter/${chapterId}/lesson/${lessonId}`,
+        newLessons,
+        access_token
+      );
+
+      console.log("Res: ", res);
+
+      dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
     }

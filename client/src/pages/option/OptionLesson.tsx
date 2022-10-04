@@ -1,7 +1,6 @@
 import { Menu } from "@headlessui/react";
 import React, { Fragment } from "react";
 import { Transition } from "@headlessui/react";
-import { Link } from "react-router-dom";
 import lessonAction from "../../redux/action/course/lessonAction";
 import { useDispatch, useSelector } from "react-redux";
 import { authSelector, courseSelector } from "../../redux/selector/selectors";
@@ -22,7 +21,7 @@ const OptionLesson: React.FC<IProps> = ({ chapter, lesson }) => {
   const dispatch = useDispatch();
 
   const handleUpdateLesson = () => {
-    console.log("Lesson: ", lesson);
+    // console.log("Lesson: ", lesson);
     dispatch(chooseLessonSlice.actions.getLesson(lesson));
     dispatch(
       courseNowSlice.actions.getChapterIdNow({
@@ -55,7 +54,7 @@ const OptionLesson: React.FC<IProps> = ({ chapter, lesson }) => {
     <div>
       <Menu as="div" className="ml-3 relative">
         <div>
-          <Menu.Button className=" flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+          <Menu.Button className=" flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white hover:bg-slate-100 transition">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

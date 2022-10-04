@@ -262,5 +262,10 @@ export interface ILesson {
   _id?: string;
   name: string;
   url: string | File;
+  fileUpload: {
+    public_id: string;
+    secure_url: string;
+    mimetype: string;
+  };
   description: string;
 }

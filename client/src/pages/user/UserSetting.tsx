@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { IUserProfile } from "../../utils/Typescript";
+import React from "react";
 import FormPersonalInfo from "./FormPersonalInfo";
 
 const UserSetting = () => {

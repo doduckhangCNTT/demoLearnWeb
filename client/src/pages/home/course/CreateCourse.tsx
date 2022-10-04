@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import LazyLoadingImg from "../../../components/LazyLoadingImg/LazyLoadingImg";
 import categoryAction from "../../../redux/action/categoryAction";
 import courseAction from "../../../redux/action/course/courseAction";
 import { alertSlice } from "../../../redux/reducers/alertSlice";
@@ -44,6 +45,11 @@ const CreateCourse = () => {
   const initialStateLesson = {
     name: "",
     url: "",
+    fileUpload: {
+      public_id: "",
+      secure_url: "",
+      mimetype: "",
+    },
     description: "",
   };
 
@@ -53,6 +59,7 @@ const CreateCourse = () => {
   const [isPaidCourse, setIsPaidCourse] = useState(false);
   const [chooseTypeVideoUpload, setChooseTypeVideoUpload] = useState(false);
   const [chapter, setChapter] = useState<IChapter>();
+  const [fileUpload, setFileUpload] = useState<File | string>();
 
   const { categories } = useSelector(categorySelector);
   const { authUser } = useSelector(authSelector);
@@ -129,12 +136,6 @@ const CreateCourse = () => {
     setCourse({ ...course, [name]: value });
   };
 
-  const handleChangeInput_CourseName = (e: InputChangedEvent) => {
-    const { value } = e.target;
-
-    // setCourse({ ...course, courses: { ...course.courses, name: value } });
-  };
-
   const handleChangeInputFile = (e: InputChangedEvent) => {
     const target = e.target as HTMLInputElement;
     const files = target.files;
@@ -188,6 +189,12 @@ const CreateCourse = () => {
   };
 
   const handleCreateChapter = async () => {
+    if (courseNow.courseId === "") {
+      setChapter({ name: "", lessons: [] });
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Need create previous course" })
+      );
+    }
     if (!authUser.access_token) {
       return dispatch(
         alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
@@ -220,6 +227,8 @@ const CreateCourse = () => {
     }
   };
 
+  // -------------------- Handle Lesson --------------------------
+
   const handleAddLesson = () => {
     if (!authUser.access_token) {
       return dispatch(
@@ -227,8 +236,14 @@ const CreateCourse = () => {
       );
     }
 
+    if (courseNow.chapterId === "") {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Need create previous chater" })
+      );
+    }
+
     courseAction.createLesson(
-      { lesson, courseNow },
+      { lesson, courseNow, fileUpload },
       authUser.access_token,
       dispatch
     );
@@ -238,9 +253,19 @@ const CreateCourse = () => {
     const initialStateLesson = {
       name: "",
       url: "",
+      fileUpload: {
+        public_id: "",
+        secure_url: "",
+        mimetype: "",
+      },
       description: "",
     };
 
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
     let course = {} as ICourses;
 
     courses.forEach((item) => {
@@ -249,10 +274,35 @@ const CreateCourse = () => {
       }
     });
 
-    console.log("Course: ", course);
-    // course.content.forEach(c => {
-    //   if(c.lessons)
-    // })
+    // console.log("Course: ", course);
+    let newLessons = [] as ILesson[];
+
+    course.content.forEach((c) => {
+      if (c._id === courseNow.chapterId) {
+        c.lessons.forEach((l) => {
+          if (l._id === lesson._id) {
+            newLessons = [...newLessons, lesson];
+          } else {
+            newLessons = [...newLessons, l];
+          }
+        });
+      }
+    });
+
+    // console.log("NewLesson: ", newLessons);
+
+    courseAction.updateLessonsOfChapter(
+      {
+        courseId: courseNow.courseId,
+        chapterId: courseNow.chapterId,
+        lessonId: lesson._id ? lesson._id : "",
+        newLessons: newLessons,
+      },
+      authUser.access_token,
+      dispatch
+    );
+
+    courseAction.getCourses(authUser.access_token, dispatch);
 
     setLesson(initialStateLesson);
     dispatch(chooseLessonSlice.actions.getLesson({} as ILesson));
@@ -262,6 +312,22 @@ const CreateCourse = () => {
   const handleChangeInput_Lesson = (e: InputChangedEvent) => {
     const { name, value } = e.target;
     setLesson({ ...lesson, [name]: value });
+  };
+
+  // ------------------------ Handle Media file ---------------------------------------
+  const handleChangeMedia = (e: InputChangedEvent) => {
+    const target = e.target as HTMLInputElement;
+
+    const files = target.files;
+    if (files) {
+      const file = files[0];
+      console.log("File: ", file);
+      setFileUpload(file);
+    }
+  };
+
+  const handleDeleteMedia = () => {
+    setFileUpload(undefined);
   };
 
   return (
@@ -560,6 +626,7 @@ const CreateCourse = () => {
                         className="mr-2"
                         onChange={handleChangeInput_uploadVideo}
                       />
+
                       <label htmlFor="uploadOnComputer">
                         Upload on computer
                       </label>
@@ -582,10 +649,62 @@ const CreateCourse = () => {
                     </div>
                   </div>
                 ) : (
-                  <input type="file" className="" />
+                  <div className="">
+                    <div className="">
+                      <div className="inline-block h-[100px] relative">
+                        {fileUpload ? (
+                          (fileUpload as File)?.type === "video/mp4" ? (
+                            <video controls className="h-full">
+                              <source
+                                type="video/mp4"
+                                src={URL.createObjectURL(fileUpload as File)}
+                              ></source>
+                            </video>
+                          ) : (
+                            <LazyLoadingImg
+                              url={URL.createObjectURL(fileUpload as File)}
+                              alt="images"
+                              className="h-full"
+                            />
+                          )
+                        ) : (
+                          ""
+                        )}
+
+                        {fileUpload ? (
+                          <div
+                            className="
+                          absolute 
+                          p-1  
+                          w-[20px] h-[20px] 
+                          top-0 right-0 
+                          flex items-center justify-center 
+                          hover:bg-slate-100 
+                          cursor-pointer 
+                          rounded-full 
+                          text-sky-500"
+                            onClick={handleDeleteMedia}
+                          >
+                            X
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    </div>
+                    <input
+                      id="dropzone-file"
+                      type="file"
+                      name="file"
+                      multiple
+                      accept="image/*,video/*"
+                      onChange={handleChangeMedia}
+                    />
+                  </div>
                 )}
               </div>
 
+              {/* Button Update / Delete */}
               <div className="flex justify-end">
                 {chooseLesson._id ? (
                   <button

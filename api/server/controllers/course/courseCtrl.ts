@@ -9,7 +9,13 @@ interface IChapter {
 }
 export interface ILesson {
   name: string;
-  url: string | File;
+  url:
+    | string
+    | File
+    | {
+        public_id: string;
+        secure_url: string;
+      };
   description: string;
 }
 
@@ -150,6 +156,7 @@ const courseCtrl = {
       }
 
       const lesson = req.body as ILesson;
+      console.log("Lesson: ", lesson);
 
       const value = await CourseModel.findOne(
         {
@@ -157,6 +164,8 @@ const courseCtrl = {
         },
         { "content.$": 1 }
       );
+      console.log("Value: ", value);
+
       if (!value) {
         return res.json({ msg: "Course not found" });
       }
@@ -165,7 +174,7 @@ const courseCtrl = {
         ...value?.content[0]._doc,
         lessons: [...value.content[0].lessons, lesson],
       };
-
+      console.log("Add Lesson: ", addLessonInChapter);
       const course = await CourseModel.findOneAndUpdate(
         {
           "content._id": req.params.chapterId,
@@ -176,19 +185,22 @@ const courseCtrl = {
         { new: true }
       );
 
+      console.log("Course: ", course);
+
       res.json({ msg: "Add lesson successfully", content: course?.content });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }
   },
 
-  updateCourse: async (req: IReqAuth, res: Response) => {
+  updateLessonOfChapter: async (req: IReqAuth, res: Response) => {
     try {
       const courseId = req.params.courseId;
       const chapterId = req.params.chapterId;
       const lessonId = req.params.lessonId;
 
-      console.log({ lessonId, courseId, chapterId });
+      // console.log({ lessonId, courseId, chapterId });
+      // console.log("Body", req.body);
       const value = await CourseModel.updateOne(
         {
           _id: `${courseId}`,
@@ -197,7 +209,7 @@ const courseCtrl = {
         { arrayFilters: [{ "element._id": `${chapterId}` }] }
       );
 
-      return res.json(value);
+      return res.json({ msg: "Update Lesson successfully", value });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }

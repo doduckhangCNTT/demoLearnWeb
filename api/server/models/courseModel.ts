@@ -32,7 +32,19 @@ const courseSchema = new mongoose.Schema(
     content: [
       {
         name: String,
-        lessons: [{ name: String, url: String || Object, description: String }],
+        lessons: [
+          {
+            name: String,
+            url: String || File,
+            // fileUpload: {
+            //   public_id: String,
+            //   secure_url: String,
+            //   mimetype: String,
+            // },
+            fileUpload: Object,
+            description: String,
+          },
+        ],
       },
     ],
   },

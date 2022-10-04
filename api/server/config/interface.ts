@@ -125,7 +125,12 @@ export interface ICourses {
   content: [
     {
       name: String;
-      lessons: [name: String, url: String | File, description: String];
+      lessons: [
+        name: String,
+        url: String | File,
+        fileUpload: { public_id: String; secure_url: String },
+        description: String
+      ];
       _id?: string;
       _doc?: object;
     }

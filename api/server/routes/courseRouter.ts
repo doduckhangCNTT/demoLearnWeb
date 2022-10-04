@@ -34,8 +34,9 @@ router.patch(
 
 router
   .route("/courses/:courseId/chapter/:chapterId/lesson/:lessonId")
-  .patch(courseCtrl.updateCourse)
-  // .delete(courseCtrl.deleteCourse);
-  .delete(authUser, authAdmin, courseCtrl.deleteLessonOfChapter);
+  .delete(authUser, authAdmin, courseCtrl.deleteLessonOfChapter)
+  .patch(courseCtrl.updateLessonOfChapter);
+// .patch(courseCtrl.updateCourse);
+// .delete(courseCtrl.deleteCourse);
 
 export default router;

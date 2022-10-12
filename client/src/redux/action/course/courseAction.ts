@@ -28,19 +28,6 @@ const courseAction = {
     }
   },
 
-  getCourse: async (token: string, dispatch: AppDispatch) => {
-    const result = await checkTokenExp(token, dispatch);
-    const access_token = result ? result : token;
-
-    try {
-      dispatch(alertSlice.actions.alertAdd({ loading: true }));
-
-      dispatch(alertSlice.actions.alertAdd({ loading: false }));
-    } catch (error: any) {
-      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
-    }
-  },
-
   createCourse: async (
     course: ICourses,
     token: string,
@@ -96,27 +83,27 @@ const courseAction = {
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
 
-    // Neu ma fileUpload co gia tri thi mac dinh duong dan youtube se khong co gia tri
-    if (value.fileUpload) {
-      let formData = new FormData();
-      formData.append("file", value.fileUpload);
-      const res = await postApi("upload_imgVideo", formData, access_token);
-
-      console.log("Res Upload: ", res);
-      value.lesson = {
-        ...value.lesson,
-        url: "",
-        fileUpload: {
-          public_id: res.data.public_id,
-          secure_url: res.data.secure_url,
-          mimetype: res.data.resource_type,
-        },
-      };
-    }
-
     try {
-      console.log("URL: ", value.lesson.url);
+      // console.log("URL: ", value.lesson.url);
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
+      // Neu ma fileUpload co gia tri thi mac dinh duong dan youtube se khong co gia tri
+      if (value.fileUpload) {
+        let formData = new FormData();
+        formData.append("file", value.fileUpload);
+        const res = await postApi("upload_imgVideo", formData, access_token);
+
+        // console.log("Res Upload: ", res);
+        value.lesson = {
+          ...value.lesson,
+          url: "",
+          fileUpload: {
+            public_id: res.data.public_id,
+            secure_url: res.data.secure_url,
+            mimetype: res.data.resource_type,
+          },
+        };
+      }
+
       const res = await postApi(
         `course/${value.courseNow?.courseId}/chapter/${value.courseNow?.chapterId}/lesson`,
         value.lesson,
@@ -130,7 +117,6 @@ const courseAction = {
       );
 
       dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
-      // dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
     }

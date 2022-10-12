@@ -236,6 +236,7 @@ export interface ICourse {
 
 export interface ICourses {
   _id?: string;
+  user?: IUser;
   name: string;
   thumbnail: {
     public_id: string;

@@ -8,7 +8,9 @@ const quickTestCtrl = {
       return res.status(400).json({ msg: "Invalid Authentication" });
     }
     try {
-      const quickTests = await QuickTestModel.find().populate("user");
+      const quickTests = await QuickTestModel.find()
+        .populate("user")
+        .populate("category");
 
       res.json(quickTests);
     } catch (error: any) {
@@ -99,6 +101,16 @@ const quickTestCtrl = {
 
   deleteQuickTest: async (req: IReqAuth, res: Response) => {
     try {
+      const quickTestId = req.params.id;
+      const quickTest = await QuickTestModel.findOneAndDelete({
+        _id: quickTestId,
+      });
+
+      return res.json({
+        success: true,
+        quickTest,
+        msg: "Delete quick test successfully",
+      });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }

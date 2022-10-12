@@ -19,13 +19,13 @@ const CreateCategory = React.lazy(
   () => import("../pages/category/CreateCategory")
 );
 
-// Quick Test
+// ============================= Quick Test =============================
 const QuickTest = React.lazy(() => import("../pages/quickTest/QuickTest"));
 const ShowPrevious = React.lazy(
   () => import("../pages/quickTest/showPrevious/ShowPrevious")
 );
 
-// User
+// ============================= User =============================
 const UserProfile = React.lazy(() => import("../pages/user/UserProfile"));
 const UserSetting = React.lazy(() => import("../pages/user/UserSetting"));
 const LearningPaths = React.lazy(
@@ -41,7 +41,7 @@ const ContentRoomChat = React.lazy(
 );
 const NotFound = React.lazy(() => import("../components/global/NotFound"));
 
-// Blog
+// ============================= Blog =============================
 const Blogs = React.lazy(() => import("../pages/blogs/Blogs"));
 const CreateBlog = React.lazy(() => import("../pages/blogs/CreateBlog"));
 const UpdateBlog = React.lazy(
@@ -68,7 +68,7 @@ const DraftsBlogs = React.lazy(
   () => import("../pages/blogs/yourBlogs/DraftsBlogs")
 );
 
-// Course
+// ============================= Course =============================
 const CreateCourse = React.lazy(
   () => import("../pages/home/course/CreateCourse")
 );
@@ -80,6 +80,19 @@ const FontEnd = React.lazy(() => import("../pages/learnPath/category/FontEnd"));
 const Devops = React.lazy(() => import("../pages/learnPath/category/Devops"));
 const DetailOrShowCourse = React.lazy(
   () => import("../pages/home/course/DetailOrShowCourse")
+);
+const ShowVideoCourse = React.lazy(
+  () => import("../pages/home/course/ShowVideoCourse")
+);
+
+// ============================= Manager =============================
+const Manager = React.lazy(() => import("../pages/manager/Manager"));
+const Index = React.lazy(() => import("../pages/manager/Index"));
+const User = React.lazy(() => import("../pages/manager/User"));
+const ManagerBlog = React.lazy(() => import("../pages/manager/ManagerBlog"));
+const ManagerTest = React.lazy(() => import("../pages/manager/ManagerTest"));
+const ManagerCourse = React.lazy(
+  () => import("../pages/manager/ManagerCourse")
 );
 
 const HandleRouter = () => {
@@ -136,6 +149,20 @@ const HandleRouter = () => {
             element={<DetailOrShowCourse />}
           />
           <Route path="/create_course" element={<CreateCourse />} />
+          <Route path="/startCourse/:courseId" element={<ShowVideoCourse />} />
+          <Route
+            path="/startCourse/:courseId/lesson/:lessonId"
+            element={<ShowVideoCourse />}
+          />
+
+          {/* Manager */}
+          <Route path="/manager" element={<Manager />}>
+            <Route index element={<Index />} />
+            <Route path="user" element={<User />} />
+            <Route path="blog" element={<ManagerBlog />} />
+            <Route path="test" element={<ManagerTest />} />
+            <Route path="course" element={<ManagerCourse />} />
+          </Route>
 
           {/* Blog */}
           <Route path="blogs" element={<Blogs />}>

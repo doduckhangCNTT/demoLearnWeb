@@ -69,6 +69,10 @@ const CreateCourse = () => {
 
   const dispatch = useDispatch();
 
+  /**
+   * Feature: Get multiple
+   * Des: Get all category when access page createCourse
+   */
   useEffect(() => {
     categoryAction.getCategory(dispatch);
   }, [dispatch]);
@@ -99,10 +103,18 @@ const CreateCourse = () => {
     courseAction.getCourses(authUser.access_token, dispatch);
   }, [authUser.access_token, dispatch]);
 
+  /**
+   * Feature: Get single
+   * Des: Get info of a course when choose a Id of course corresponding
+   */
   useEffect(() => {
     handleGetCourse();
   }, [handleGetCourse]);
 
+  /**
+   * Feature:
+   * Des: Đặt giá trị các khóa học free = 0
+   */
   useEffect(() => {
     if (course.format === "free") {
       setCourse({ ...course, price: 0, oldPrice: 0 });
@@ -110,10 +122,18 @@ const CreateCourse = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [course.format]);
 
+  /**
+   * Feature: Get multiple
+   * Des: Get all courses when access page "createCouse"
+   */
   useEffect(() => {
     handleGetCourses();
   }, [handleGetCourses]);
 
+  /**
+   * Feature: Get single
+   * Des: Get info of lesson with id corresponding when user choose a lesson to edit
+   */
   useEffect(() => {
     if (chooseLesson._id) {
       setLesson(chooseLesson);
@@ -146,6 +166,7 @@ const CreateCourse = () => {
   };
 
   // -------------------- Handle Course --------------------------
+
   const handleCourseNow = (e: InputChangedEvent) => {
     const { value } = e.target;
     dispatch(courseNowSlice.actions.getCourseIdNow({ courseId: value }));
@@ -153,12 +174,15 @@ const CreateCourse = () => {
 
   const handleSubmitCourse = (e: FormSubmit) => {
     e.preventDefault();
-    if (!authUser.access_token) {
-      return dispatch(
-        alertSlice.actions.alertAdd({ error: "Invalid access token" })
-      );
+
+    if (validCreateCourse().length === 0) {
+      if (!authUser.access_token) {
+        return dispatch(
+          alertSlice.actions.alertAdd({ error: "Invalid access token" })
+        );
+      }
+      courseAction.createCourse(course, authUser.access_token, dispatch);
     }
-    courseAction.createCourse(course, authUser.access_token, dispatch);
   };
 
   // -------------------- Handle Chapter --------------------------
@@ -189,64 +213,68 @@ const CreateCourse = () => {
   };
 
   const handleCreateChapter = async () => {
-    if (courseNow.courseId === "") {
-      setChapter({ name: "", lessons: [] });
-      return dispatch(
-        alertSlice.actions.alertAdd({ error: "Need create previous course" })
-      );
-    }
-    if (!authUser.access_token) {
-      return dispatch(
-        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
-      );
-    }
+    if (validCreateChapter().length === 0) {
+      if (courseNow.courseId === "") {
+        setChapter({ name: "", lessons: [] });
+        return dispatch(
+          alertSlice.actions.alertAdd({ error: "Need create previous course" })
+        );
+      }
+      if (!authUser.access_token) {
+        return dispatch(
+          alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+        );
+      }
 
-    if (chapter) {
-      const res = await patchApi(
-        `chapter/course/${courseNow.courseId}`,
-        chapter,
-        authUser.access_token
-      );
+      if (chapter) {
+        const res = await patchApi(
+          `chapter/course/${courseNow.courseId}`,
+          chapter,
+          authUser.access_token
+        );
 
-      console.log("Res: ", res.data);
+        console.log("Res: ", res.data);
 
-      dispatch(
-        courseSlice.actions.createChapterOfCourse({
-          courseId: courseNow.courseId,
-          content: res.data.content,
-        })
-      );
+        dispatch(
+          courseSlice.actions.createChapterOfCourse({
+            courseId: courseNow.courseId,
+            content: res.data.content,
+          })
+        );
 
-      dispatch(
-        courseNowSlice.actions.getChapterIdNow({
-          chapterId: res.data.content[res.data.content.length - 1]._id,
-        })
-      );
+        dispatch(
+          courseNowSlice.actions.getChapterIdNow({
+            chapterId: res.data.content[res.data.content.length - 1]._id,
+          })
+        );
 
-      dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
+        dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
+      }
     }
   };
 
   // -------------------- Handle Lesson --------------------------
 
   const handleAddLesson = () => {
-    if (!authUser.access_token) {
-      return dispatch(
-        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+    if (validCreateLesson().length === 0) {
+      if (!authUser.access_token) {
+        return dispatch(
+          alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+        );
+      }
+
+      if (courseNow.chapterId === "") {
+        return dispatch(
+          alertSlice.actions.alertAdd({ error: "Need create previous chater" })
+        );
+      }
+
+      courseAction.createLesson(
+        { lesson, courseNow, fileUpload },
+        authUser.access_token,
+        dispatch
       );
     }
-
-    if (courseNow.chapterId === "") {
-      return dispatch(
-        alertSlice.actions.alertAdd({ error: "Need create previous chater" })
-      );
-    }
-
-    courseAction.createLesson(
-      { lesson, courseNow, fileUpload },
-      authUser.access_token,
-      dispatch
-    );
   };
 
   const handleUpdateLesson = () => {
@@ -330,6 +358,58 @@ const CreateCourse = () => {
     setFileUpload(undefined);
   };
 
+  //  -------------------- Valid ----------------------------
+  const validCreateCourse = () => {
+    let err = [];
+    if (course.name.trim() === "") {
+      err.push("Need Input Name Course");
+    }
+
+    if (course.thumbnail.url) {
+      err.push("Provide image of Course");
+    }
+    if (course.category.trim() === "") {
+      err.push("Provide category to Course");
+    }
+
+    const error = err.concat("\n");
+    if (error.length > 0) {
+      dispatch(alertSlice.actions.alertAdd({ error: error }));
+    }
+
+    return err;
+  };
+
+  const validCreateChapter = () => {
+    let err = [];
+    if (chapter?.name.trim() === "") {
+      err.push("Provide chapter");
+    }
+
+    const error = err.concat("-");
+    if (err.length > 0) {
+      dispatch(alertSlice.actions.alertAdd({ error: error }));
+    }
+
+    return err;
+  };
+
+  const validCreateLesson = () => {
+    let err = [];
+    if (courseNow.chapterId === "") {
+      err.push("Provide chapter to lesson");
+    }
+    if (courseNow.courseId === "") {
+      err.push("Provide course to lesson");
+    }
+
+    if (lesson.name.trim() === "") {
+      err.push("Provide lesson name");
+    }
+
+    return err;
+  };
+
   return (
     <div className="flex gap-2">
       <div className=" w-2/3 flex flex-col gap-2">
@@ -337,6 +417,7 @@ const CreateCourse = () => {
         <div className=" border-2 p-2">
           <div className="flex justify-between">
             <h1 className="font-bold text-[30px]">Create Course</h1>
+            {/* Choose a course already exist */}
             <select
               className="w-[300px] border-2"
               name="category"

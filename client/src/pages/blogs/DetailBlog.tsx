@@ -90,7 +90,13 @@ const DetailBlog = () => {
                 <InfoCreator props={blog} />
               )}
             </div>
-            <div className="">{blog?.content}</div>
+            {/* <div className="">{blog?.content}</div> */}
+            <div
+              // className="hidden"
+              dangerouslySetInnerHTML={{
+                __html: blog?.content ? blog.content : "",
+              }}
+            />
           </div>
         </div>
       </div>

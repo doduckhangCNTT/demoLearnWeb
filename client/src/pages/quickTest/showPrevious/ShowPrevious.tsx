@@ -12,6 +12,7 @@ import {
   InputChangedEvent,
   IQuickTest,
 } from "../../../utils/Typescript";
+import ShowAnswer from "./ShowAnswer";
 
 const ShowPrevious = () => {
   const numberQuestions = [
@@ -133,7 +134,16 @@ const ShowPrevious = () => {
       <div className="flex flex-col gap-2 w-2/3 shadow-md p-3">
         {/* Title of quickTest  */}
         <div className="">
-          <h1 className="font-bold text-[30px]">{quickTest?.titleTest}</h1>
+          <div
+            // className="hidden"
+            dangerouslySetInnerHTML={{
+              __html: quickTest?.titleTest ? quickTest.titleTest : "",
+            }}
+          />
+
+          {/* <h1 className="font-bold text-[30px]">
+            {quickTest?.titleTest}
+          </h1> */}
         </div>
 
         {/* Show all questions of quickTest */}
@@ -148,35 +158,44 @@ const ShowPrevious = () => {
                   <div className="ml-[20px]">
                     {q.answers.map((a, i) => {
                       return (
-                        <div key={i} className="flex gap-2">
-                          <input
-                            type={q.typeQuestion}
-                            id={`${a.content}`}
-                            name={`${q.titleQuestion}`}
-                            value={i}
-                            onChange={(e) => handleChangeInput(e)}
-                            ref={inputRef}
+                        // <div key={i} className="flex gap-2">
+                        //   <input
+                        //     type={q.typeQuestion}
+                        //     id={`${a.content}`}
+                        //     name={`${q.titleQuestion}`}
+                        //     value={i}
+                        //     onChange={(e) => handleChangeInput(e)}
+                        //     ref={inputRef}
+                        //   />
+                        //   <label
+                        //     htmlFor={`${a.content}`}
+                        //     className="text-[16px]"
+                        //   >
+                        //     {a.content}
+                        //   </label>
+                        // </div>
+                        <div className="" key={i}>
+                          <ShowAnswer
+                            typeQuestion={q.typeQuestion}
+                            content={`${a.content}`}
+                            titleQuestion={`${q.titleQuestion}`}
+                            index={i}
+                            // handleChangeInput={}
                           />
-                          <label
-                            htmlFor={`${a.content}`}
-                            className="text-[16px]"
-                          >
-                            {a.content}
-                          </label>
                         </div>
                       );
                     })}
                   </div>
 
                   <div className="">
-                    {/* <input
+                    <input
                       type="text"
                       placeholder="DA"
                       // value={inputRef.current.value}
-                      name="Cau {index}"
+                      name=""
                       value={index}
                       className="border-2 outline-none"
-                    /> */}
+                    />
                     {/* {inputRef.current?.checked ? (
                       <input
                         type="text"

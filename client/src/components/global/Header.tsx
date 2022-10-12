@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import actionAuth from "../../redux/action/actionAuth";
 import LazyLoadingImg from "../LazyLoadingImg/LazyLoadingImg";
 import Information from "../../pages/option/Information";
+import NotFound from "./NotFound";
 
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
@@ -114,6 +115,17 @@ export default function Header() {
                 </div>
 
                 <div className="flex gap-2 items-center">
+                  {/* Manager */}
+                  {authUser.user && authUser.user.role === "admin" ? (
+                    <div className="p-2 bg-sky-500 rounded-lg hover:text-white hover:opacity-80">
+                      <Link to="/manager" className="font-bold rounded-lg">
+                        Manager
+                      </Link>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+
                   {/* Search */}
                   <div className="flex border-2 rounded-full">
                     <form action="" className="flex items-center max-w-[300px]">
@@ -138,11 +150,12 @@ export default function Header() {
                       </button>
                     </form>
                   </div>
+
                   <div>
                     {authUser.user ? (
                       <>
-                        {/* Icon Information */}
                         <div className="inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                          {/* Icon Information */}
                           <Information />
 
                           {/* Profile dropdown */}

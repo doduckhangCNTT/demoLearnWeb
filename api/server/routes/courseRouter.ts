@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get("/courses", authUser, courseCtrl.getCourses);
 
-router.get("/course/:id", authUser, authAdmin, courseCtrl.getCourse);
+router.get("/course/:id", authUser, courseCtrl.getCourse);
 
 router.get(
   "/course/:courseId/chapter/:chapterId",

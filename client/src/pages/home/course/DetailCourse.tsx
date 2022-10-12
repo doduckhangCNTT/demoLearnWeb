@@ -1,15 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Fragment } from "react";
-import { Listbox, Transition } from "@headlessui/react";
-import { Outlet, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import ComboboxLessons from "./ComboboxLessons";
 import { getApi } from "../../../utils/FetchData";
 import { useSelector } from "react-redux";
 import { authSelector } from "../../../redux/selector/selectors";
 import { ICourses } from "../../../utils/Typescript";
 import CompactParam from "../../../components/CompactParam";
-
-import { Combobox } from "@headlessui/react";
+import LazyLoadingImg from "../../../components/LazyLoadingImg/LazyLoadingImg";
 
 const people = [
   { name: "Wade Cooper" },
@@ -54,10 +51,30 @@ const DetailCourse = () => {
         </div>
 
         <div className="flex justify-center">
-          <div className=" w-2/3 border-2 h-full">
-            <div className="">{/* <ComboboxLessons /> */}</div>
+          <div className=" w-2/3 h-full">
+            <div className="">
+              <div className="">
+                {course?.content.map((co, index) => {
+                  return (
+                    <div className="" key={index}>
+                      <ComboboxLessons chapter={co} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
             <div className=""></div>
+          </div>
+        </div>
+
+        <div className="mt-[20px]">
+          <h1 className="font-bold my-6">Road map</h1>
+          <div className="">
+            <LazyLoadingImg
+              url="https://roadmap.sh/roadmaps/javascript.png"
+              className="w-full"
+            />
           </div>
         </div>
       </div>
@@ -77,9 +94,12 @@ const DetailCourse = () => {
             ></iframe>
           </div>
           <div className="flex justify-center mt-5">
-            <button className="border-2 p-2 rounded-lg text-[20px] text-white font-bold bg-sky-300 hover:opacity-80">
+            <Link
+              to={`/startCourse/${course?._id}`}
+              className="border-2 p-2 rounded-lg text-[20px] text-white font-bold bg-sky-300 hover:opacity-80"
+            >
               Start Course
-            </button>
+            </Link>
           </div>
         </div>
       </div>

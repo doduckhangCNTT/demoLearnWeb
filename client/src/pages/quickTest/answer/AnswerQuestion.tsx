@@ -5,7 +5,6 @@ import quickTestAction from "../../../redux/action/quickTestAction";
 import { alertSlice } from "../../../redux/reducers/alertSlice";
 import {
   authSelector,
-  chooseQuestionSelector,
   quickTestNowSelector,
 } from "../../../redux/selector/selectors";
 import { getApi } from "../../../utils/FetchData";
@@ -46,7 +45,8 @@ const Answer: React.FC<IProps> = ({ quickTest, questionNow, setQuickTest }) => {
   useEffect(() => {
     const div = divRef.current;
     if (!div) return;
-    const text = div.innerText as string;
+    // const text = div.innerText as string;
+    const text = body;
     setText(text);
   }, [body]);
 

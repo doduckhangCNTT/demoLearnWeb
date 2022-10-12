@@ -98,7 +98,9 @@ const courseCtrl = {
         .json({ success: false, error: "Invalid Authentication" });
     }
     try {
-      const courses = await CourseModel.find().populate("user");
+      const courses = await CourseModel.find()
+        .populate("user")
+        .populate("category");
 
       if (!courses) {
         return res.json({ msg: "No courses found" });

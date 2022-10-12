@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { alertSlice } from "../../redux/reducers/alertSlice";
 import { authSelector } from "../../redux/selector/selectors";
 import { checkImg } from "../../utils/Valid";
-import uploadImgAction from "../../redux/action/uploadImgAction";
 import { postApi } from "../../utils/FetchData";
 import { checkTokenExp } from "../../utils/CheckTokenExp";
 
@@ -19,6 +18,10 @@ const Quill: React.FC<IProps> = ({ body, setBody }) => {
   const dispatch = useDispatch();
   const quillRef = useRef<ReactQuill>(null);
   const modules = { toolbar: { container } };
+
+  const handleDeleteImage = () => {
+    console.log("Delete Image");
+  };
 
   const handleChangeImage = useCallback(() => {
     const input = document.createElement("input");
@@ -60,10 +63,11 @@ const Quill: React.FC<IProps> = ({ body, setBody }) => {
   }, [authUser.access_token, dispatch]);
 
   useEffect(() => {
-    const quill = quillRef.current;
+    const quill = quillRef.current as ReactQuill;
     if (!quill) return;
 
     let toolbar = quill.getEditor().getModule("toolbar");
+    // toolbar.deleteHandle("image", handleDeleteImage);
     toolbar.addHandler("image", handleChangeImage);
   }, [handleChangeImage]);
 

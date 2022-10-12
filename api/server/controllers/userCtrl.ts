@@ -106,9 +106,9 @@ const userCtrl = {
         .json({ success: false, msg: "Invalid Authentication" });
     }
     try {
-      await Users.findOneAndDelete({ _id: req.params.id });
+      const user = await Users.findOneAndDelete({ _id: req.params.id });
 
-      res.json({ success: true, msg: "Delete user successfully" });
+      res.json({ success: true, user, msg: "Delete user successfully" });
     } catch (error: any) {
       res.status(500).json({ success: false, msg: error.message });
     }

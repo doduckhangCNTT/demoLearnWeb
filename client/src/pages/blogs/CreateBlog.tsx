@@ -45,6 +45,9 @@ const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
 
   const divRef = useRef<HTMLDivElement>(null);
 
+  console.log("Body: ", body);
+  console.log("Text: ", text);
+
   useEffect(() => {
     const getBlog = async () => {
       if (!id) return;
@@ -114,7 +117,8 @@ const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
   useEffect(() => {
     const div = divRef.current;
     if (!div) return;
-    const text = div.innerText as string;
+    // const text = div.innerText;
+    const text = body;
     setText(text);
   }, [body]);
 

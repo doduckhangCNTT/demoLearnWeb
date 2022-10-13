@@ -14,13 +14,15 @@ const usePagination = (totalPages: number) => {
     const valuePage = new URLSearchParams(search).get("page");
     const valueSort = new URLSearchParams(search).get("sort");
 
+    console.log("Value Sort: ", valueSort);
+
     if (valuePage) {
       setPage(parseInt(valuePage, 10) || 1);
     }
     if (valueSort) {
-      setSort(sort);
+      setSort(valueSort);
     }
-  }, [search, sort]);
+  }, [search]);
 
   useEffect(() => {
     // Chuyen doi totalPages thanh 1 mang s

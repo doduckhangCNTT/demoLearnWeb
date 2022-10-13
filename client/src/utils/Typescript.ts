@@ -194,7 +194,7 @@ export interface IQuickTest {
   _id?: string;
   user?: IUser | string;
   titleTest: string;
-  category: string;
+  category: string | object;
   time: number;
   description: string;
   image: {

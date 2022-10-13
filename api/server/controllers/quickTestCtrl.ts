@@ -2,6 +2,14 @@ import { Request, Response } from "express";
 import { IReqAuth } from "../config/interface";
 import QuickTestModel from "../models/quickTestModel";
 
+const PageConfig = (req: Request) => {
+  const page = Number(req.query.page) * 1 || 1;
+  const limit = Number(req.query.limit) * 1 || 2;
+  const skip = (page - 1) * limit;
+
+  return { page, limit, skip };
+};
+
 const quickTestCtrl = {
   getQuickTests: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
@@ -38,6 +46,64 @@ const quickTestCtrl = {
       return res.json({ quickTest });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  getQuickTestsToPage: async (req: Request, res: Response) => {
+    try {
+      const { page, limit, skip } = PageConfig(req);
+
+      const Data = await QuickTestModel.aggregate([
+        {
+          $facet: {
+            totalData: [
+              {
+                $lookup: {
+                  from: "users",
+                  let: { user_id: "$user" },
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$user_id"] } } },
+                    { $project: { password: 0 } },
+                  ],
+                  as: "user",
+                },
+              },
+              { $unwind: "$user" },
+
+              {
+                $lookup: {
+                  from: "categories",
+                  let: { category_id: "$category" },
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$category_id"] } } },
+                  ],
+                  as: "category",
+                },
+              },
+              { $unwind: "$category" },
+
+              { $sort: { createdAt: -1 } },
+              { $skip: skip },
+              { $limit: limit },
+            ],
+            totalCount: [{ $count: "count" }],
+          },
+        },
+
+        {
+          $project: {
+            count: { $arrayElemAt: ["$totalCount.count", 0] },
+            totalData: 1,
+          },
+        },
+      ]);
+
+      const quickTests = Data[0].totalData;
+      const count = Data[0].count;
+
+      res.json({ quickTestsPage: quickTests, totalCount: count });
+    } catch (error: any) {
+      return res.status(500).json({ success: false, error: error.message });
     }
   },
 

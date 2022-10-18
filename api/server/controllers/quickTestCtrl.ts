@@ -12,60 +12,10 @@ const PageConfig = (req: Request) => {
   return { page, limit, skip };
 };
 
-type QueryStringType = {
-  page: number;
-  limit: number;
-  search: string;
-};
-
 function validateEmail(email?: string) {
   const re =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(email).toLowerCase());
-}
-
-class APIfeature<T, U> {
-  private query: T[];
-  private queryString: U;
-
-  constructor(query: T[], queryString: U) {
-    this.query = query;
-    this.queryString = queryString;
-  }
-
-  filtering() {
-    const queryObj = { ...this.queryString };
-    console.log("Query: ", this.query);
-    console.log("QueryString: ", queryObj);
-    // const exclude = ["page", "sort", "limit", "search"]
-    // exclude.forEach(e => delete queryObj[e])
-
-    let queryStr = JSON.stringify(queryObj);
-
-    // Chuyển cái chuỗi  về dạng  "$" + match là để cho mongosse có thêm tìm các giá trị tương ứng
-    queryStr = queryStr.replace(
-      /\b(gte|gt|lt|lte|regex)\b/g, // regex giúp có thể truy xuất theo ten
-      (match) => "$" + match
-    );
-    console.log(queryStr);
-    const items = this.query.find(JSON.parse(queryStr));
-    console.log("Items: ", items);
-
-    return items;
-  }
-
-  paging() {
-    // lấy số lượng trang cần hiển thị
-    // Viec * 1 la de chuyen gia tri chuoi thanh number
-    const page = (this.queryString as any).page * 1 || 1;
-    // Số lượng sản phẩm trên 1 trang
-    const limit = (this.queryString as any).limit * 1 || 5;
-    // skip nó sẽ bỏ quả số lương phần tử ở trong mảng products
-    const skip = (page - 1) * limit;
-    // việc bỏ qua skip giá trị là để tránh sự lặp lại các giá trị products trước đó, với hạn số phần tử limit
-    this.query = (this.query as any).skip(skip).limit(limit);
-    return this;
-  }
 }
 
 const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
@@ -176,8 +126,8 @@ const quickTestCtrl = {
   },
 
   getQuickTestsSearch: async (req: IReqAuth, res: Response) => {
-    // if (!req.user)
-    //   return res.status(400).json({ msg: "Invalid Authentication" });
+    if (!req.user)
+      return res.status(400).json({ msg: "Invalid Authentication" });
 
     try {
       let listTestSearch = [] as IQuickTests[];
@@ -190,9 +140,9 @@ const quickTestCtrl = {
       ) {
         // const account = req.user.account;
         const user = await UserModel.findOne({ account: searchQueryQuickTest });
-        console.log("User: ", user);
+        // console.log("User: ", user);
         const userId = user?._id;
-        console.log("UserId: ", userId);
+        // console.log("UserId: ", userId);
 
         if (!userId) {
           return res.json({

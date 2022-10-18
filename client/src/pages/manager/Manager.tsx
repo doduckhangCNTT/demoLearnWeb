@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
-import LazyLoadingImg from "../../components/LazyLoadingImg/LazyLoadingImg";
 
 const Manager = () => {
   const listManagers = [

@@ -1,8 +1,21 @@
 import { Request, Response } from "express";
-import { IReqAuth } from "../config/interface";
+import { IReqAuth, IUser } from "../config/interface";
 import Users from "../models/userModel";
-
 import bcrypt from "bcrypt";
+
+const PageConfig = (req: IReqAuth) => {
+  const page = Number(req.query.page) * 1 || 1;
+  const limit = Number(req.query.limit) * 1 || 5;
+  const skip = (page - 1) * limit;
+
+  return { page, skip, limit };
+};
+
+function validateEmail(email?: string) {
+  const re =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
 
 const userCtrl = {
   getUsers: async (req: IReqAuth, res: Response) => {
@@ -59,6 +72,55 @@ const userCtrl = {
     }
   },
 
+  getUsersPage: async (req: IReqAuth, res: Response) => {
+    // if (!req.user) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, msg: "Invalid Authentication" });
+    // }
+
+    const { skip, limit } = PageConfig(req);
+
+    try {
+      const users = await Users.find();
+
+      const usersPage = await Users.find()
+        .skip(skip)
+        .limit(limit)
+        .select("-password")
+        .sort("-createdAt");
+
+      res.json({ users: usersPage, totalCount: users.length });
+    } catch (error: any) {
+      res.status(500).json({ success: false, msg: error.message });
+    }
+  },
+
+  getUsersSearchPage: async (req: IReqAuth, res: Response) => {
+    // if (!req.user) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, msg: "Invalid Authentication" });
+    // }
+
+    try {
+      let users: IUser[] | null;
+      const { search } = req.query;
+      if (validateEmail(search ? search.toString() : "")) {
+        users = await Users.find({ account: search });
+      } else {
+        users = await Users.find({ _id: search });
+      }
+
+      if (users.length === 0) {
+        res.json({ msg: "User not found" });
+      }
+
+      res.json({ users, totalCount: 1 });
+    } catch (error: any) {
+      res.status(500).json({ success: false, msg: error.message });
+    }
+  },
   updateUser: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
       return res

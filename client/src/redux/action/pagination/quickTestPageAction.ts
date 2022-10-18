@@ -9,12 +9,14 @@ interface IGetQuickTestsPage {
   page: number | 1;
   sort: string;
   limit: number;
+  time?: string;
 }
 
 interface IGetQuickTestsSearchPage {
   page: number | 1;
   limitPageSearch: number;
   searchTest: string;
+  totalCount?: number;
 }
 
 const quickTestPageAction = {
@@ -28,7 +30,7 @@ const quickTestPageAction = {
 
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
-      const { page, limit, sort } = data;
+      const { page, limit, sort, time } = data;
       try {
         const res = await getApi(
           `quickTestsPage?page=${page}&limit=${limit}`,
@@ -61,6 +63,29 @@ const quickTestPageAction = {
             })
           );
         }
+
+        // Filter time tren tat ca cac trang
+        // else if (time) {
+        //   console.log("Time: ", time);
+        //   const timeValue = time.split("+");
+        //   let items = [] as IQuickTest[];
+
+        //   if (timeValue[1] === "biggerTime") {
+        //     items = (quickTestsPage as IQuickTest[]).filter(
+        //       (item) => item.time > Number(timeValue[0])
+        //     );
+        //   } else if (timeValue[1] === "lessTime") {
+        //     items = (quickTestsPage as IQuickTest[]).filter(
+        //       (item) => item.time < Number(timeValue[0])
+        //     );
+        //   }
+        //   dispatch(
+        //     quickTestsPageSlice.actions.createQuickTestPage({
+        //       data: items,
+        //       totalCount,
+        //     })
+        //   );
+        // }
       } catch (error: any) {
         dispatch(alertSlice.actions.alertAdd({ error: error.message }));
       }
@@ -79,7 +104,7 @@ const quickTestPageAction = {
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
 
-    const { page, limitPageSearch, searchTest } = data;
+    const { page, limitPageSearch, searchTest, totalCount } = data;
     try {
       const res = await getApi(
         `quickTestsSearch?page=${page}&limit=${limitPageSearch}&search=${searchTest}`,
@@ -90,11 +115,24 @@ const quickTestPageAction = {
       if (res.data.listTestSearch.length > 0) {
         const quickTestsSearch = res.data.listTestSearch as IQuickTest[];
 
-        dispatch(
-          quickTestsPageSlice.actions.updateQuickTestPage({
-            data: quickTestsSearch,
-          })
-        );
+        /**
+         *  totalCount: Để kiểm tra đây là lần search đầu tiên thì cần phải lấy được tổng số các quickTest
+         *  thì mới có thể phân trang
+         */
+        if (totalCount) {
+          dispatch(
+            quickTestsPageSlice.actions.createQuickTestPage({
+              data: quickTestsSearch,
+              totalCount,
+            })
+          );
+        } else {
+          dispatch(
+            quickTestsPageSlice.actions.updateQuickTestPage({
+              data: quickTestsSearch,
+            })
+          );
+        }
       } else {
         dispatch(alertSlice.actions.alertAdd({ error: res.data.msg }));
       }

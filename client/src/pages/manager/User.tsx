@@ -1,25 +1,82 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import Pagination from "../../components/Pagination";
+import { LIMIT_TEST_PAGE_USER } from "../../constants/userPage";
+import fCheckedAll from "../../features/fCheckedAll";
+import fCheckedList from "../../features/fCheckedList";
+import useOptionLocationUrl from "../../hooks/useOptionLocationUrl";
 import blogAction from "../../redux/action/blogAction";
-import { authSelector, blogSelector } from "../../redux/selector/selectors";
+import userPageAction from "../../redux/action/pagination/userPageAction";
+import { alertSlice } from "../../redux/reducers/alertSlice";
+import {
+  authSelector,
+  blogSelector,
+  userSelector,
+} from "../../redux/selector/selectors";
 import { deleteApi, getApi } from "../../utils/FetchData";
-import { IUser } from "../../utils/Typescript";
+import { FormSubmit, InputChangedEvent, IUser } from "../../utils/Typescript";
 
 const User = () => {
+  const [users, setUsers] = useState<IUser[]>();
+  const { page, sort } = useOptionLocationUrl();
+  const [checkedUser, setCheckedUser] = useState<string[]>([]);
+  const [toggleCheckedAllUser, setToggleCheckedAllUser] =
+    useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>("");
+
   const { authUser } = useSelector(authSelector);
   const { blogs } = useSelector(blogSelector);
-  const [users, setUsers] = useState<IUser[]>();
+  const { userPage } = useSelector(userSelector);
   const dispatch = useDispatch();
 
+  // ================================= Get Users ======================================
   const handleGetUsers = useCallback(async () => {
     const res = await getApi("users", authUser.access_token);
     setUsers(res.data.users);
   }, [authUser.access_token]);
 
+  const handleGetUsersPage = useCallback(async () => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+    const data = {
+      page: page ? Number(page) : 1,
+      limit: LIMIT_TEST_PAGE_USER,
+    };
+
+    userPageAction.getUsersPage(data, authUser.access_token, dispatch);
+  }, [authUser.access_token, dispatch, page]);
+
   useEffect(() => {
-    handleGetUsers();
-  }, [handleGetUsers]);
+    handleGetUsersPage();
+  }, [handleGetUsersPage]);
+
+  // ================================= Total Page ======================================
+  const totalPage = useMemo(() => {
+    return Math.ceil(userPage.totalCount / LIMIT_TEST_PAGE_USER);
+  }, [userPage.totalCount]);
+
+  // ================================= Select CheckBox ======================================
+  const handleChangeSelected = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    user: IUser
+  ) => {
+    fCheckedList(e, user, checkedUser, setCheckedUser, "_id");
+  };
+
+  const handleSelectedAll = () => {
+    setToggleCheckedAllUser(!toggleCheckedAllUser);
+    fCheckedAll(toggleCheckedAllUser, userPage.users, setCheckedUser, "_id");
+  };
+
+  const handleDeleteAllUserSelected = () => {
+    if (window.confirm("Are you sure you want to delete")) {
+      console.log("List Checked: ", checkedUser);
+    }
+  };
 
   const handleDeleteUser = async (userId: string) => {
     if (window.confirm("Are you sure you want to delete this user")) {
@@ -40,17 +97,69 @@ const User = () => {
     }
   };
 
-  const handleDetailUser = (userId: string) => {};
+  // ================================= Search ======================================
+  const handleChangeSearchInput = (e: InputChangedEvent) => {
+    const { value } = e.target;
+    setSearchValue(value);
+
+    if (value) {
+    } else {
+    }
+  };
+
+  const handleSearchSubmit = (e: FormSubmit) => {
+    e.preventDefault();
+
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+
+    const data = {
+      page: 1,
+      limit: 5,
+      search: searchValue,
+    };
+    userPageAction.getUsersSearchPage(data, authUser.access_token, dispatch);
+  };
 
   return (
     <div className="">
-      <h1 className="font-bold text-[30px] my-2">Manager Users</h1>
+      <div className="flex justify-between">
+        <h1 className="font-bold text-[30px] my-2">Manager Users</h1>
+        <div className="my-2 flex flex-col">
+          <form action="" onSubmit={handleSearchSubmit} className="">
+            <input
+              type="text"
+              className="border-2 rounded-lg p-2"
+              placeholder="Search User"
+              onChange={handleChangeSearchInput}
+            />
+          </form>
+          <div className="flex justify-end">
+            <button
+              className="border-2 p-1 rounded-lg my-2 hover:bg-sky-500 hover:text-white transition inline-block"
+              onClick={handleDeleteAllUserSelected}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div className="">
         <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
+                <th
+                  scope="col"
+                  className="py-3 px-6 hover:bg-sky-500 hover:text-white cursor-pointer"
+                  onClick={handleSelectedAll}
+                >
+                  Select
+                </th>
                 <th scope="col" className="py-3 px-6">
                   ID User
                 </th>
@@ -73,13 +182,22 @@ const User = () => {
               </tr>
             </thead>
             <tbody>
-              {users &&
-                users?.map((user, index) => {
+              {userPage &&
+                userPage.users?.map((user, index) => {
                   return (
                     <tr
                       key={index}
                       className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                     >
+                      <td className="py-4 px-6 ">
+                        <input
+                          type="checkbox"
+                          onChange={(e) => handleChangeSelected(e, user)}
+                          checked={checkedUser.includes(
+                            user._id ? user._id : ""
+                          )}
+                        />
+                      </td>
                       <td className="py-4 px-6 ">{user._id}</td>
                       <td className="py-4 px-6">{user.name}</td>
                       <td className="py-4 px-6">{user.account}</td>
@@ -113,36 +231,7 @@ const User = () => {
           </table>
         </div>
 
-        <div className="mt-5 flex justify-end">
-          <nav aria-label="Page navigation example">
-            <ul className="flex -space-x-px">
-              <li>
-                <Link
-                  to="#"
-                  className="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  Previous
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="#"
-                  className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  1
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="#"
-                  className="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  Next
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        <Pagination totalPages={totalPage} />
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ import {
   LIMIT_TEST_PAGE,
   LIMIT_TEST_PAGE_SEARCH,
 } from "../../constants/quickTestPage";
+import fCheckedAll from "../../features/fCheckedAll";
+import fCheckedList from "../../features/fCheckedList";
 import useCustomRouter from "../../hooks/useCustomRouter";
 import useOptionLocationUrl from "../../hooks/useOptionLocationUrl";
 import ListsSorted from "../../hooks/useSorted";
@@ -35,23 +37,21 @@ import {
 const ManagerTest = () => {
   const { pushQuery } = useCustomRouter();
   // get value page, sort on URL
-  const { page, sort } = useOptionLocationUrl();
+  const { page, sort, time } = useOptionLocationUrl();
 
-  const [limit, setLimit] = useState(LIMIT_TEST_PAGE);
   const [sortValue, setSortValue] = useState<string>();
-  const [checkedTests, setCheckedTests] = useState<string[]>([]);
   const [searchTest, setSearchTest] = useState<string>("");
-  const [checkSearchDuplicate, setCheckSearchDuplicate] = useState<string>("");
+
+  // Selected
+  const [checkedTests, setCheckedTests] = useState<string[]>([]);
   const [selectedAll, setSelectedAll] = useState(false);
+
   const searchTestRef = useRef("");
-  console.log("Search Ref: ", searchTestRef);
 
   const { authUser } = useSelector(authSelector);
   const { quickTests } = useSelector(quickTestsSelector);
   const { quickTestsPage } = useSelector(quickTestsPageSelector);
   const dispatch = useDispatch();
-
-  console.log("Sort Value: ", sortValue);
 
   // =========================== Get QuickTest Results =========================
   const handleGetQuickTestPage = useCallback(async () => {
@@ -63,13 +63,9 @@ const ManagerTest = () => {
     const data = {
       page: Number(page),
       sort: sortValue ? sortValue.toString() : "",
-      limit: limit,
+      limit: LIMIT_TEST_PAGE,
+      time: time ? time : "",
     };
-
-    console.log({
-      searchTest,
-      checkSearchDuplicate,
-    });
 
     // Việc sử dụng useRef là để tránh việc bị re-render component
     searchTestRef.current = searchTest;
@@ -99,7 +95,7 @@ const ManagerTest = () => {
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser.access_token, dispatch, limit, page, sortValue]);
+  }, [authUser.access_token, dispatch, page, sortValue]);
 
   const handleGetQuickTestsAll = useCallback(async () => {
     if (!authUser.access_token)
@@ -129,7 +125,7 @@ const ManagerTest = () => {
     const data = {
       page: pageValueLocal,
       sort: sortValue ? sortValue.toString() : "",
-      limit: limit,
+      limit: LIMIT_TEST_PAGE,
     };
 
     quickTestPageAction.getQuickTestsPage(
@@ -141,12 +137,21 @@ const ManagerTest = () => {
 
   const getAllQuickTestsPage = async (pageValueLocal: number) => {
     const res = await getApi(
-      `quickTestsPage?page=${pageValueLocal}&limit=${limit}`,
+      `quickTestsPage?page=${pageValueLocal}&limit=${LIMIT_TEST_PAGE}`,
       authUser.access_token
     );
     const { quickTestsPage } = res.data;
 
     return quickTestsPage as IQuickTest[];
+  };
+
+  const getQuickTestsSearch = async () => {
+    const res = await getApi(
+      `quickTestsSearch?page=${page}&limit=${LIMIT_TEST_PAGE_SEARCH}&search=${searchTest}`,
+      authUser.access_token
+    );
+    const { listTestSearch } = res.data;
+    return listTestSearch;
   };
 
   useEffect(() => {
@@ -227,74 +232,105 @@ const ManagerTest = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     quickTest: IQuickTest
   ) => {
-    const { checked } = e.target;
-    if (checked) {
-      // Khong nen su dung vì khien bat dong bo
-      // setCheckedTests((prev) => [...prev, quickTest._id ? quickTest._id : ""]);
+    fCheckedList(e, quickTest, checkedTests, setCheckedTests, "_id");
 
-      const newQuickTests = [
-        ...checkedTests,
-        quickTest._id ? quickTest._id : "",
-      ];
-      setCheckedTests(newQuickTests);
-    } else {
-      const quickTestsRemaining = checkedTests.filter(
-        (item) => item !== quickTest._id
-      );
-      setCheckedTests(quickTestsRemaining);
-    }
+    // const { checked } = e.target;
+    // if (checked) {
+    //   // Khong nen su dung vì khien bat dong bo
+    //   // setCheckedTests((prev) => [...prev, quickTest._id ? quickTest._id : ""]);
+
+    //   const newQuickTests = [
+    //     ...checkedTests,
+    //     quickTest._id ? quickTest._id : "",
+    //   ];
+    //   setCheckedTests(newQuickTests);
+    // } else {
+    //   const quickTestsRemaining = checkedTests.filter(
+    //     (item) => item !== quickTest._id
+    //   );
+    //   setCheckedTests(quickTestsRemaining);
+    // }
   };
 
   const handleSelectedAll = () => {
     setSelectedAll(!selectedAll);
+    fCheckedAll(selectedAll, quickTestsPage.data, setCheckedTests, "_id");
 
-    const allTestSelected = [] as string[];
-    if (!selectedAll) {
-      quickTestsPage.data.forEach((item) => {
-        allTestSelected.push(item._id ? item._id : "");
-      });
-      setCheckedTests(allTestSelected);
-    } else {
-      setCheckedTests([]);
-    }
+    // const allTestSelected = [] as string[];
+    // if (!selectedAll) {
+    //   quickTestsPage.data.forEach((item) => {
+    //     allTestSelected.push(item._id ? item._id : "");
+    //   });
+    //   setCheckedTests(allTestSelected);
+    // } else {
+    //   setCheckedTests([]);
+    // }
   };
 
   const handleDeleteMultipleTest = () => {
     if (window.confirm("Are you sure you want to delete")) {
-      checkedTests.forEach((item) => {});
+      // checkedTests.forEach((item) => {});
+      console.log("Select: ", checkedTests);
     }
   };
 
   // ======================== Feature Search ========================
   const handleChangeInputSearchTest = (e: InputChangedEvent) => {
     const { value } = e.target;
-    setSearchTest(value);
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+
+    if (value) {
+      setSearchTest(value);
+    } else {
+      setSearchTest("");
+
+      const data = {
+        page: page ? Number(page) : 1,
+        sort: sortValue ? sortValue : "",
+        limit: LIMIT_TEST_PAGE,
+      };
+      quickTestPageAction.getQuickTestsPage(
+        data,
+        authUser.access_token,
+        dispatch
+      );
+    }
   };
 
   const handleSubmitSearch = async (e: FormSubmit) => {
     e.preventDefault();
+
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+
     if (searchTest) {
+      /**
+       * Get: All values from the search results
+       * Description: Get totalCount --> Paging
+       */
       const listTest = quickTests.filter(
         (item) =>
           (item.user as IUser).account === searchTest || item._id === searchTest
       );
 
-      const res = await getApi(
-        `quickTestsSearch?page=${page}&limit=${LIMIT_TEST_PAGE_SEARCH}&search=${searchTest}`,
-        authUser.access_token
+      const data = {
+        page: page ? Number(page) : 1,
+        limitPageSearch: LIMIT_TEST_PAGE_SEARCH,
+        searchTest,
+        totalCount: listTest.length,
+      };
+      quickTestPageAction.getQuickTestsSearch(
+        data,
+        authUser.access_token,
+        dispatch
       );
-      const { listTestSearch } = res.data;
-
-      if (listTestSearch) {
-        dispatch(
-          quickTestsPageSlice.actions.createQuickTestPage({
-            data: listTestSearch,
-            totalCount: listTest.length,
-          })
-        );
-      } else {
-        dispatch(alertSlice.actions.alertAdd({ error: res.data.msg }));
-      }
     } else {
       handleGetQuickTestPage();
     }
@@ -306,10 +342,15 @@ const ManagerTest = () => {
   const handleChangeFilterTime = async (e: InputChangedEvent) => {
     const { value } = e.target;
     const pageValueLocal = page ? Number(page) : 1;
-
+    let allQuickTests = [] as IQuickTest[];
+    console.log("All Quick Tests: ", allQuickTests);
     const timeValue = 50;
     if (value === "lessTime") {
-      const allQuickTests = await getAllQuickTestsPage(pageValueLocal);
+      if (searchTest) {
+        allQuickTests = await getQuickTestsSearch();
+      } else {
+        allQuickTests = await getAllQuickTestsPage(pageValueLocal);
+      }
 
       pushQuery(pageValueLocal, sortValue, {
         requestTime: value,
@@ -323,7 +364,11 @@ const ManagerTest = () => {
         })
       );
     } else if (value === "biggerTime") {
-      const allQuickTests = await getAllQuickTestsPage(pageValueLocal);
+      if (searchTest) {
+        allQuickTests = await getQuickTestsSearch();
+      } else {
+        allQuickTests = await getAllQuickTestsPage(pageValueLocal);
+      }
 
       pushQuery(pageValueLocal, sortValue, {
         requestTime: value,
@@ -337,7 +382,25 @@ const ManagerTest = () => {
         })
       );
     } else {
-      handleGetQuickTestsNow();
+      if (searchTest) {
+        if (!authUser.access_token) {
+          return dispatch(
+            alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+          );
+        }
+        const data = {
+          page: page ? Number(page) : 1,
+          limitPageSearch: LIMIT_TEST_PAGE_SEARCH,
+          searchTest,
+        };
+        quickTestPageAction.getQuickTestsSearch(
+          data,
+          authUser.access_token,
+          dispatch
+        );
+      } else {
+        handleGetQuickTestsNow();
+      }
     }
   };
 
@@ -371,9 +434,7 @@ const ManagerTest = () => {
 
               <div className="">
                 <button
-                  className={`border-2 rounded-lg p-2 hover:bg-sky-500 transition ${
-                    selectedAll ? "" : "hidden"
-                  }`}
+                  className={`border-2 rounded-lg p-2 hover:bg-sky-500 transition`}
                   onClick={handleDeleteMultipleTest}
                 >
                   DeleteAll

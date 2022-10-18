@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import blogAction from "../../redux/action/blogAction";
 import { blogSelector } from "../../redux/selector/selectors";
-import { ICategory, IUser } from "../../utils/Typescript";
+import { FormSubmit, ICategory, IUser } from "../../utils/Typescript";
 
 const ManagerBlog = () => {
   const { blogs } = useSelector(blogSelector);
@@ -17,15 +17,51 @@ const ManagerBlog = () => {
 
   const handleDeleteBlog = () => {};
 
+  const handleSubmitSearchBlog = (e: FormSubmit) => {
+    e.preventDefault();
+  };
+
   return (
     <div className="">
-      <h1 className="font-bold text-[30px] my-2">Manager Blogs</h1>
+      <div className="">
+        <h1 className="font-bold text-[30px] my-2">Manager Blogs</h1>
+
+        <div className="flex justify-between p-2 border-2">
+          {/* Sort Blog */}
+          <div className="">
+            <h1 className="font-bold">Sort: </h1>
+            <select name="sort" id="">
+              <option value="">Sort</option>
+              <option value="title">Title (a -&gt; z)</option>
+              <option value="category">Category</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <form onSubmit={handleSubmitSearchBlog} className="">
+              <input
+                type="text"
+                className="border-2 rounded-full p-2"
+                placeholder="Search Blog"
+              />
+            </form>
+            <div className="flex justify-end">
+              <button className="border-2 p-1 inline-block hover:bg-sky-500 hover:text-white transition">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="">
         <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
+                <th scope="col" className="py-3 px-6">
+                  Select
+                </th>
                 <th scope="col" className="py-3 px-6">
                   ID Course
                 </th>
@@ -52,6 +88,15 @@ const ManagerBlog = () => {
                       key={index}
                       className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                     >
+                      <td className="py-4 px-6 ">
+                        <input
+                          type="checkbox"
+                          // onChange={(e) => handleChangeSelected(e, quickTest)}
+                          // checked={checkedTests.includes(
+                          //   quickTest._id ? quickTest._id : ""
+                          // )}
+                        />
+                      </td>
                       <td className="py-4 px-6 ">{blog._id}</td>
                       <td className="py-4 px-6">
                         {(blog.user as IUser).account}

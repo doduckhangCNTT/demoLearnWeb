@@ -1,7 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Pagination from "../../components/Pagination";
-import { LIMIT_TEST_PAGE } from "../../constants/quickTestPage";
+import {
+  LIMIT_TEST_PAGE,
+  LIMIT_TEST_PAGE_SEARCH,
+} from "../../constants/quickTestPage";
 import useCustomRouter from "../../hooks/useCustomRouter";
 import useOptionLocationUrl from "../../hooks/useOptionLocationUrl";
 import ListsSorted from "../../hooks/useSorted";
@@ -14,6 +23,7 @@ import {
   quickTestsPageSelector,
   quickTestsSelector,
 } from "../../redux/selector/selectors";
+import { getApi } from "../../utils/FetchData";
 import {
   FormSubmit,
   ICategory,
@@ -23,25 +33,28 @@ import {
 } from "../../utils/Typescript";
 
 const ManagerTest = () => {
-  const [limit, setLimit] = useState(LIMIT_TEST_PAGE);
   const { pushQuery } = useCustomRouter();
-  const [sortValue, setSortValue] = useState<string>();
-  const [checkedTests, setCheckedTests] = useState<string[]>([]);
+  // get value page, sort on URL
   const { page, sort } = useOptionLocationUrl();
 
+  const [limit, setLimit] = useState(LIMIT_TEST_PAGE);
+  const [sortValue, setSortValue] = useState<string>();
+  const [checkedTests, setCheckedTests] = useState<string[]>([]);
+  const [searchTest, setSearchTest] = useState<string>("");
+  const [checkSearchDuplicate, setCheckSearchDuplicate] = useState<string>("");
   const [selectedAll, setSelectedAll] = useState(false);
+  const searchTestRef = useRef("");
+  console.log("Search Ref: ", searchTestRef);
 
   const { authUser } = useSelector(authSelector);
   const { quickTests } = useSelector(quickTestsSelector);
   const { quickTestsPage } = useSelector(quickTestsPageSelector);
   const dispatch = useDispatch();
 
-  // Handle have change sort on url
-  useEffect(() => {
-    setSortValue(sort ? sort : "");
-  }, [sort]);
+  console.log("Sort Value: ", sortValue);
 
-  const handleGetQuickTestPage = useCallback(() => {
+  // =========================== Get QuickTest Results =========================
+  const handleGetQuickTestPage = useCallback(async () => {
     if (!authUser.access_token) {
       return dispatch(
         alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
@@ -53,12 +66,88 @@ const ManagerTest = () => {
       limit: limit,
     };
 
+    console.log({
+      searchTest,
+      checkSearchDuplicate,
+    });
+
+    // Việc sử dụng useRef là để tránh việc bị re-render component
+    searchTestRef.current = searchTest;
+
+    // Co gia tri muon tim kiem
+    if (searchTest) {
+      if (searchTest !== searchTestRef.current) {
+        // Nếu mà sử dụng setState ở đây thì dẫn đến re-render component khiến cho những đoạn code phía sau sẽ thực thi khi re-render xong --> update lại giá trị cũ
+        // setCheckSearchDuplicate(searchTest)
+        const data = {
+          page: page ? Number(page) : 1,
+          limitPageSearch: LIMIT_TEST_PAGE_SEARCH,
+          searchTest,
+        };
+
+        quickTestPageAction.getQuickTestsSearch(
+          data,
+          authUser.access_token,
+          dispatch
+        );
+      }
+    } else {
+      quickTestPageAction.getQuickTestsPage(
+        data,
+        authUser.access_token,
+        dispatch
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser.access_token, dispatch, limit, page, sortValue]);
+
+  const handleGetQuickTestsAll = useCallback(async () => {
+    if (!authUser.access_token)
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid access token" })
+      );
+
+    if (quickTests.length <= 0) {
+      quickTestAction.getQuickTests(authUser.access_token, dispatch);
+    }
+  }, [authUser.access_token, dispatch, quickTests.length]);
+
+  const handleGetQuickTestsNow = () => {
+    // Thay doi url ko con gia tri time
+    const pageValueLocal = page ? Number(page) : 1;
+    pushQuery(pageValueLocal, sortValue, {
+      requestTime: "",
+      timeNumber: 50,
+    });
+
+    // Lay lai toan bo gia tri cua trang hien tai
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+    const data = {
+      page: pageValueLocal,
+      sort: sortValue ? sortValue.toString() : "",
+      limit: limit,
+    };
+
     quickTestPageAction.getQuickTestsPage(
       data,
       authUser.access_token,
       dispatch
     );
-  }, [authUser.access_token, dispatch, limit, page, sortValue]);
+  };
+
+  const getAllQuickTestsPage = async (pageValueLocal: number) => {
+    const res = await getApi(
+      `quickTestsPage?page=${pageValueLocal}&limit=${limit}`,
+      authUser.access_token
+    );
+    const { quickTestsPage } = res.data;
+
+    return quickTestsPage as IQuickTest[];
+  };
 
   useEffect(() => {
     handleGetQuickTestPage();
@@ -66,36 +155,65 @@ const ManagerTest = () => {
 
   // Lay toan bo quickTests
   useEffect(() => {
-    if (!authUser.access_token) {
-      dispatch(alertSlice.actions.alertAdd({ error: "Invalid access token" }));
-    } else {
-      if (quickTests.length <= 0) {
-        quickTestAction.getQuickTests(authUser.access_token, dispatch);
-      }
-    }
-  }, [authUser.access_token, dispatch, quickTests.length]);
+    handleGetQuickTestsAll();
+  }, [handleGetQuickTestsAll]);
 
+  // ============================== Tinh tong trang ===============================
   // Tinh tong so trang
   const totalPage = useMemo(() => {
     if (quickTests.length === 0) return 0;
-    return Math.ceil(quickTestsPage.totalCount / limit);
-  }, [limit, quickTests.length, quickTestsPage.totalCount]);
+    // Nếu có giá trị searchTest thì lấy Limit của các giá trị sau khi search
+    return Math.ceil(
+      quickTestsPage.totalCount /
+        (searchTest?.trim() !== "" ? LIMIT_TEST_PAGE_SEARCH : LIMIT_TEST_PAGE)
+    );
+  }, [quickTests.length, quickTestsPage.totalCount, searchTest]);
 
-  const handleSortPage = (e: InputChangedEvent) => {
-    const { name, value } = e.target;
+  // ======================== Feature Sort ========================
+  // Handle have change sort on url
+  useEffect(() => {
+    setSortValue(sort ? sort : "");
+    console.log("Change Sort");
+  }, [sort]);
+
+  const handleSortPage = async (e: InputChangedEvent) => {
+    const { value } = e.target;
     const pageValueLocal = page ? Number(page) : 1;
-    pushQuery(pageValueLocal, value);
-    console.log("Value: ", value);
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authorization" })
+      );
+    }
 
-    if (sortValue !== null) {
+    // Di chuyen thanh url có thêm giá trị sort
+    pushQuery(pageValueLocal, value);
+
+    if (value === "" && searchTest) {
+      const data = {
+        page: page ? Number(page) : 1,
+        limitPageSearch: LIMIT_TEST_PAGE_SEARCH,
+        searchTest,
+      };
+
+      quickTestPageAction.getQuickTestsSearch(
+        data,
+        authUser.access_token,
+        dispatch
+      );
+    }
+
+    if (sortValue !== null && value !== "") {
       let items = [] as IQuickTest[] | undefined;
 
       if (value === "category") {
+        // Lay ra danh sách quickTest đã được sắp xếp theo TEN CATEGORY
         items = ListsSorted<IQuickTest>(quickTestsPage.data, value, "name");
       } else {
+        // Lay ra danh sách quickTest đã được sắp xếp theo TEN
         items = ListsSorted<IQuickTest>(quickTestsPage.data, value);
       }
 
+      console.log("Items Sort: ", items);
       dispatch(
         quickTestsPageSlice.actions.updateQuickTestPage({
           data: items ? items : [],
@@ -104,6 +222,7 @@ const ManagerTest = () => {
     }
   };
 
+  // ======================== Feature Select CheckBox ========================
   const handleChangeSelected = (
     e: React.ChangeEvent<HTMLInputElement>,
     quickTest: IQuickTest
@@ -113,21 +232,16 @@ const ManagerTest = () => {
       // Khong nen su dung vì khien bat dong bo
       // setCheckedTests((prev) => [...prev, quickTest._id ? quickTest._id : ""]);
 
-      const newABC = [...checkedTests, quickTest._id ? quickTest._id : ""];
-      setCheckedTests(newABC);
-
-      console.log("NewABC: ", newABC);
+      const newQuickTests = [
+        ...checkedTests,
+        quickTest._id ? quickTest._id : "",
+      ];
+      setCheckedTests(newQuickTests);
     } else {
-      console.log("Delete check");
-      console.log("QuickTestId: ", quickTest._id);
-
       const quickTestsRemaining = checkedTests.filter(
         (item) => item !== quickTest._id
       );
-
       setCheckedTests(quickTestsRemaining);
-
-      console.log("quickTests: ", quickTestsRemaining);
     }
   };
 
@@ -151,7 +265,81 @@ const ManagerTest = () => {
     }
   };
 
-  const handleSubmitSearch = (e: FormSubmit) => {};
+  // ======================== Feature Search ========================
+  const handleChangeInputSearchTest = (e: InputChangedEvent) => {
+    const { value } = e.target;
+    setSearchTest(value);
+  };
+
+  const handleSubmitSearch = async (e: FormSubmit) => {
+    e.preventDefault();
+    if (searchTest) {
+      const listTest = quickTests.filter(
+        (item) =>
+          (item.user as IUser).account === searchTest || item._id === searchTest
+      );
+
+      const res = await getApi(
+        `quickTestsSearch?page=${page}&limit=${LIMIT_TEST_PAGE_SEARCH}&search=${searchTest}`,
+        authUser.access_token
+      );
+      const { listTestSearch } = res.data;
+
+      if (listTestSearch) {
+        dispatch(
+          quickTestsPageSlice.actions.createQuickTestPage({
+            data: listTestSearch,
+            totalCount: listTest.length,
+          })
+        );
+      } else {
+        dispatch(alertSlice.actions.alertAdd({ error: res.data.msg }));
+      }
+    } else {
+      handleGetQuickTestPage();
+    }
+  };
+
+  // ======================== Feature Filter ========================
+  const handleChangeFilterAccessModifier = (e: InputChangedEvent) => {};
+
+  const handleChangeFilterTime = async (e: InputChangedEvent) => {
+    const { value } = e.target;
+    const pageValueLocal = page ? Number(page) : 1;
+
+    const timeValue = 50;
+    if (value === "lessTime") {
+      const allQuickTests = await getAllQuickTestsPage(pageValueLocal);
+
+      pushQuery(pageValueLocal, sortValue, {
+        requestTime: value,
+        timeNumber: Number(timeValue),
+      });
+
+      const items = allQuickTests.filter((q: { time: number }) => q.time < 50);
+      dispatch(
+        quickTestsPageSlice.actions.updateQuickTestPage({
+          data: items ? items : [],
+        })
+      );
+    } else if (value === "biggerTime") {
+      const allQuickTests = await getAllQuickTestsPage(pageValueLocal);
+
+      pushQuery(pageValueLocal, sortValue, {
+        requestTime: value,
+        timeNumber: Number(timeValue),
+      });
+
+      const items = allQuickTests.filter((q) => q.time > 50);
+      dispatch(
+        quickTestsPageSlice.actions.updateQuickTestPage({
+          data: items ? items : [],
+        })
+      );
+    } else {
+      handleGetQuickTestsNow();
+    }
+  };
 
   return (
     <div>
@@ -162,11 +350,15 @@ const ManagerTest = () => {
           {/* Sort / Filter / Sort */}
           <div className="flex gap-3 border-2 p-2 my-2">
             <div className="flex flex-col gap-2">
+              {/* Search */}
               <div className="inline-block">
                 <form action="" onSubmit={handleSubmitSearch}>
                   <input
                     className="outline-none border-2 rounded-lg p-1"
                     type="text"
+                    name="searchTest"
+                    value={searchTest}
+                    onChange={handleChangeInputSearchTest}
                   />
                   <button
                     type="submit"
@@ -189,6 +381,7 @@ const ManagerTest = () => {
               </div>
             </div>
 
+            {/* Sort */}
             <div className="">
               <h1 className="font-bold">Sort: </h1>
               <select name="sort" id="" onChange={(e) => handleSortPage(e)}>
@@ -199,19 +392,28 @@ const ManagerTest = () => {
               </select>
             </div>
 
+            {/* Filter */}
             <div className="">
               <h1 className="font-bold">Filter: </h1>
               <div className="flex flex-col gap-2 border-2 p-2">
-                <select name="filterAccessModifier" id="">
+                <select
+                  name="filterAccessModifier"
+                  id=""
+                  onChange={(e) => handleChangeFilterAccessModifier(e)}
+                >
                   <option value="">Access Modifier</option>
                   <option value="public">Public</option>
                   <option value="private">Private</option>
                 </select>
 
-                <select name="filterTime" id="">
+                <select
+                  name="filterTime"
+                  id=""
+                  onChange={(e) => handleChangeFilterTime(e)}
+                >
                   <option value="">Time</option>
-                  <option value=""> {">"} 50p</option>
-                  <option value="public"> {"<"} 50p</option>
+                  <option value="biggerTime"> {">"} 50p</option>
+                  <option value="lessTime"> {"<"} 50p</option>
                 </select>
               </div>
             </div>
@@ -256,7 +458,7 @@ const ManagerTest = () => {
               </thead>
               <tbody>
                 {quickTestsPage &&
-                  quickTestsPage.data.map((quickTest, index) => {
+                  quickTestsPage.data?.map((quickTest, index) => {
                     return (
                       <tr
                         key={index}

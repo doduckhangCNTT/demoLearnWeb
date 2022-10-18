@@ -7,10 +7,10 @@ function ListsSorted<T>(data: T[], keySort: string, property?: string) {
         value1 = (a[keySort as keyof T] as any)[property]?.toUpperCase();
         value2 = (b[keySort as keyof T] as any)[property]?.toUpperCase();
 
-        console.log({ value1C: value1, value2C: value2 });
+        // console.log({ value1C: value1, value2C: value2 });
       } else {
-        value1 = (a[keySort as keyof T] as any)?.toUpperCase();
-        value2 = (b[keySort as keyof T] as any)?.toUpperCase();
+        value1 = (a[keySort as keyof T] as any)?.toString().toUpperCase();
+        value2 = (b[keySort as keyof T] as any)?.toString().toUpperCase();
       }
 
       if (value1 && value2) {

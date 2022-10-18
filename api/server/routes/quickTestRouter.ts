@@ -9,6 +9,8 @@ router.get("/quickTests", authUser, authAdmin, quickTestCtrl.getQuickTests);
 
 router.get("/quickTestsPage", quickTestCtrl.getQuickTestsToPage);
 
+router.get("/quickTestsSearch", quickTestCtrl.getQuickTestsSearch);
+
 router.get("/quickTest/:id", authUser, authAdmin, quickTestCtrl.getQuickTest);
 
 router.post("/quickTest", authUser, authAdmin, quickTestCtrl.createQuickTest);

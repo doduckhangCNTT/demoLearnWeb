@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
-import { IReqAuth } from "../config/interface";
+import NodeCache from "node-cache";
+import { IQuickTests, IReqAuth } from "../config/interface";
 import QuickTestModel from "../models/quickTestModel";
+import UserModel from "../models/userModel";
 
 const PageConfig = (req: Request) => {
   const page = Number(req.query.page) * 1 || 1;
@@ -9,6 +11,64 @@ const PageConfig = (req: Request) => {
 
   return { page, limit, skip };
 };
+
+type QueryStringType = {
+  page: number;
+  limit: number;
+  search: string;
+};
+
+function validateEmail(email?: string) {
+  const re =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
+class APIfeature<T, U> {
+  private query: T[];
+  private queryString: U;
+
+  constructor(query: T[], queryString: U) {
+    this.query = query;
+    this.queryString = queryString;
+  }
+
+  filtering() {
+    const queryObj = { ...this.queryString };
+    console.log("Query: ", this.query);
+    console.log("QueryString: ", queryObj);
+    // const exclude = ["page", "sort", "limit", "search"]
+    // exclude.forEach(e => delete queryObj[e])
+
+    let queryStr = JSON.stringify(queryObj);
+
+    // Chuyển cái chuỗi  về dạng  "$" + match là để cho mongosse có thêm tìm các giá trị tương ứng
+    queryStr = queryStr.replace(
+      /\b(gte|gt|lt|lte|regex)\b/g, // regex giúp có thể truy xuất theo ten
+      (match) => "$" + match
+    );
+    console.log(queryStr);
+    const items = this.query.find(JSON.parse(queryStr));
+    console.log("Items: ", items);
+
+    return items;
+  }
+
+  paging() {
+    // lấy số lượng trang cần hiển thị
+    // Viec * 1 la de chuyen gia tri chuoi thanh number
+    const page = (this.queryString as any).page * 1 || 1;
+    // Số lượng sản phẩm trên 1 trang
+    const limit = (this.queryString as any).limit * 1 || 5;
+    // skip nó sẽ bỏ quả số lương phần tử ở trong mảng products
+    const skip = (page - 1) * limit;
+    // việc bỏ qua skip giá trị là để tránh sự lặp lại các giá trị products trước đó, với hạn số phần tử limit
+    this.query = (this.query as any).skip(skip).limit(limit);
+    return this;
+  }
+}
+
+const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
 const quickTestCtrl = {
   getQuickTests: async (req: IReqAuth, res: Response) => {
@@ -50,60 +110,111 @@ const quickTestCtrl = {
   },
 
   getQuickTestsToPage: async (req: Request, res: Response) => {
+    const key = req.originalUrl;
+
+    if (myCache.has(key)) {
+      const cacheResponseQuickTestPage = myCache.get(key);
+      res.json(cacheResponseQuickTestPage);
+    } else {
+      try {
+        const { page, limit, skip } = PageConfig(req);
+
+        const Data = await QuickTestModel.aggregate([
+          {
+            $facet: {
+              totalData: [
+                {
+                  $lookup: {
+                    from: "users",
+                    let: { user_id: "$user" },
+                    pipeline: [
+                      { $match: { $expr: { $eq: ["$_id", "$$user_id"] } } },
+                      { $project: { password: 0 } },
+                    ],
+                    as: "user",
+                  },
+                },
+                { $unwind: "$user" },
+
+                {
+                  $lookup: {
+                    from: "categories",
+                    let: { category_id: "$category" },
+                    pipeline: [
+                      { $match: { $expr: { $eq: ["$_id", "$$category_id"] } } },
+                    ],
+                    as: "category",
+                  },
+                },
+                { $unwind: "$category" },
+
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+              ],
+              totalCount: [{ $count: "count" }],
+            },
+          },
+
+          {
+            $project: {
+              count: { $arrayElemAt: ["$totalCount.count", 0] },
+              totalData: 1,
+            },
+          },
+        ]);
+
+        const quickTests = Data[0].totalData;
+        const count = Data[0].count;
+
+        myCache.set(key, { quickTestsPage: quickTests, totalCount: count });
+        res.json({ quickTestsPage: quickTests, totalCount: count });
+      } catch (error: any) {
+        return res.status(500).json({ success: false, error: error.message });
+      }
+    }
+  },
+
+  getQuickTestsSearch: async (req: IReqAuth, res: Response) => {
+    // if (!req.user)
+    //   return res.status(400).json({ msg: "Invalid Authentication" });
+
     try {
+      let listTestSearch = [] as IQuickTests[];
       const { page, limit, skip } = PageConfig(req);
+      const searchQueryQuickTest = req.query.search;
 
-      const Data = await QuickTestModel.aggregate([
-        {
-          $facet: {
-            totalData: [
-              {
-                $lookup: {
-                  from: "users",
-                  let: { user_id: "$user" },
-                  pipeline: [
-                    { $match: { $expr: { $eq: ["$_id", "$$user_id"] } } },
-                    { $project: { password: 0 } },
-                  ],
-                  as: "user",
-                },
-              },
-              { $unwind: "$user" },
+      if (
+        searchQueryQuickTest &&
+        validateEmail(searchQueryQuickTest.toString())
+      ) {
+        // const account = req.user.account;
+        const user = await UserModel.findOne({ account: searchQueryQuickTest });
+        console.log("User: ", user);
+        const userId = user?._id;
+        console.log("UserId: ", userId);
 
-              {
-                $lookup: {
-                  from: "categories",
-                  let: { category_id: "$category" },
-                  pipeline: [
-                    { $match: { $expr: { $eq: ["$_id", "$$category_id"] } } },
-                  ],
-                  as: "category",
-                },
-              },
-              { $unwind: "$category" },
+        if (!userId) {
+          return res.json({
+            msg: "User not found. You need write full name email want to search",
+          });
+        }
+        listTestSearch = await QuickTestModel.find({ user: userId })
+          .skip(skip)
+          .limit(limit)
+          .populate("user")
+          .populate("category");
+      } else {
+        listTestSearch = await QuickTestModel.find({
+          _id: { $eq: searchQueryQuickTest },
+        })
+          .populate("user")
+          .populate("category");
+      }
 
-              { $sort: { createdAt: -1 } },
-              { $skip: skip },
-              { $limit: limit },
-            ],
-            totalCount: [{ $count: "count" }],
-          },
-        },
-
-        {
-          $project: {
-            count: { $arrayElemAt: ["$totalCount.count", 0] },
-            totalData: 1,
-          },
-        },
-      ]);
-
-      const quickTests = Data[0].totalData;
-      const count = Data[0].count;
-
-      res.json({ quickTestsPage: quickTests, totalCount: count });
+      res.json({ listTestSearch });
     } catch (error: any) {
-      return res.status(500).json({ success: false, error: error.message });
+      res.status(500).json({ success: false, error: error.message });
     }
   },
 

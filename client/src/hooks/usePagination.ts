@@ -14,7 +14,7 @@ const usePagination = (totalPages: number) => {
     const valuePage = new URLSearchParams(search).get("page");
     const valueSort = new URLSearchParams(search).get("sort");
 
-    console.log("Value Sort: ", valueSort);
+    // console.log("Value Sort: ", valueSort);
 
     if (valuePage) {
       setPage(parseInt(valuePage, 10) || 1);
@@ -26,7 +26,9 @@ const usePagination = (totalPages: number) => {
 
   useEffect(() => {
     // Chuyen doi totalPages thanh 1 mang s
-    const newArr = [...Array(totalPages)].map((_, i) => i + 1);
+    const newArr = [...Array(totalPages ? totalPages : 1)]?.map(
+      (_, i) => i + 1
+    );
     if (totalPages <= 4) {
       return setFirstArr(newArr);
     }

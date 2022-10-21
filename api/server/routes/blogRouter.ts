@@ -18,6 +18,10 @@ router.get("/blog/category/:id", blogCtrl.getBlogsRelativeCategory);
 
 router.get("/blog/user/:id", authUser, blogCtrl.getBlogsUser);
 
+router.get("/blogsPage", authUser, blogCtrl.getBlogsPage);
+
+router.get("/blogsPageSearch", blogCtrl.getBlogsPageSearch);
+
 router
   .route("/blog/:id")
   .get(blogCtrl.getBlog)

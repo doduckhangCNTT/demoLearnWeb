@@ -1,8 +1,11 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
+import NodeCache from "node-cache";
 import { IReqAuth } from "../config/interface";
+import { validEmail } from "../middleware/valid";
 import Blogs from "../models/blogModel";
 import DraftBlog from "../models/draftBlogsModel";
+import userModel from "../models/userModel";
 
 const PageConfig = (req: Request) => {
   const limit = Number(req.query.limit) * 1 || 3;
@@ -11,6 +14,14 @@ const PageConfig = (req: Request) => {
 
   return { page, limit, skip };
 };
+
+function validateEmail(email?: string) {
+  const re =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
+const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
 const blogCtrl = {
   getBlogs: async (req: Request, res: Response) => {
@@ -155,6 +166,76 @@ const blogCtrl = {
       res.json(blogs);
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  getBlogsPage: async (req: IReqAuth, res: Response) => {
+    const { page, skip, limit } = PageConfig(req);
+    const key = req.originalUrl;
+    if (myCache.has(key)) {
+      const cacheResponseBlogsPageSearch = myCache.get(key);
+      res.json(cacheResponseBlogsPageSearch);
+    } else {
+    }
+
+    try {
+      const blogs = await Blogs.find();
+
+      const blogsValue = await Blogs.find()
+        .skip(skip)
+        .limit(limit)
+        .populate("user")
+        .populate("category");
+
+      myCache.set(key, { blogs: blogsValue, totalCount: blogs.length });
+      res.json({ blogs: blogsValue, totalCount: blogs.length });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  getBlogsPageSearch: async (req: IReqAuth, res: Response) => {
+    const { page, skip, limit } = PageConfig(req);
+
+    try {
+      const { search } = req.query;
+
+      if (validEmail(search?.toString() ? search.toString() : "")) {
+        const user = await userModel.findOne({ account: search });
+
+        if (!user) {
+          return res.json({ success: false, msg: "User not found" });
+        }
+        const blogs = await Blogs.find();
+
+        const blogsValue = await Blogs.find({ user: user._id })
+          .skip(skip)
+          .limit(limit)
+          .populate("user")
+          .populate("category");
+
+        res.json({ blogs: blogsValue, totalCount: blogs.length });
+      } else if (search?.toString()?.match(/^[0-9a-fA-F]{24}$/)) {
+        const blog = await Blogs.find({ _id: search.toString() });
+
+        res.json({ blogs: blog, totalCount: 1 });
+      } else {
+        const blogs = await Blogs.find({
+          title: search?.toString() ? search.toString() : "",
+        });
+
+        const blogsValue = await Blogs.find({
+          title: search?.toString() ? search.toString() : "",
+        })
+          .skip(skip)
+          .limit(limit)
+          .populate("user")
+          .populate("category");
+
+        res.json({ blogs: blogsValue, totalCount: blogs.length });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 

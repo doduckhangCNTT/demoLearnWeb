@@ -104,19 +104,23 @@ const userCtrl = {
     // }
 
     try {
-      let users: IUser[] | null;
+      let users: IUser[] = [];
       const { search } = req.query;
+
       if (validateEmail(search ? search.toString() : "")) {
         users = await Users.find({ account: search });
       } else {
-        users = await Users.find({ _id: search });
+        if (search?.toString()?.match(/^[0-9a-fA-F]{24}$/)) {
+          users = await Users.find({ _id: search });
+        } else {
+          users = [];
+        }
+      }
+      if (users.length <= 0) {
+        return res.json({ success: false, msg: "User not found" });
       }
 
-      if (users.length === 0) {
-        res.json({ msg: "User not found" });
-      }
-
-      res.json({ users, totalCount: 1 });
+      res.json({ success: true, users, totalCount: 1 });
     } catch (error: any) {
       res.status(500).json({ success: false, msg: error.message });
     }

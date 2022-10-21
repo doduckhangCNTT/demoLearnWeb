@@ -16,6 +16,10 @@ router.get(
   courseCtrl.getChapterCourse
 );
 
+router.get("/coursesPage", courseCtrl.getCoursesPage);
+
+router.get("/coursesPageSearch", courseCtrl.getCoursesSearch);
+
 router.post(
   "/course/:courseId/chapter/:chapterId/lesson",
   authUser,

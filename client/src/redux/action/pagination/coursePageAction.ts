@@ -2,17 +2,17 @@ import { checkTokenExp } from "../../../utils/CheckTokenExp";
 import { getApi } from "../../../utils/FetchData";
 import { AppDispatch } from "../../../utils/Typescript";
 import { alertSlice } from "../../reducers/alertSlice";
-import { userPageSlice } from "../../reducers/pagination/userPageSlice";
+import { coursePageSlice } from "../../reducers/pagination/coursePageSlice";
 
-interface IUserPage {
+interface ICoursePage {
   page: number | 1;
   limit: number | 5;
   search?: string;
 }
 
-const userPageAction = {
-  getUsersPage: async (
-    data: IUserPage,
+const coursePageAction = {
+  getCoursesPage: async (
+    data: ICoursePage,
     token: string,
     dispatch: AppDispatch
   ) => {
@@ -21,20 +21,24 @@ const userPageAction = {
 
     const { page, limit } = data;
     try {
+      dispatch(alertSlice.actions.alertAdd({ loading: true }));
+
       const res = await getApi(
-        `usersPage?page=${page}&limit=${limit}`,
+        `coursesPage?page=${page}&limit=${limit}`,
         access_token
       );
+      const { courses, totalCount } = res.data;
 
-      const { users, totalCount } = res.data;
-      dispatch(userPageSlice.actions.createUsersPage({ users, totalCount }));
+      dispatch(coursePageSlice.actions.getCoursesPage({ courses, totalCount }));
+
+      dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
     }
   },
 
-  getUsersSearchPage: async (
-    data: IUserPage,
+  getCoursesPageSearch: async (
+    data: ICoursePage,
     token: string,
     dispatch: AppDispatch
   ) => {
@@ -44,18 +48,17 @@ const userPageAction = {
     const { page, limit, search } = data;
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
+
       const res = await getApi(
-        `usersSearchPage?page=${page}&limit=${limit}&search=${search}`,
+        `coursesPageSearch?page=${page}&limit=${limit}&search=${search}`,
         access_token
       );
-      const { users, totalCount, success } = res.data;
 
-      if (success === false) {
-        console.log("Ok");
-        return dispatch(alertSlice.actions.alertAdd({ error: res.data.msg }));
-      }
+      console.log("Res: ", res);
+      const { courses, totalCount } = res.data;
 
-      dispatch(userPageSlice.actions.createUsersPage({ users, totalCount }));
+      dispatch(coursePageSlice.actions.getCoursesPage({ courses, totalCount }));
+
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
@@ -63,4 +66,4 @@ const userPageAction = {
   },
 };
 
-export default userPageAction;
+export default coursePageAction;

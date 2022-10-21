@@ -2,17 +2,17 @@ import { checkTokenExp } from "../../../utils/CheckTokenExp";
 import { getApi } from "../../../utils/FetchData";
 import { AppDispatch } from "../../../utils/Typescript";
 import { alertSlice } from "../../reducers/alertSlice";
-import { userPageSlice } from "../../reducers/pagination/userPageSlice";
+import { blogPageSlice } from "../../reducers/pagination/blogPageSlice";
 
-interface IUserPage {
+interface IBlogPage {
   page: number | 1;
   limit: number | 5;
   search?: string;
 }
 
-const userPageAction = {
-  getUsersPage: async (
-    data: IUserPage,
+const blogPageAction = {
+  getBlogsPage: async (
+    data: IBlogPage,
     token: string,
     dispatch: AppDispatch
   ) => {
@@ -21,20 +21,23 @@ const userPageAction = {
 
     const { page, limit } = data;
     try {
+      dispatch(alertSlice.actions.alertAdd({ loading: true }));
+
       const res = await getApi(
-        `usersPage?page=${page}&limit=${limit}`,
+        `blogsPage?page=${page}&limit=${limit}`,
         access_token
       );
+      const { blogs, totalCount } = res.data;
+      dispatch(blogPageSlice.actions.getBlogsPage({ blogs, totalCount }));
 
-      const { users, totalCount } = res.data;
-      dispatch(userPageSlice.actions.createUsersPage({ users, totalCount }));
+      dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
     }
   },
 
-  getUsersSearchPage: async (
-    data: IUserPage,
+  getBlogsPageSearch: async (
+    data: IBlogPage,
     token: string,
     dispatch: AppDispatch
   ) => {
@@ -44,18 +47,15 @@ const userPageAction = {
     const { page, limit, search } = data;
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
+
       const res = await getApi(
-        `usersSearchPage?page=${page}&limit=${limit}&search=${search}`,
+        `blogsPageSearch?page=${page}&limit=${limit}&search=${search}`,
         access_token
       );
-      const { users, totalCount, success } = res.data;
+      const { blogs, totalCount } = res.data;
 
-      if (success === false) {
-        console.log("Ok");
-        return dispatch(alertSlice.actions.alertAdd({ error: res.data.msg }));
-      }
+      dispatch(blogPageSlice.actions.getBlogsPageSearch({ blogs, totalCount }));
 
-      dispatch(userPageSlice.actions.createUsersPage({ users, totalCount }));
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
@@ -63,4 +63,4 @@ const userPageAction = {
   },
 };
 
-export default userPageAction;
+export default blogPageAction;

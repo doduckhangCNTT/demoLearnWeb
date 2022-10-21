@@ -5,6 +5,7 @@ import Pagination from "../../components/Pagination";
 import { LIMIT_TEST_PAGE_USER } from "../../constants/userPage";
 import fCheckedAll from "../../features/fCheckedAll";
 import fCheckedList from "../../features/fCheckedList";
+import useDebounce from "../../hooks/useDebounce";
 import useOptionLocationUrl from "../../hooks/useOptionLocationUrl";
 import blogAction from "../../redux/action/blogAction";
 import userPageAction from "../../redux/action/pagination/userPageAction";
@@ -24,6 +25,7 @@ const User = () => {
   const [toggleCheckedAllUser, setToggleCheckedAllUser] =
     useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
+  const debouncedSearch = useDebounce(searchValue, 800);
 
   const { authUser } = useSelector(authSelector);
   const { blogs } = useSelector(blogSelector);
@@ -98,13 +100,25 @@ const User = () => {
   };
 
   // ================================= Search ======================================
+  useEffect(() => {
+    if (debouncedSearch) {
+    } else {
+      const data = {
+        page: 1,
+        limit: LIMIT_TEST_PAGE_USER,
+      };
+
+      userPageAction.getUsersPage(
+        data,
+        authUser.access_token ? authUser.access_token : "",
+        dispatch
+      );
+    }
+  }, [authUser.access_token, debouncedSearch, dispatch]);
+
   const handleChangeSearchInput = (e: InputChangedEvent) => {
     const { value } = e.target;
     setSearchValue(value);
-
-    if (value) {
-    } else {
-    }
   };
 
   const handleSearchSubmit = (e: FormSubmit) => {
@@ -113,6 +127,14 @@ const User = () => {
     if (!authUser.access_token) {
       return dispatch(
         alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+
+    if (!searchValue) {
+      return dispatch(
+        alertSlice.actions.alertAdd({
+          error: "You must provide a search value",
+        })
       );
     }
 

@@ -1,33 +1,121 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Pagination from "../../components/Pagination";
+import {
+  LIMIT_COURSE_PAGE,
+  LIMIT_COURSE_PAGE_SEARCH,
+} from "../../constants/coursePage";
+import fCheckedAll from "../../features/fCheckedAll";
+import fCheckedList from "../../features/fCheckedList";
+import useDebounce from "../../hooks/useDebounce";
+import useOptionLocationUrl from "../../hooks/useOptionLocationUrl";
 import courseAction from "../../redux/action/course/courseAction";
+import coursePageAction from "../../redux/action/pagination/coursePageAction";
 import { alertSlice } from "../../redux/reducers/alertSlice";
 import { courseNowSlice } from "../../redux/reducers/course/courseNowSlice";
-import { authSelector, courseSelector } from "../../redux/selector/selectors";
-import { ICategory, IUser } from "../../utils/Typescript";
+import {
+  authSelector,
+  coursePageSelector,
+  courseSelector,
+} from "../../redux/selector/selectors";
+import {
+  FormSubmit,
+  ICategory,
+  ICourses,
+  InputChangedEvent,
+  IUser,
+} from "../../utils/Typescript";
 
 const ManagerCourse = () => {
-  const { courses } = useSelector(courseSelector);
-  const { authUser } = useSelector(authSelector);
-  const dispatch = useDispatch();
+  const { page, sort } = useOptionLocationUrl();
+  const [checkedCourses, setCheckedCourses] = useState<string[]>([]);
+  const [toggleCheckedAll, setToggleCheckedAll] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const debouncedSearch = useDebounce(searchValue, 800);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleGetCourses = async () => {
-      if (!authUser.access_token) {
-        return dispatch(
-          alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
-        );
-      }
-      if (courses.length <= 0) {
-        courseAction.getCourses(authUser.access_token, dispatch);
-      }
-    };
+  const { courses } = useSelector(courseSelector);
+  const { authUser } = useSelector(authSelector);
+  const { coursePage } = useSelector(coursePageSelector);
 
-    handleGetCourses();
+  const dispatch = useDispatch();
+
+  // ===================================== Get courses =================================
+  const handleGetCourses = useCallback(async () => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+    if (courses.length <= 0) {
+      courseAction.getCourses(authUser.access_token, dispatch);
+    }
   }, [authUser.access_token, courses.length, dispatch]);
+
+  const handleGetCoursesPage = useCallback(() => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+
+    if (searchValue) {
+      const data = {
+        page: page ? Number(page) : 1,
+        limit: LIMIT_COURSE_PAGE_SEARCH,
+        search: searchValue,
+      };
+      coursePageAction.getCoursesPageSearch(
+        data,
+        authUser.access_token,
+        dispatch
+      );
+    } else {
+      const data = {
+        page: page ? Number(page) : 1,
+        limit: LIMIT_COURSE_PAGE,
+      };
+      coursePageAction.getCoursesPage(data, authUser.access_token, dispatch);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser.access_token, dispatch, page]);
+
+  useEffect(() => {
+    handleGetCoursesPage();
+  }, [handleGetCoursesPage]);
+
+  // ===================================== TotalPage =================================
+  const totalPage = useMemo(() => {
+    return Math.ceil(
+      coursePage.totalCount /
+        (searchValue ? LIMIT_COURSE_PAGE_SEARCH : LIMIT_COURSE_PAGE)
+    );
+  }, [coursePage.totalCount, searchValue]);
+
+  // ===================================== Selected =================================
+  const handleChangeSelected = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    course: ICourses
+  ) => {
+    fCheckedList(e, course, checkedCourses, setCheckedCourses, "_id");
+  };
+
+  const handleSelectAll = () => {
+    setToggleCheckedAll(!toggleCheckedAll);
+    fCheckedAll(toggleCheckedAll, coursePage.courses, setCheckedCourses, "_id");
+  };
+
+  // ===================================== Search =================================
+  const handleChangeInputSearch = (e: InputChangedEvent) => {
+    const { value } = e.target;
+    setSearchValue(value);
+    if (value) {
+    } else {
+      handleGetCoursesPage();
+    }
+  };
 
   const handleEditCourse = (courseId: string) => {
     dispatch(courseNowSlice.actions.getCourseIdNow({ courseId: courseId }));
@@ -44,16 +132,79 @@ const ManagerCourse = () => {
     }
   };
 
+  const handleDeleteCourses = () => {
+    if (window.confirm("Are you sure you want to delete")) {
+      console.log(checkedCourses);
+    }
+  };
+
+  const handleSubmitSearch = (e: FormSubmit) => {
+    e.preventDefault();
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+    const data = {
+      page: page ? Number(page) : 1,
+      limit: LIMIT_COURSE_PAGE_SEARCH,
+      search: searchValue,
+    };
+    coursePageAction.getCoursesPageSearch(
+      data,
+      authUser.access_token,
+      dispatch
+    );
+    if (searchValue.trim() !== "") {
+    }
+  };
+
   return (
     <div>
       <div className="">
-        <h1 className="font-bold text-[30px] my-2">Manager Blogs</h1>
+        <div className="flex flex-col">
+          <h1 className="font-bold text-[30px] my-2">Manager Blogs</h1>
+          <div className="mt-2 flex justify-end">
+            <div className="flex flex-col gap-2 ">
+              <form
+                onSubmit={handleSubmitSearch}
+                action=""
+                className="border-2 rounded-full"
+              >
+                <input
+                  type="text"
+                  className="p-2 rounded-full"
+                  placeholder="Search course"
+                  onChange={handleChangeInputSearch}
+                />
+              </form>
+
+              <div className=" flex justify-end">
+                <div className="inline-block">
+                  <button
+                    onClick={handleDeleteCourses}
+                    className="border-2 p-1 hover:bg-sky-500 hover:text-white transition"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="">
           <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
             <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
+                  <th
+                    scope="col"
+                    className="py-3 px-6 hover:bg-sky-500 hover:text-white transition"
+                    onClick={handleSelectAll}
+                  >
+                    Select
+                  </th>
                   <th scope="col" className="py-3 px-6">
                     ID Course
                   </th>
@@ -76,13 +227,22 @@ const ManagerCourse = () => {
                 </tr>
               </thead>
               <tbody>
-                {courses &&
-                  courses?.map((course, index) => {
+                {coursePage &&
+                  coursePage.courses?.map((course, index) => {
                     return (
                       <tr
                         key={index}
                         className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                       >
+                        <td className="py-4 px-6 ">
+                          <input
+                            type="checkbox"
+                            onChange={(e) => handleChangeSelected(e, course)}
+                            checked={checkedCourses.includes(
+                              course._id ? course._id : ""
+                            )}
+                          />
+                        </td>
                         <td className="py-4 px-6 ">{course._id}</td>
                         <td className="py-4 px-6">
                           {(course.user as IUser).account}
@@ -125,36 +285,7 @@ const ManagerCourse = () => {
             </table>
           </div>
 
-          <div className="mt-5 flex justify-end">
-            <nav aria-label="Page navigation example">
-              <ul className="flex -space-x-px">
-                <li>
-                  <Link
-                    to="#"
-                    className="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >
-                    Previous
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="#"
-                    className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >
-                    1
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="#"
-                    className="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >
-                    Next
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-          </div>
+          <Pagination totalPages={totalPage} />
         </div>
       </div>
     </div>

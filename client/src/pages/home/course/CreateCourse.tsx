@@ -364,10 +364,6 @@ const CreateCourse = () => {
     if (course.name.trim() === "") {
       err.push("Need Input Name Course");
     }
-
-    if (course.thumbnail.url) {
-      err.push("Provide image of Course");
-    }
     if (course.category.trim() === "") {
       err.push("Provide category to Course");
     }

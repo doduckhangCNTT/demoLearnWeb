@@ -1,13 +1,95 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import Pagination from "../../components/Pagination";
+import {
+  LIMIT_BLOG_PAGE,
+  LIMIT_BLOG_PAGE_SEARCH,
+} from "../../constants/blogPage";
+import fCheckedAll from "../../features/fCheckedAll";
+import fCheckedList from "../../features/fCheckedList";
+import useDebounce from "../../hooks/useDebounce";
+import useOptionLocationUrl from "../../hooks/useOptionLocationUrl";
 import blogAction from "../../redux/action/blogAction";
-import { blogSelector } from "../../redux/selector/selectors";
-import { FormSubmit, ICategory, IUser } from "../../utils/Typescript";
+import categoryAction from "../../redux/action/categoryAction";
+import blogPageAction from "../../redux/action/pagination/blogPageAction";
+import { alertSlice } from "../../redux/reducers/alertSlice";
+import { blogPageSlice } from "../../redux/reducers/pagination/blogPageSlice";
+import {
+  authSelector,
+  blogPageSelector,
+  blogSelector,
+  categorySelector,
+} from "../../redux/selector/selectors";
+import {
+  FormSubmit,
+  IBlog,
+  ICategory,
+  InputChangedEvent,
+  IUser,
+} from "../../utils/Typescript";
 
 const ManagerBlog = () => {
   const { blogs } = useSelector(blogSelector);
+  const { page, sort } = useOptionLocationUrl();
+  const [checkedBlogs, setCheckedBlogs] = useState<string[]>([]);
+  const [toggleCheckedAll, setToggleCheckedAll] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const debouncedSearch = useDebounce(searchValue, 800);
+
+  const { authUser } = useSelector(authSelector);
+  const { categories } = useSelector(categorySelector);
+  const { blogPage } = useSelector(blogPageSelector);
   const dispatch = useDispatch();
+
+  // =============================== Get Blogs Page =============================
+  useEffect(() => {
+    categoryAction.getCategory(dispatch);
+  }, [dispatch]);
+
+  const getBlogsOfPage = () => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+    const data = {
+      page: page ? Number(page) : 1,
+      limit: LIMIT_BLOG_PAGE,
+    };
+    blogPageAction.getBlogsPage(data, authUser.access_token, dispatch);
+  };
+
+  const handleGetsBlogsPage = useCallback(() => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+
+    if (searchValue.trim() !== "") {
+      console.log("Page :", page);
+      const data = {
+        page: page ? Number(page) : 1,
+        limit: LIMIT_BLOG_PAGE_SEARCH,
+        search: searchValue,
+      };
+
+      blogPageAction.getBlogsPageSearch(data, authUser.access_token, dispatch);
+    } else {
+      const data = {
+        page: page ? Number(page) : 1,
+        limit: LIMIT_BLOG_PAGE,
+      };
+
+      blogPageAction.getBlogsPage(data, authUser.access_token, dispatch);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser.access_token, dispatch, page]);
+
+  useEffect(() => {
+    handleGetsBlogsPage();
+  }, [handleGetsBlogsPage]);
 
   useEffect(() => {
     if (blogs.length <= 0) {
@@ -15,10 +97,91 @@ const ManagerBlog = () => {
     }
   }, [blogs.length, dispatch]);
 
-  const handleDeleteBlog = () => {};
+  // =============================== Get Blogs Page =============================
+  const totalPage = useMemo(() => {
+    return Math.ceil(
+      blogPage.totalCount /
+        (debouncedSearch ? LIMIT_BLOG_PAGE_SEARCH : LIMIT_BLOG_PAGE)
+    );
+  }, [blogPage.totalCount, debouncedSearch]);
+
+  // =============================== Selected Checked =============================
+  const handleChangeSelected = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    blog: IBlog
+  ) => {
+    fCheckedList(e, blog, checkedBlogs, setCheckedBlogs, "_id");
+  };
+
+  const handleSelectedAll = () => {
+    setToggleCheckedAll(!toggleCheckedAll);
+    fCheckedAll(toggleCheckedAll, blogPage.blogs, setCheckedBlogs, "_id");
+  };
+
+  const handleDeleteListBlog = () => {
+    if (window.confirm("Are you sure you want to delete this blog")) {
+      console.log("Checked Blog: ", checkedBlogs);
+    }
+  };
+
+  // =============================== Search =============================
+  const handleChangeInputSearch = (e: InputChangedEvent) => {
+    const { value } = e.target;
+    setSearchValue(value);
+
+    if (value) {
+    } else {
+      if (!authUser.access_token) {
+        return dispatch(
+          alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+        );
+      }
+      const data = {
+        page: 1,
+        limit: LIMIT_BLOG_PAGE,
+      };
+
+      blogPageAction.getBlogsPage(data, authUser.access_token, dispatch);
+    }
+  };
 
   const handleSubmitSearchBlog = (e: FormSubmit) => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
     e.preventDefault();
+
+    const data = {
+      page: page ? Number(page) : 1,
+      limit: LIMIT_BLOG_PAGE_SEARCH,
+      search: searchValue,
+    };
+    blogPageAction.getBlogsPageSearch(data, authUser.access_token, dispatch);
+  };
+
+  const handleChangeFilterSelect = async (e: InputChangedEvent) => {
+    const { value } = e.target;
+    // if (!authUser.access_token) {
+    //   return dispatch(
+    //     alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+    //   );
+    // }
+    // const data = {
+    //   page: page ? Number(page) : 1,
+    //   limit: LIMIT_BLOG_PAGE,
+    // };
+    // blogPageAction.getBlogsPage(data, authUser.access_token, dispatch);
+
+    if (value) {
+      const data = blogPage.blogs.filter(
+        (b) => (b.category as ICategory).name === value
+      );
+      dispatch(blogPageSlice.actions.updateBlogsPageSearch({ blogs: data }));
+    } else {
+      getBlogsOfPage();
+    }
   };
 
   return (
@@ -29,11 +192,12 @@ const ManagerBlog = () => {
         <div className="flex justify-between p-2 border-2">
           {/* Sort Blog */}
           <div className="">
-            <h1 className="font-bold">Sort: </h1>
-            <select name="sort" id="">
-              <option value="">Sort</option>
-              <option value="title">Title (a -&gt; z)</option>
-              <option value="category">Category</option>
+            <h1 className="font-bold">Filter Category: </h1>
+            <select name="sort" id="" onChange={handleChangeFilterSelect}>
+              <option value="">Choose a Category</option>
+              {categories.map((c) => {
+                return <option value={c.name}>{c.name}</option>;
+              })}
             </select>
           </div>
 
@@ -43,10 +207,14 @@ const ManagerBlog = () => {
                 type="text"
                 className="border-2 rounded-full p-2"
                 placeholder="Search Blog"
+                onChange={handleChangeInputSearch}
               />
             </form>
             <div className="flex justify-end">
-              <button className="border-2 p-1 inline-block hover:bg-sky-500 hover:text-white transition">
+              <button
+                onClick={handleDeleteListBlog}
+                className="border-2 p-1 inline-block hover:bg-sky-500 hover:text-white transition"
+              >
                 Delete
               </button>
             </div>
@@ -59,7 +227,11 @@ const ManagerBlog = () => {
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th scope="col" className="py-3 px-6">
+                <th
+                  scope="col"
+                  className="py-3 px-6 hover:bg-sky-500 hover:text-white cursor-pointer"
+                  onClick={handleSelectedAll}
+                >
                   Select
                 </th>
                 <th scope="col" className="py-3 px-6">
@@ -81,8 +253,8 @@ const ManagerBlog = () => {
               </tr>
             </thead>
             <tbody>
-              {blogs &&
-                blogs?.map((blog, index) => {
+              {blogPage &&
+                blogPage.blogs?.map((blog, index) => {
                   return (
                     <tr
                       key={index}
@@ -91,10 +263,10 @@ const ManagerBlog = () => {
                       <td className="py-4 px-6 ">
                         <input
                           type="checkbox"
-                          // onChange={(e) => handleChangeSelected(e, quickTest)}
-                          // checked={checkedTests.includes(
-                          //   quickTest._id ? quickTest._id : ""
-                          // )}
+                          onChange={(e) => handleChangeSelected(e, blog)}
+                          checked={checkedBlogs.includes(
+                            blog._id ? blog._id : ""
+                          )}
                         />
                       </td>
                       <td className="py-4 px-6 ">{blog._id}</td>
@@ -108,7 +280,7 @@ const ManagerBlog = () => {
                       <td className="py-4 px-6 text-right flex gap-3">
                         <div
                           className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                          onClick={() => handleDeleteBlog()}
+                          // onClick={() => handleDeleteBlog()}
                         >
                           Delete
                         </div>
@@ -126,36 +298,7 @@ const ManagerBlog = () => {
           </table>
         </div>
 
-        <div className="mt-5 flex justify-end">
-          <nav aria-label="Page navigation example">
-            <ul className="flex -space-x-px">
-              <li>
-                <Link
-                  to="#"
-                  className="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  Previous
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="#"
-                  className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  1
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="#"
-                  className="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  Next
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        <Pagination totalPages={totalPage} />
       </div>
     </div>
   );

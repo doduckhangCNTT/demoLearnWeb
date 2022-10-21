@@ -1,6 +1,8 @@
 import { Response } from "express";
 import { ICourses, IReqAuth } from "../../config/interface";
+import { validEmail } from "../../middleware/valid";
 import CourseModel from "../../models/courseModel";
+import userModel from "../../models/userModel";
 
 interface IChapter {
   _id?: string;
@@ -18,6 +20,14 @@ export interface ILesson {
       };
   description: string;
 }
+
+const PageConfig = (req: IReqAuth) => {
+  const page = Number(req.query.page) * 1 || 1;
+  const limit = Number(req.query.limit) * 1 || 3;
+  const skip = (page - 1) * limit;
+
+  return { page, limit, skip };
+};
 
 const courseCtrl = {
   createCourse: async (req: IReqAuth, res: Response) => {
@@ -145,6 +155,79 @@ const courseCtrl = {
       });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  getCoursesPage: async (req: IReqAuth, res: Response) => {
+    // if (!req.user) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, error: "Invalid Authentication" });
+    // }
+
+    const { page, skip, limit } = PageConfig(req);
+    try {
+      const courses = await CourseModel.find();
+
+      const coursesValue = await CourseModel.find()
+        .skip(skip)
+        .limit(limit)
+        .populate("user")
+        .populate("category");
+
+      res.json({ courses: coursesValue, totalCount: courses.length });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  getCoursesSearch: async (req: IReqAuth, res: Response) => {
+    // if (!req.user) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, error: "Invalid Authentication" });
+    // }
+
+    const { page, skip, limit } = PageConfig(req);
+    try {
+      const { search } = req.query;
+
+      if (validEmail(search?.toString() ? search.toString() : "")) {
+        const user = await userModel.findOne({ account: search });
+
+        if (!user) {
+          return res.json({ success: false, msg: "User not found" });
+        }
+        const courses = await CourseModel.find();
+
+        const coursesValue = await CourseModel.find({ user: user._id })
+          .skip(skip)
+          .limit(limit)
+          .populate("user")
+          .populate("category");
+
+        res.json({ courses: coursesValue, totalCount: courses.length });
+      } else if (search?.toString()?.match(/^[0-9a-fA-F]{24}$/)) {
+        const course = await CourseModel.findOne({ _id: search.toString() });
+
+        res.json({ courses: course, totalCount: 1 });
+      } else {
+        const courses = await CourseModel.find({
+          name: search?.toString() ? search.toString() : "",
+        });
+
+        const coursesValue = await CourseModel.find({
+          name: search?.toString() ? search.toString() : "",
+        })
+          .skip(skip)
+          .limit(limit)
+          .populate("user")
+          .populate("category");
+
+        res.json({ courses: coursesValue, totalCount: courses.length });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 

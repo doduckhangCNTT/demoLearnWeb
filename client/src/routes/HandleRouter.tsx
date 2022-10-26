@@ -129,7 +129,10 @@ const HandleRouter = () => {
           {/* Quick Test */}
           <Route path="quick_test" element={<QuickTest />} />
           <Route path="quick_test/question/:id" element={<QuickTest />} />
-          <Route path="quick_test/show_previous" element={<ShowPrevious />} />
+          <Route
+            path="quick_test/show_previous/:idQuickTest"
+            element={<ShowPrevious />}
+          />
 
           {/* Profile */}
           <Route path="your_profile" element={<UserProfile />} />

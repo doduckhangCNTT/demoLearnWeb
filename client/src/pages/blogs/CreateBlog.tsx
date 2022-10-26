@@ -193,7 +193,7 @@ const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
                 <h1 className="font-bold text-[20px]">Title Blog</h1>
                 <input
                   type="text"
-                  className=" p-3 w-full"
+                  className=" p-3 w-full outline-none border-2"
                   placeholder="Title Blog"
                   name="title"
                   value={blog.title}
@@ -210,7 +210,7 @@ const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
               <div className="font-bold text-[16px]">
                 <h1 className="">Introduce Blog</h1>
                 <textarea
-                  className="w-full h-[100px] p-3"
+                  className="w-full h-[100px] p-3  outline-none border-2"
                   id=""
                   placeholder="Introduce Blog here..."
                   name="description"

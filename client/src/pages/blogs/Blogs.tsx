@@ -90,7 +90,7 @@ const Blogs = () => {
             {blogsOfCategory?.category.name?.replace("_", " ")}
           </h1>
         </div>
-        <p className="">
+        <p className="text-[30px] font-bold font-mono">
           Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online
           và các kỹ thuật lập trình web.
         </p>
@@ -110,7 +110,7 @@ const Blogs = () => {
                     blog._id === item.id_blog
                 );
                 return (
-                  <div className="" key={index}>
+                  <div className="hover:shadow-lg transition" key={blog._id}>
                     {res ? (
                       <CardBlog blog={blog} bookmark={res} />
                     ) : (
@@ -125,22 +125,28 @@ const Blogs = () => {
         </div>
 
         {/* List Categories */}
-        <div className={`md:w-1/4 m-3`}>
-          <h1 className="font-bold text-[20px]">List Categories</h1>
-          <div className="mt-5 sm:w-full flex-wrap">
-            <div className="bg-slate-300 relative text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md">
-              <Link to={`/blogs`}>All</Link>
-            </div>
-            {categories.map((item, index) => {
-              return (
-                <div
-                  className="bg-slate-300 relative text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md"
-                  key={index}
-                >
-                  <Link to={`category/${item._id}`}>{item.name}</Link>
+        <div className={`md:w-1/4 m-3 `}>
+          <div className="sticky top-[80px] right-0 border-2">
+            <div className="flex flex-col gap-3 w-full">
+              <h1 className="font-bold text-[25px] flex justify-center">
+                List Categories
+              </h1>
+              <div className="mt-5 sm:w-full flex-wrap">
+                <div className="bg-slate-300 relative text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md transition">
+                  <Link to={`/blogs`}>All</Link>
                 </div>
-              );
-            })}
+                {categories.map((item, index) => {
+                  return (
+                    <div
+                      className="bg-slate-300 relative text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md transition"
+                      key={item._id}
+                    >
+                      <Link to={`category/${item._id}`}>{item.name}</Link>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </div>

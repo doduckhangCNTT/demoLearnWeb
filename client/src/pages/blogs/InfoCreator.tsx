@@ -105,9 +105,9 @@ const InfoCreator: React.FC<IProps> = React.memo(({ props, bookmark }) => {
   };
 
   return (
-    <div className="flex items-center justify-between mx-3">
+    <div className="flex items-center justify-between mx-3 hover:bg-slate-100 transition">
       {" "}
-      <div className="max-w-sm rounded-xl flex items-center space-x-4">
+      <div className="max-w-sm rounded-xl flex items-center space-x-4 ">
         <div className="shrink-0">
           <LazyLoadingImg
             url={`${(props?.user as IUser)?.avatar}`}

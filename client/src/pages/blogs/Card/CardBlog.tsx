@@ -40,11 +40,13 @@ const CardBlog: React.FC<IProps> = ({ blog, bookmark }) => {
         {/* Img Blog */}
         <div className={`md:w-${WIDTH_BLOG_IMG} sm:w-full`}>
           <div className="w-full max-h-[200px]">
-            <LazyLoadingImg
-              url={blog.thumbnail.url as string}
-              alt=""
-              className="w-full max-h-[200px] object-cover rounded-lg"
-            />
+            <Link to={`/detail_blog/${blog._id}`}>
+              <LazyLoadingImg
+                url={blog.thumbnail.url as string}
+                alt=""
+                className="w-full max-h-[200px] object-cover rounded-lg"
+              />
+            </Link>
           </div>
         </div>
       </div>

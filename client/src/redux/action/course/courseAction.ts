@@ -160,7 +160,11 @@ const courseAction = {
     }
   },
 
-  deleteCourse: async (token: string, dispatch: AppDispatch) => {
+  deleteCourse: async (
+    course: ICourses,
+    token: string,
+    dispatch: AppDispatch
+  ) => {
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
 

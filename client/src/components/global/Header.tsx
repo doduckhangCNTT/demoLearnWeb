@@ -105,9 +105,9 @@ export default function Header() {
                       <LazyLoadingImg
                         url="https://media.istockphoto.com/photos/graduation-hat-and-diploma-cartoon-style-with-clouds-on-abstract-3d-picture-id1338320564?s=612x612"
                         alt="Logo"
-                        className="hidden lg:block h-8 w-auto"
+                        className="hidden lg:block h-8  w-auto"
                       />
-                      <h1 className="md:block sm:hidden xs:hidden font-semibold ml-5 ">
+                      <h1 className="md:block sm:hidden xs:hidden font-semibold ml-5 text-[25px] ">
                         LEARNING CODE
                       </h1>
                     </Link>

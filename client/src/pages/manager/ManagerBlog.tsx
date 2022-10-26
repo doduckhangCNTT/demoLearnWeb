@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Pagination from "../../components/Pagination";
 import {
   LIMIT_BLOG_PAGE,
@@ -21,6 +21,7 @@ import {
   blogSelector,
   categorySelector,
 } from "../../redux/selector/selectors";
+import { getApi } from "../../utils/FetchData";
 import {
   FormSubmit,
   IBlog,
@@ -31,11 +32,12 @@ import {
 
 const ManagerBlog = () => {
   const { blogs } = useSelector(blogSelector);
-  const { page, sort } = useOptionLocationUrl();
+  const { page } = useOptionLocationUrl();
   const [checkedBlogs, setCheckedBlogs] = useState<string[]>([]);
   const [toggleCheckedAll, setToggleCheckedAll] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const debouncedSearch = useDebounce(searchValue, 800);
+  const navigate = useNavigate();
 
   const { authUser } = useSelector(authSelector);
   const { categories } = useSelector(categorySelector);
@@ -86,6 +88,21 @@ const ManagerBlog = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser.access_token, dispatch, page]);
+
+  const getAllBlogsPage = async () => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+
+    const res = await getApi(
+      `blogsPage?page=${page}&limit=${LIMIT_BLOG_PAGE}`,
+      authUser.access_token
+    );
+    const { blogs } = res.data;
+    return blogs as IBlog[];
+  };
 
   useEffect(() => {
     handleGetsBlogsPage();
@@ -161,26 +178,51 @@ const ManagerBlog = () => {
     blogPageAction.getBlogsPageSearch(data, authUser.access_token, dispatch);
   };
 
+  // ========================================= Filter =========================================================
   const handleChangeFilterSelect = async (e: InputChangedEvent) => {
     const { value } = e.target;
-    // if (!authUser.access_token) {
-    //   return dispatch(
-    //     alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
-    //   );
-    // }
-    // const data = {
-    //   page: page ? Number(page) : 1,
-    //   limit: LIMIT_BLOG_PAGE,
-    // };
-    // blogPageAction.getBlogsPage(data, authUser.access_token, dispatch);
-
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
     if (value) {
-      const data = blogPage.blogs.filter(
+      // Lam theo cach nay thi khong duoc, no ko the lay gia tri tren backend de cap nhat tren store khi ma thay doi gia tri filter
+      // const data = {
+      //   page: page ? Number(page) : 1,
+      //   limit: LIMIT_BLOG_PAGE,
+      // };
+      // await blogPageAction.getBlogsPage(data, authUser.access_token, dispatch);
+      // const dataBlogs = blogPage.blogs.filter(
+      //   (b) => (b.category as ICategory).name === value
+      // );
+
+      const allBlogsPage = await getAllBlogsPage();
+
+      const dataBlogs = (allBlogsPage as IBlog[]).filter(
         (b) => (b.category as ICategory).name === value
       );
-      dispatch(blogPageSlice.actions.updateBlogsPageSearch({ blogs: data }));
+      dispatch(
+        blogPageSlice.actions.updateBlogsPageSearch({ blogs: dataBlogs })
+      );
     } else {
       getBlogsOfPage();
+    }
+  };
+
+  const handleDeleteBlog = (blog: IBlog) => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+
+    if (blog._id === "") {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "You need provide a blog ID" })
+      );
+    } else {
+      blogAction.deleteBlog(blog, authUser.access_token, dispatch, "delete");
     }
   };
 
@@ -196,7 +238,11 @@ const ManagerBlog = () => {
             <select name="sort" id="" onChange={handleChangeFilterSelect}>
               <option value="">Choose a Category</option>
               {categories.map((c) => {
-                return <option value={c.name}>{c.name}</option>;
+                return (
+                  <option key={c._id} value={c.name}>
+                    {c.name}
+                  </option>
+                );
               })}
             </select>
           </div>
@@ -280,12 +326,12 @@ const ManagerBlog = () => {
                       <td className="py-4 px-6 text-right flex gap-3">
                         <div
                           className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                          // onClick={() => handleDeleteBlog()}
+                          onClick={() => handleDeleteBlog(blog)}
                         >
                           Delete
                         </div>
                         <Link
-                          to="#"
+                          to={`/detail_blog/${blog._id}`}
                           className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                         >
                           Detail

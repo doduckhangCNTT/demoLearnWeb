@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import { alertSlice } from "../../../redux/reducers/alertSlice";
 import {
   authSelector,
@@ -7,11 +8,7 @@ import {
   quickTestsSelector,
 } from "../../../redux/selector/selectors";
 import { getApi } from "../../../utils/FetchData";
-import {
-  FormSubmit,
-  InputChangedEvent,
-  IQuickTest,
-} from "../../../utils/Typescript";
+import { FormSubmit, IQuickTest } from "../../../utils/Typescript";
 import ShowAnswer from "./ShowAnswer";
 
 const ShowPrevious = () => {
@@ -85,6 +82,8 @@ const ShowPrevious = () => {
   const dispatch = useDispatch();
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { idQuickTest } = useParams();
+
   const [test, setTest] = useState("");
 
   useEffect(() => {
@@ -95,7 +94,7 @@ const ShowPrevious = () => {
         );
       }
       const res = await getApi(
-        `quickTest/${quickTestNow.id}`,
+        `quickTest/${idQuickTest}`,
         authUser.access_token
       );
 
@@ -103,30 +102,80 @@ const ShowPrevious = () => {
     };
 
     handle();
-  }, [authUser.access_token, dispatch, quickTestNow.id]);
+  }, [authUser.access_token, dispatch, idQuickTest, quickTestNow.id]);
 
   let s = "";
 
   const state = {
     keyword: "test",
   };
-  const handleChangeInput = (e: any) => {
+
+  const [results, setResults] = useState<string[]>([]);
+
+  const handleInitialValueOfResult = useCallback(() => {
+    const emptyString = [] as string[];
+    quickTest?.questions?.forEach((qt) => {
+      emptyString.push("");
+    });
+
+    console.log(emptyString);
+    setResults(emptyString);
+  }, [quickTest]);
+
+  useEffect(() => {
+    handleInitialValueOfResult();
+  }, [handleInitialValueOfResult]);
+
+  const handleChangeInput = (props: any) => {
+    const { e, quickTestOrder } = props as any;
     const { name, value } = e.target;
     if (e.target.type === "checkbox") {
-      if (e.target.checked) {
-        setTest(test.concat(value.toString()));
-        console.log("Checked", { name, test });
+      // if (e.target.checked) {
+      //   setTest(test.concat(value.toString()));
+      //   console.log("Checked", { name, test });
+      // }
+
+      if (results[quickTestOrder]) {
+        const newString = [];
+        const positionChar = results[quickTestOrder].indexOf(value.toString());
+        if (positionChar !== -1) {
+          for (var i = 0; i < results[quickTestOrder].length; i++) {
+            if (results[quickTestOrder][i] !== value.toString()) {
+              newString.push(results[quickTestOrder][i]);
+            }
+          }
+
+          results[quickTestOrder] = newString.join("");
+        } else {
+          const test = results[quickTestOrder].concat(value.toString());
+          results[quickTestOrder] = test;
+        }
+      } else {
+        results[quickTestOrder] = value.toString();
       }
+
+      setResults(results);
+      console.log("Result Checkbox: ", results);
     } else {
       s = value;
-      console.log("Radio", { name, s });
+      console.log("Radio", { name, s, quickTestOrder });
+
+      results[quickTestOrder] = s;
+      setResults(results);
+      console.log("Results: ", results);
     }
   };
 
   const handleSubmit = (e: FormSubmit) => {
     e.preventDefault();
 
-    // if(e.target.)
+    quickTests.forEach((qt) => {
+      if (qt._id === idQuickTest) {
+        // for (var i = 0; i < qt?.questions?.length; i++) {
+        //   qt.questions[i].correctly === results[quickTestOrder][i]
+        // }
+      }
+    });
   };
 
   return (
@@ -152,60 +201,47 @@ const ShowPrevious = () => {
             {quickTest?.questions?.map((q, index) => {
               return (
                 <div key={index} className="mt-2">
-                  <h1 className="text-[20px]">
-                    Cau {index + 1}: {q.titleQuestion}
+                  <h1 className="text-[20px] flex gap-2">
+                    <div className="">Cau {index + 1}:</div>
+                    <div
+                      className=""
+                      dangerouslySetInnerHTML={{
+                        __html: q.titleQuestion,
+                      }}
+                    />
                   </h1>
                   <div className="ml-[20px]">
                     {q.answers.map((a, i) => {
                       return (
-                        // <div key={i} className="flex gap-2">
-                        //   <input
-                        //     type={q.typeQuestion}
-                        //     id={`${a.content}`}
-                        //     name={`${q.titleQuestion}`}
-                        //     value={i}
-                        //     onChange={(e) => handleChangeInput(e)}
-                        //     ref={inputRef}
-                        //   />
-                        //   <label
-                        //     htmlFor={`${a.content}`}
-                        //     className="text-[16px]"
-                        //   >
-                        //     {a.content}
-                        //   </label>
-                        // </div>
-                        <div className="" key={i}>
-                          <ShowAnswer
-                            typeQuestion={q.typeQuestion}
-                            content={`${a.content}`}
-                            titleQuestion={`${q.titleQuestion}`}
-                            index={i}
-                            // handleChangeInput={}
+                        <div key={i} className="flex gap-2">
+                          <input
+                            type={q.typeQuestion}
+                            id={`${a.content}`}
+                            name={`${q.titleQuestion}`}
+                            value={i}
+                            onChange={(e) =>
+                              handleChangeInput({ e, quickTestOrder: index })
+                            }
+                            ref={inputRef}
                           />
+                          <label
+                            htmlFor={`${a.content}`}
+                            className="text-[16px]"
+                          >
+                            {a.content}
+                          </label>
                         </div>
+                        // <div className="" key={i}>
+                        //   <ShowAnswer
+                        //     typeQuestion={q.typeQuestion}
+                        //     content={`${a.content}`}
+                        //     titleQuestion={`${q.titleQuestion}`}
+                        //     index={i}
+                        //     // handleChangeInput={}
+                        //   />
+                        // </div>
                       );
                     })}
-                  </div>
-
-                  <div className="">
-                    <input
-                      type="text"
-                      placeholder="DA"
-                      // value={inputRef.current.value}
-                      name=""
-                      value={index}
-                      className="border-2 outline-none"
-                    />
-                    {/* {inputRef.current?.checked ? (
-                      <input
-                        type="text"
-                        placeholder="DA"
-                        value={inputRef.current.value}
-                        className="border-2 outline-none"
-                      />
-                    ) : (
-                      "HI"
-                    )} */}
                   </div>
                 </div>
               );

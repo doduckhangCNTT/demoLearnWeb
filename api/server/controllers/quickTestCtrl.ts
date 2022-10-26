@@ -198,7 +198,7 @@ const quickTestCtrl = {
       res.json({
         newQuickTest,
         user: req.user,
-        message: "Create quick test successfully",
+        msg: "Create quick test successfully",
       });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });

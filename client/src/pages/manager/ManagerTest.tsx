@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import Pagination from "../../components/Pagination";
 import {
   LIMIT_TEST_PAGE,
@@ -343,7 +344,7 @@ const ManagerTest = () => {
     const { value } = e.target;
     const pageValueLocal = page ? Number(page) : 1;
     let allQuickTests = [] as IQuickTest[];
-    console.log("All Quick Tests: ", allQuickTests);
+    // console.log("All Quick Tests: ", allQuickTests);
     const timeValue = 50;
     if (value === "lessTime") {
       if (searchTest) {
@@ -401,6 +402,21 @@ const ManagerTest = () => {
       } else {
         handleGetQuickTestsNow();
       }
+    }
+  };
+
+  const handleDeleteQuickTest = (quickTest: IQuickTest) => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+    if (window.confirm("Are you sure you want to delete")) {
+      quickTestAction.deleteQuickTest(
+        quickTest,
+        authUser.access_token,
+        dispatch
+      );
     }
   };
 
@@ -545,11 +561,11 @@ const ManagerTest = () => {
                         <td className="py-4 px-6">{quickTest.time}</td>
                         <td className="py-4 px-6">Public</td>
                         <td className="py-4 px-6 text-right flex gap-3">
-                          <div className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                          <div
+                            onClick={() => handleDeleteQuickTest(quickTest)}
+                            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                          >
                             Delete
-                          </div>
-                          <div className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                            Detail
                           </div>
                         </td>
                       </tr>

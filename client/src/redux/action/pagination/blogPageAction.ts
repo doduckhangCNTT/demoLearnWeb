@@ -18,7 +18,6 @@ const blogPageAction = {
   ) => {
     const result = await checkTokenExp(token, dispatch);
     const access_token = result ? result : token;
-
     const { page, limit } = data;
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));

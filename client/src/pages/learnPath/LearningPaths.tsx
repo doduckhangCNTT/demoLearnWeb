@@ -27,7 +27,7 @@ const LearningPaths = () => {
       <div className="my-2">
         <div className="">
           <h1 className="font-bold text-[30px]">Learn Path</h1>
-          <p className="">
+          <p className="text-[20px] font-mono indent-8">
             Để bắt đầu một cách thuận lợi, bạn nên tập trung vào một lộ trình
             học. Ví dụ: Để đi làm với vị trí “Lập trình viên Front-end” bạn nên
             tập trung vào lộ trình “Front-end”.
@@ -60,7 +60,7 @@ const LearningPaths = () => {
           {/* Devops */}
           <div className="">
             <Common
-              title="Lộ trình BackEnd"
+              title="Devops"
               description="DevOps là một sự kết hợp của các nguyên lý, thực hành, quy trình và các tool giúp tự động hóa quá trình lập trình và chuyển giao phần mềm. Với DevOps, các công ty có thể “release” các tính năng nhỏ rất nhanh và kết hợp các phản hồi mà họ nhận được một cách nhanh chóng."
               image="https://i.pinimg.com/564x/f0/ad/2a/f0ad2af21cfe5a31cfccf06165e52b0e.jpg"
               path="devops"
@@ -68,8 +68,8 @@ const LearningPaths = () => {
           </div>
         </div>
 
-        <div className="flex gap-2 mt-5">
-          <div className="w-2/3">
+        <div className="lg:flex gap-2 mt-5 md:flex-row sm:flex-col flex-col">
+          <div className="lg:w-2/3 md:w-2/3 sm:w-full w-full">
             <Outlet />
           </div>
           <div className="w-1/3 flex flex-col gap-3 mt-3">

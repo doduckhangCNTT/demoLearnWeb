@@ -1,8 +1,12 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { quickTestIcons } from "../../../components/icons/Icons";
+import { quickTestNowSelector } from "../../../redux/selector/selectors";
 
 const NavbarQuickTest = () => {
+  const { quickTestNow } = useSelector(quickTestNowSelector);
+
   return (
     <div className="flex justify-between shadow-md p-3">
       <div className="flex gap-2">
@@ -20,7 +24,7 @@ const NavbarQuickTest = () => {
         {quickTestIcons.map((item, index) => {
           return (
             <div key={index} className="flex flex-col items-center">
-              <Link to={`${item.path}`}>
+              <Link to={`${item.path}/${quickTestNow.id}`}>
                 <i className="hover:text-sky-500 cursor-pointer">{item.icon}</i>
               </Link>
               <small>{item.name}</small>

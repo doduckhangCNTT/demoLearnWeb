@@ -22,7 +22,9 @@ const Infomation = () => {
           leaveTo="transform opacity-0 scale-95"
         >
           <Menu.Items className="origin-top-right absolute z-100 right-0 mt-2 w-80 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-            Hello
+            <h1 className="flex justify-center">
+              There are no notification here
+            </h1>
           </Menu.Items>
         </Transition>
       </Menu>

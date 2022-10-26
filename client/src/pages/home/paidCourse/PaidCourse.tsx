@@ -53,7 +53,7 @@ const PaidCourse = () => {
   return (
     <div className="mt-3">
       <h1 className="font-bold text-[30px]">Paid Courses</h1>
-      <div className=" grid grid-cols-4 gap-2 ml-5">
+      <div className=" grid lg:grid-cols-4 gap-2 md:grid-cols-3 sm:grid-cols-2 ml-5 px-2">
         {courses.map((course, index) => {
           return (
             <div

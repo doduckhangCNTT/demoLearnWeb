@@ -159,6 +159,11 @@ const QuickTest = () => {
     maxNumberOfTimes = 0;
   };
 
+  const handleAddNewQuickTest = () => {
+    dispatch(idQuickTestSlice.actions.updateEmptyIdQuickTestNow({ id: "" }));
+    setQuickTest(clearQuickTest);
+  };
+
   const handleSubmit_QuickTest = () => {
     handleAddQuickTest();
   };
@@ -176,22 +181,39 @@ const QuickTest = () => {
               Create Question form quickTest
             </h1>
 
-            <select
-              className="w-[300px] border-2"
-              name="quickTest"
-              onChange={handleChangeQuickTest}
-            >
-              <option value="">Choose a quick Test</option>
-              {quickTests?.map((quickTest) => (
-                <option key={quickTest._id} value={quickTest._id} className="">
-                  {quickTest.titleTest}
-                  --
-                  {quickTest.createdAt
-                    ? moment(quickTest.createdAt).fromNow().toString()
-                    : ""}
-                </option>
-              ))}
-            </select>
+            <div className="flex justify-between">
+              <select
+                className="w-[300px] border-2"
+                name="quickTest"
+                onChange={handleChangeQuickTest}
+              >
+                <option value="">Choose a quick Test</option>
+                {quickTests?.map((quickTest) => (
+                  <option
+                    key={quickTest._id}
+                    value={quickTest._id}
+                    className=""
+                  >
+                    {quickTest.titleTest}
+                    --
+                    {quickTest.createdAt
+                      ? moment(quickTest.createdAt).fromNow().toString()
+                      : ""}
+                  </option>
+                ))}
+              </select>
+
+              {quickTestNow.id ? (
+                <button
+                  onClick={handleAddNewQuickTest}
+                  className="border-2 hover:bg-sky-500 hover:text-white p-1 transition"
+                >
+                  Add new a QuickTest
+                </button>
+              ) : (
+                ""
+              )}
+            </div>
           </div>
           <div className="mt-3">
             <form className="flex flex-col gap-3" action="">

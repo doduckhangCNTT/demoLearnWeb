@@ -29,7 +29,12 @@ const ShowTests = () => {
                       >
                         <div className="">
                           <span>Question {i + 1}: </span>
-                          <div className="">{question.titleQuestion}</div>
+                          <div
+                            className=""
+                            dangerouslySetInnerHTML={{
+                              __html: question.titleQuestion,
+                            }}
+                          />
                         </div>
                         <OptionQuestion
                           quickTest_OfQuestion={q}

@@ -76,7 +76,7 @@ const Footer = () => {
   ];
 
   return (
-    <div className="container-style z-10 grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-x-6 gap-y-3 content-end text-color-white">
+    <div className="container-style z-30 grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-x-6 gap-y-3 content-end text-color-white">
       {listInfoInFooter.map((item, index) => {
         return (
           <div key={index} className="text-left">

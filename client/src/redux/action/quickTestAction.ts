@@ -37,7 +37,9 @@ const quickTestAction = {
         idQuickTestSlice.actions.createIdQuickTestNow({ id: id_TestNow })
       );
 
-      dispatch(alertSlice.actions.alertAdd({ loading: false }));
+      dispatch(alertSlice.actions.alertAdd({ success: res.data.msg }));
+
+      // dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {
       dispatch(alertSlice.actions.alertAdd({ error: error.message }));
     }

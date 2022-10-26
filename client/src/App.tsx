@@ -38,7 +38,9 @@ function App() {
 
   return (
     <div className="h-[100vh] flex flex-col">
-      <SocketClient />
+      <div className="hidden">
+        <SocketClient />
+      </div>
       <div>
         <Alert />
         <Header />
@@ -60,7 +62,7 @@ function App() {
       >
         Up Top
       </button>
-      <div className="relative bottom-0 bg-black w-full z-9">
+      <div className="relative bottom-0 bg-black w-full z-30">
         <Footer />
       </div>
     </div>

@@ -15,12 +15,6 @@ const PageConfig = (req: Request) => {
   return { page, limit, skip };
 };
 
-function validateEmail(email?: string) {
-  const re =
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
-}
-
 const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
 const blogCtrl = {
@@ -170,7 +164,7 @@ const blogCtrl = {
   },
 
   getBlogsPage: async (req: IReqAuth, res: Response) => {
-    const { page, skip, limit } = PageConfig(req);
+    const { skip, limit } = PageConfig(req);
     const key = req.originalUrl;
     if (myCache.has(key)) {
       const cacheResponseBlogsPageSearch = myCache.get(key);
@@ -190,7 +184,7 @@ const blogCtrl = {
       myCache.set(key, { blogs: blogsValue, totalCount: blogs.length });
       res.json({ blogs: blogsValue, totalCount: blogs.length });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ msg: error.message });
     }
   },
 
@@ -235,7 +229,7 @@ const blogCtrl = {
         res.json({ blogs: blogsValue, totalCount: blogs.length });
       }
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ msg: error.message });
     }
   },
 

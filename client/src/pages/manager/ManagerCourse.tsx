@@ -28,7 +28,7 @@ import {
 } from "../../utils/Typescript";
 
 const ManagerCourse = () => {
-  const { page, sort } = useOptionLocationUrl();
+  const { page } = useOptionLocationUrl();
   const [checkedCourses, setCheckedCourses] = useState<string[]>([]);
   const [toggleCheckedAll, setToggleCheckedAll] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -127,8 +127,14 @@ const ManagerCourse = () => {
     navigate("/create_course");
   };
 
-  const handleDeleteCourse = (courseId: string) => {
+  const handleDeleteCourse = (course: ICourses) => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
     if (window.confirm("Are you sure you want to delete this course")) {
+      courseAction.deleteCourse(course, authUser.access_token, dispatch);
     }
   };
 
@@ -255,9 +261,7 @@ const ManagerCourse = () => {
                         <td className="py-4 px-6 text-right flex gap-3">
                           <div
                             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            onClick={() =>
-                              handleDeleteCourse(course._id ? course._id : "")
-                            }
+                            onClick={() => handleDeleteCourse(course)}
                           >
                             Delete
                           </div>

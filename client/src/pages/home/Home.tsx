@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import courseAction from "../../redux/action/course/courseAction";
 import { alertSlice } from "../../redux/reducers/alertSlice";
 import { authSelector } from "../../redux/selector/selectors";
+import QuickTest from "./quickTest/QuickTest";
 import Course from "./course/Course";
 import PaidCourse from "./paidCourse/PaidCourse";
 import SlideShow from "./slideShow/SlideShow";
@@ -39,6 +40,11 @@ const Home = () => {
       {/* Courses */}
       <div className="">
         <Course />
+      </div>
+
+      {/* QuickTest */}
+      <div className="">
+        <QuickTest />
       </div>
 
       {/* Blog Outstanding */}

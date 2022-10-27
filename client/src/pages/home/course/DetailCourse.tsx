@@ -38,14 +38,15 @@ const DetailCourse = () => {
   }, [handleGetCourse, courseId]);
 
   return (
-    <div className="flex gap-2">
-      <div className="w-2/3 ">
+    <div className="flex lg:flex-row md:flex-col sm:flex-col flex-col gap-2">
+      <div className="lg:w-2/3 md:w-full sm:w-full">
         <div className="my-3">
           <h1 className="font-bold text-[30px]">{course?.name}</h1>
           <div className="">
             <CompactParam
               param={course?.description ? course.description : ""}
               quantitySlice={200}
+              fontText="font-mono"
             />
           </div>
         </div>
@@ -67,25 +68,16 @@ const DetailCourse = () => {
             <div className=""></div>
           </div>
         </div>
-
-        <div className="mt-[20px]">
-          <h1 className="font-bold my-6">Road map</h1>
-          <div className="">
-            <LazyLoadingImg
-              url="https://roadmap.sh/roadmaps/javascript.png"
-              className="w-full"
-            />
-          </div>
-        </div>
       </div>
 
       {/* Man hinh xem */}
-      <div className="w-1/3">
+      <div className="lg:w-1/3 md:w-full sm:w-full w-full  my-[20px]">
         <div className="shadow-md border-2 rounded-lg p-2">
+          <h1 className="font-bold text-[30px]">Course Introduce</h1>
           {/* Video introduce */}
           <div className="">
             <iframe
-              className="w-full h-[300px]"
+              className="w-full lg:h-[300px] md:h-[500px] sm:h-[500px] h-[500px]"
               src={course?.videoIntro}
               title="YouTube video player"
               frameBorder="0"

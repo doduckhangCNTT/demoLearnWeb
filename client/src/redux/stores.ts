@@ -24,6 +24,7 @@ import { quickTestsPageSlice } from "./reducers/pagination/quickTestPageSlice";
 import { userPageSlice } from "./reducers/pagination/userPageSlice";
 import { blogPageSlice } from "./reducers/pagination/blogPageSlice";
 import { coursePageSlice } from "./reducers/pagination/coursePageSlice";
+import { toggleNavbarSlice } from "./reducers/toggleNavbarSlice";
 
 // import socketReducer from "./reducers/socketSlice";
 
@@ -60,6 +61,7 @@ const store = configureStore({
     userPage: userPageSlice.reducer,
     blogPage: blogPageSlice.reducer,
     coursePage: coursePageSlice.reducer,
+    toggleNavbar: toggleNavbarSlice.reducer,
 
     socket: socketSlice.reducer,
   },

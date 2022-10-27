@@ -423,11 +423,11 @@ const ManagerTest = () => {
   return (
     <div>
       <div className="">
-        <div className="flex justify-between">
+        <div className="flex lg:flex-row md:flex-col sm:flex-col flex-col justify-between">
           <h1 className="font-bold text-[30px] my-2">Manager Tests</h1>
 
           {/* Sort / Filter / Sort */}
-          <div className="flex gap-3 border-2 p-2 my-2">
+          <div className="flex gap-3 lg:flex-row md:flex-col sm:flex-col flex-col border-2 p-2 my-2">
             <div className="flex flex-col gap-2">
               {/* Search */}
               <div className="inline-block">

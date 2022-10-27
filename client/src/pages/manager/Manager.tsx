@@ -127,10 +127,19 @@ const Manager = () => {
   const [isToggleNavbar, setIsToggleNavbar] = useState(true);
 
   return (
-    <div className="flex gap-2 relative">
+    <div
+      className="
+      flex 
+      lg:flex-row 
+      md:flex-col-reverse md:w-full 
+      sm:flex-col-reverse sm:w-full
+      flex-col-reverse gap-2 relative"
+    >
       <div
         className={`${
-          isToggleNavbar ? "w-4/5" : "w-full h-screen"
+          isToggleNavbar
+            ? "lg:w-4/5 md:w-full sm:w-full w-full md:h-screen sm:h-screen h-screen"
+            : "w-full h-screen"
         } bg-slate-100`}
       >
         <Outlet />
@@ -148,7 +157,9 @@ const Manager = () => {
       </div>
 
       {isToggleNavbar ? (
-        <div className={`w-1/5 h-screen bg-slate-100 relative`}>
+        <div
+          className={`lg:w-1/5 md:w-full sm:w-full w-full lg:h-screen bg-slate-100 relative`}
+        >
           <h1 className="font-bold text-[20px] p-2 pt-[10px] text-center border-2">
             List Manager on Web
           </h1>

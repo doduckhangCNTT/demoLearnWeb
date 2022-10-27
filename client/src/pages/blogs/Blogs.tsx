@@ -125,7 +125,7 @@ const Blogs = () => {
         </div>
 
         {/* List Categories */}
-        <div className={`md:w-1/4 m-3 `}>
+        <div className={`md:w-1/4 m-3`}>
           <div className="sticky top-[80px] right-0 border-2">
             <div className="flex flex-col gap-3 w-full">
               <h1 className="font-bold text-[25px] flex justify-center">

@@ -1,9 +1,15 @@
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { toggleNavbarSelector } from "../../redux/selector/selectors";
 import { listComponentOfNavbar } from "../icons/Icons";
 
 const Navbar = () => {
+  const { toggleNavbar } = useSelector(toggleNavbarSelector);
+
   return (
-    <div className="w-[80px] z-10">
+    <div
+      className={`${toggleNavbar.statusNavbar ? "hidden" : "w-[80px]"}  z-10`}
+    >
       <div className="h-full inline-block fixed bg-white shadow-lg">
         <div className="flex flex-col items-center text-center">
           {listComponentOfNavbar.map((item, index) => {

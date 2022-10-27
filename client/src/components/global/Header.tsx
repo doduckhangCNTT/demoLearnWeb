@@ -1,13 +1,18 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { Link } from "react-router-dom";
-import { authSelector } from "../../redux/selector/selectors";
+import {
+  authSelector,
+  toggleNavbarSelector,
+} from "../../redux/selector/selectors";
 import { useDispatch, useSelector } from "react-redux";
 import actionAuth from "../../redux/action/actionAuth";
 import LazyLoadingImg from "../LazyLoadingImg/LazyLoadingImg";
 import Information from "../../pages/option/Information";
 import NotFound from "./NotFound";
+import { toggleNavbarSlice } from "../../redux/reducers/toggleNavbarSlice";
+import { FormSubmit } from "../../utils/Typescript";
 
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
@@ -72,6 +77,8 @@ function classNames(...classes: string[]) {
 
 export default function Header() {
   const { authUser } = useSelector(authSelector);
+  const { toggleNavbar } = useSelector(toggleNavbarSelector);
+  const [toggleInputSearch, setToggleInputSearch] = useState<boolean>(false);
 
   const dispatch = useDispatch();
 
@@ -79,6 +86,19 @@ export default function Header() {
     if (!authUser.access_token) return;
     actionAuth.logoutAction(authUser.access_token, dispatch);
   };
+
+  const handleToggleNavbar = () => {
+    dispatch(
+      toggleNavbarSlice.actions.changeToggleNavbar({
+        statusNavbar: !toggleNavbar.statusNavbar,
+      })
+    );
+  };
+
+  const handleSubmitSearch = (e: FormSubmit) => {
+    e.preventDefault();
+  };
+
   return (
     <div className="relative h-[50px]">
       <Disclosure as="nav" className="shadow-md fixed z-10 bg-white w-full">
@@ -86,9 +106,12 @@ export default function Header() {
           <>
             <div className="mx-auto px-2 sm:px-6 lg:px-8">
               <div className="relative flex items-center justify-between h-16 ">
-                <div className="inset-y-0 left-0 flex items-center sm:hidden">
+                <div className="inset-y-0 left-0 flex items-center">
                   {/* Mobile menu button*/}
-                  <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                  <Disclosure.Button
+                    onClick={handleToggleNavbar}
+                    className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                  >
                     <span className="sr-only">Open main menu</span>
                     {open ? (
                       <XIcon className="block h-6 w-6" aria-hidden="true" />
@@ -127,14 +150,28 @@ export default function Header() {
                   )}
 
                   {/* Search */}
-                  <div className="flex border-2 rounded-full">
-                    <form action="" className="flex items-center max-w-[300px]">
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        className="outline-0 rounded-full max-w-[200px] p-2"
-                      />
-                      <button className="hover:bg-sky-600 hover:text-white rounded-r-full h-full transition px-3 ">
+                  <div className="flex rounded-full">
+                    <form
+                      action=""
+                      onSubmit={handleSubmitSearch}
+                      className="flex items-center lg:max-w-[300px] md:w-[100px] sm:w-[50px] max-w-[25px] relative"
+                    >
+                      <div className="">
+                        {toggleInputSearch ? (
+                          <input
+                            type="text"
+                            placeholder="Search..."
+                            className="outline-0 rounded-full p-2 absolute top-[40px] w-[300px]  right-[-20px] border-2"
+                          />
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                      <button
+                        onClick={() => setToggleInputSearch(!toggleInputSearch)}
+                        className="hover:bg-sky-600 hover:text-white rounded-full h-full transition p-3 "
+                        type="submit"
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="h-5 w-5"
@@ -377,7 +414,7 @@ export default function Header() {
                 </div>
               </div>
             </div>
-            <Disclosure.Panel className="sm:hidden">
+            {/* <Disclosure.Panel className="sm:hidden">
               <div className="px-2 pt-2 pb-3 space-y-1">
                 {navigation.map((item) => (
                   <Disclosure.Button
@@ -396,7 +433,7 @@ export default function Header() {
                   </Disclosure.Button>
                 ))}
               </div>
-            </Disclosure.Panel>
+            </Disclosure.Panel> */}
           </>
         )}
       </Disclosure>

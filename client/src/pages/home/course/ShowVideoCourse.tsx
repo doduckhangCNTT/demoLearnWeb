@@ -3,15 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import CompactParam from "../../../components/CompactParam";
 import LazyLoadingImg from "../../../components/LazyLoadingImg/LazyLoadingImg";
-import courseAction from "../../../redux/action/course/courseAction";
 import { alertSlice } from "../../../redux/reducers/alertSlice";
-import {
-  authSelector,
-  courseNowSelector,
-} from "../../../redux/selector/selectors";
+import { authSelector } from "../../../redux/selector/selectors";
 import { getApi } from "../../../utils/FetchData";
 import { ICourses, ILesson } from "../../../utils/Typescript";
-import ComboboxLessons from "./ComboboxLessons";
 import ComboboxToUser from "./ComboboxToUser";
 
 const ShowVideoCourse = () => {
@@ -34,7 +29,6 @@ const ShowVideoCourse = () => {
 
       if (courseId) {
         const res = await getApi(`course/${courseId}`, authUser.access_token);
-
         setCourse(res.data);
       }
     };
@@ -53,11 +47,17 @@ const ShowVideoCourse = () => {
   }, [course?.content, lessonId]);
 
   return (
-    <div className="flex gap-2">
+    <div className="lg:flex lg:flex-row gap-2 md:flex-row sm:flex-col flex-col">
       {/* Video / Chats / Note  */}
-      <div className={widthFull ? "w-full relative" : "w-2/3 relative"}>
+      <div
+        className={
+          widthFull
+            ? "w-full relative"
+            : "lg:w-2/3 md:w-full sm:w-full w-full relative"
+        }
+      >
         <div className="">
-          {/* Kiem xem dau la video upload va dau la video youtube */}
+          {/* Kiem tra xem dau la video upload va dau la video youtube */}
           {lesson?.fileUpload.public_id ? (
             <div className="">
               {lesson.fileUpload.mimetype === "video" ? (
@@ -75,20 +75,37 @@ const ShowVideoCourse = () => {
                 />
               )}
             </div>
-          ) : (
+          ) : lessonId ? (
             <iframe
-              className="w-full h-[750px]"
+              className="w-full lg:h-[750px] md:h-[450px] sm:h-[450px] h-[350px]"
               src={lesson?.url as string}
               title="YouTube video player"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>
+          ) : (
+            <img
+              src="https://images.unsplash.com/photo-1661956602944-249bcd04b63f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+              alt=""
+              className=""
+            />
           )}
         </div>
         <div className="mt-3">
-          <h1 className="font-bold text-[20px]">Tieu de bai hoc</h1>
-          <CompactParam param="Description" quantitySlice={150} />
+          <h1 className="font-bold text-[20px]">
+            {lesson?.name
+              ? lesson.name
+              : `Welcome to the course ${course?.name}`}
+          </h1>
+          <CompactParam
+            param={
+              lesson?.description
+                ? lesson?.description
+                : "You can refer courses on the side"
+            }
+            quantitySlice={150}
+          />
         </div>
 
         <div className="flex justify-end my-5">
@@ -105,8 +122,9 @@ const ShowVideoCourse = () => {
           </button>
         </div>
 
-        <button
-          className="
+        {lessonId ? (
+          <button
+            className="
             absolute 
             border-2 font-bold 
             bottom-5 left-5
@@ -114,13 +132,20 @@ const ShowVideoCourse = () => {
             rounded-full p-2 
             hover:bg-sky-500 
             hover:text-white"
-        >
-          Questions
-        </button>
+          >
+            Questions
+          </button>
+        ) : (
+          ""
+        )}
       </div>
 
       {/* Lessons with Index */}
-      <div className={widthFull ? "hidden" : "w-1/3"}>
+      <div
+        className={
+          widthFull ? "hidden" : "lg:w-1/3 md:w-full sm:w-full w-full mb-[20px]"
+        }
+      >
         <div className="">
           <h1 className="font-bold text-[30px]">Lesson</h1>
           <div className="">

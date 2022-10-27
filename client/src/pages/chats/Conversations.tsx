@@ -128,7 +128,7 @@ const Conversations = () => {
           </ul>
 
           {/* Lists of conversations */}
-          <ul className="w-full">
+          <ul className="w-full touch-pan-y h-[500px]">
             {(searchUser ? users : conversation.usersChatted).map(
               (user, index) => {
                 return (

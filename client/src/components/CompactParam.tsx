@@ -3,15 +3,16 @@ import React, { useState } from "react";
 interface IProps {
   param: string;
   quantitySlice: number;
+  fontText?: string;
 }
 
-const CompactParam: React.FC<IProps> = ({ param, quantitySlice }) => {
+const CompactParam: React.FC<IProps> = ({ param, quantitySlice, fontText }) => {
   const [toggle, setToggle] = useState(true);
 
   return (
     <div>
       {toggle && param.length > 100 ? (
-        <div>
+        <div className={fontText}>
           {param.slice(0, quantitySlice)} . . .
           <small
             onClick={() => setToggle(false)}
@@ -21,11 +22,11 @@ const CompactParam: React.FC<IProps> = ({ param, quantitySlice }) => {
           </small>
         </div>
       ) : (
-        <div className="">
+        <div className={fontText}>
           {param.length < 50 ? (
             <div className="">{param}</div>
           ) : (
-            <div>
+            <div className={fontText}>
               {param}
               <small
                 onClick={() => setToggle(true)}

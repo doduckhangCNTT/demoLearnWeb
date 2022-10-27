@@ -2,149 +2,115 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { alertSlice } from "../../../redux/reducers/alertSlice";
-import {
-  authSelector,
-  quickTestNowSelector,
-  quickTestsSelector,
-} from "../../../redux/selector/selectors";
+import { authSelector } from "../../../redux/selector/selectors";
 import { getApi } from "../../../utils/FetchData";
-import { FormSubmit, IQuickTest } from "../../../utils/Typescript";
-import ShowAnswer from "./ShowAnswer";
+import { FormSubmit, IQuestion, IQuickTest } from "../../../utils/Typescript";
+
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import CountDownTimer from "./CountDownTimer";
 
 const ShowPrevious = () => {
-  const numberQuestions = [
-    {
-      name: 1,
-      path: "",
-    },
-    {
-      name: 2,
-      path: "",
-    },
-    {
-      name: 3,
-      path: "",
-    },
-    {
-      name: 4,
-      path: "",
-    },
-    {
-      name: 5,
-      path: "",
-    },
-  ];
-
-  const questions = [
-    {
-      title: "Mot nam co bao nhieu thang",
-      answers: [
-        {
-          content: "12 thang",
-        },
-        {
-          content: "10 thang",
-        },
-        {
-          content: "11 thang",
-        },
-        {
-          content: "9 thang",
-        },
-      ],
-      answerCorrect: "1",
-    },
-    {
-      title: "Ngon ngu lap trinh nao pho bien nhat hien nay?",
-      answers: [
-        {
-          content: "Javascript",
-        },
-        {
-          content: "Java",
-        },
-        {
-          content: "Python",
-        },
-        {
-          content: "Rust",
-        },
-      ],
-      answerCorrect: "3",
-    },
-  ];
-
   const [quickTest, setQuickTest] = useState<IQuickTest>();
+  const [results, setResults] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isSubmit, setIsSubmit] = useState<boolean>(false);
+  const [correctlyQuickTests, setCorrectlyQuickTests] = useState<IQuestion[]>(
+    []
+  );
+  const { idQuickTest } = useParams();
+  let [isOpen, setIsOpen] = useState(false);
+  // const [isDeadTime, setIsDeadTime] = useState<boolean>(false);
 
-  const { quickTests } = useSelector(quickTestsSelector);
-  const { quickTestNow } = useSelector(quickTestNowSelector);
+  function closeModal() {
+    setIsOpen(false);
+  }
+  function openModal() {
+    setIsOpen(true);
+  }
+
   const { authUser } = useSelector(authSelector);
   const dispatch = useDispatch();
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  const { idQuickTest } = useParams();
+  // =========================================== Hanlde Get QuickTest with Id ========================================================
+  const handleGetQuickTest = useCallback(async () => {
+    if (!authUser.access_token) {
+      return dispatch(
+        alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
+      );
+    }
+    const res = await getApi(`quickTest/${idQuickTest}`, authUser.access_token);
 
-  const [test, setTest] = useState("");
+    setQuickTest(res.data.quickTest);
+  }, [authUser.access_token, dispatch, idQuickTest]);
 
   useEffect(() => {
-    const handle = async () => {
-      if (!authUser.access_token) {
-        return dispatch(
-          alertSlice.actions.alertAdd({ error: "Invalid Authentication" })
-        );
-      }
-      const res = await getApi(
-        `quickTest/${idQuickTest}`,
-        authUser.access_token
-      );
-
-      setQuickTest(res.data.quickTest);
-    };
-
-    handle();
-  }, [authUser.access_token, dispatch, idQuickTest, quickTestNow.id]);
+    handleGetQuickTest();
+  }, [handleGetQuickTest]);
 
   let s = "";
-
-  const state = {
-    keyword: "test",
-  };
-
-  const [results, setResults] = useState<string[]>([]);
-
+  // =========================================== Initial array to results ========================================================
   const handleInitialValueOfResult = useCallback(() => {
     const emptyString = [] as string[];
     quickTest?.questions?.forEach((qt) => {
       emptyString.push("");
     });
-
-    console.log(emptyString);
     setResults(emptyString);
-  }, [quickTest]);
+  }, [quickTest?.questions]);
 
   useEffect(() => {
     handleInitialValueOfResult();
   }, [handleInitialValueOfResult]);
 
+  // =========================================== Handle String ========================================================
+  const joinText = (str: string) => {
+    const result = str?.split(/[,.\\s]/);
+    const test = [] as string[];
+    result.forEach((r) => test.push(r.trim()));
+
+    return test.join("");
+  };
+
+  const sortText = (text: string) => {
+    const str = joinText(text).split("");
+    return str.sort().join("");
+  };
+
+  const handleReTakeQT = () => {
+    setResults([]);
+    setCorrectlyQuickTests([]);
+    setIsSubmit(false);
+  };
+
+  // =========================================== Handle Change Input / Submit ========================================================
   const handleChangeInput = (props: any) => {
     const { e, quickTestOrder } = props as any;
-    const { name, value } = e.target;
+    const { value } = e.target;
+    /**
+     * Kiem xem the input bấm vào là type:
+     *    + CheckBox: thêm giá trị vào mảng result tại cái câu tương ứng
+     *    + Radio: Thay thế giá trị ban đầu bằng kết quả mới
+     *
+     */
     if (e.target.type === "checkbox") {
-      // if (e.target.checked) {
-      //   setTest(test.concat(value.toString()));
-      //   console.log("Checked", { name, test });
-      // }
-
+      /**
+       * - Kiểm tra đã có giá trị của câu tương ứng trong mảng result
+       */
       if (results[quickTestOrder]) {
         const newString = [];
+        /**
+         * - Kiểm tra xem trong result của câu tương ứng thì đã tồn tại kết quả đã chọn hay chưa
+         */
         const positionChar = results[quickTestOrder].indexOf(value.toString());
         if (positionChar !== -1) {
+          /**
+           * Xóa bỏ giá trị đã tồn tại trong result của câu tương ứng
+           */
           for (var i = 0; i < results[quickTestOrder].length; i++) {
             if (results[quickTestOrder][i] !== value.toString()) {
               newString.push(results[quickTestOrder][i]);
             }
           }
-
           results[quickTestOrder] = newString.join("");
         } else {
           const test = results[quickTestOrder].concat(value.toString());
@@ -153,29 +119,128 @@ const ShowPrevious = () => {
       } else {
         results[quickTestOrder] = value.toString();
       }
-
-      setResults(results);
+      const test = [...results];
+      setResults(test);
       console.log("Result Checkbox: ", results);
     } else {
       s = value;
-      console.log("Radio", { name, s, quickTestOrder });
-
       results[quickTestOrder] = s;
-      setResults(results);
+      const test = [...results];
+      setResults(test);
       console.log("Results: ", results);
     }
   };
 
+  const checkAnswer = () => {
+    // Check dap an
+    if (quickTest?.questions) {
+      for (var i = 0; i < Number(quickTest.questions.length); i++) {
+        console.log({
+          join: joinText(quickTest.questions[i].correctly),
+          re: results[i],
+        });
+        if (
+          joinText(quickTest.questions[i].correctly) === sortText(results[i])
+        ) {
+          correctlyQuickTests.push(quickTest.questions[i]);
+        }
+      }
+    }
+
+    const values = [...correctlyQuickTests];
+    setCorrectlyQuickTests(values);
+    console.log("Correctly: ", correctlyQuickTests);
+  };
+
   const handleSubmit = (e: FormSubmit) => {
     e.preventDefault();
+    checkAnswer();
+    setIsSubmit(!isSubmit);
+  };
 
-    quickTests.forEach((qt) => {
-      if (qt._id === idQuickTest) {
-        // for (var i = 0; i < qt?.questions?.length; i++) {
-        //   qt.questions[i].correctly === results[quickTestOrder][i]
-        // }
-      }
-    });
+  // =========================================== Count Downs Timer ========================================================
+  const showDialogResult = () => {
+    return (
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Results after the test
+                  </Dialog.Title>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      Your payment has been successfully submitted.
+                    </p>
+
+                    <div className="">
+                      <h1 className="">
+                        Total number of questions:{" "}
+                        {quickTest?.questions?.length}{" "}
+                      </h1>
+
+                      <ul className="flex flex-col gap-2">
+                        <li className="bg-green-500 text-white">
+                          Number of correct answers:{" "}
+                          {correctlyQuickTests.length}
+                        </li>
+                        <li className="bg-red-500 text-white">
+                          Number of incorrect answers:{" "}
+                          {Number(
+                            quickTest?.questions?.length
+                              ? quickTest?.questions.length -
+                                  correctlyQuickTests.length
+                              : 0
+                          )}
+                        </li>
+                      </ul>
+                      <p className="text-sm text-gray-500">
+                        You can retake th quick test
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex justify-between">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={closeModal}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    );
   };
 
   return (
@@ -184,15 +249,10 @@ const ShowPrevious = () => {
         {/* Title of quickTest  */}
         <div className="">
           <div
-            // className="hidden"
             dangerouslySetInnerHTML={{
               __html: quickTest?.titleTest ? quickTest.titleTest : "",
             }}
           />
-
-          {/* <h1 className="font-bold text-[30px]">
-            {quickTest?.titleTest}
-          </h1> */}
         </div>
 
         {/* Show all questions of quickTest */}
@@ -218,9 +278,12 @@ const ShowPrevious = () => {
                             type={q.typeQuestion}
                             id={`${a.content}`}
                             name={`${q.titleQuestion}`}
-                            value={i}
+                            value={i + 1}
                             onChange={(e) =>
-                              handleChangeInput({ e, quickTestOrder: index })
+                              handleChangeInput({
+                                e,
+                                quickTestOrder: index,
+                              })
                             }
                             ref={inputRef}
                           />
@@ -231,15 +294,6 @@ const ShowPrevious = () => {
                             {a.content}
                           </label>
                         </div>
-                        // <div className="" key={i}>
-                        //   <ShowAnswer
-                        //     typeQuestion={q.typeQuestion}
-                        //     content={`${a.content}`}
-                        //     titleQuestion={`${q.titleQuestion}`}
-                        //     index={i}
-                        //     // handleChangeInput={}
-                        //   />
-                        // </div>
                       );
                     })}
                   </div>
@@ -247,41 +301,194 @@ const ShowPrevious = () => {
               );
             })}
 
-            <button className="" type="submit"></button>
-          </form>
+            <div className="w-full flex justify-end mt-5">
+              {/* <div className="">{isDeadTime ? showDialogResult() : ""}</div> */}
 
-          <div className="w-full flex justify-end mt-5">
-            <button
-              className="
-              border-2 p-2
-            hover:bg-sky-500 hover:text-white"
-            >
-              Submit
-            </button>
-          </div>
+              <div className="flex items-center justify-center">
+                {isSubmit ? (
+                  ""
+                ) : (
+                  <button
+                    type="submit"
+                    onClick={openModal}
+                    className="rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                  >
+                    Submit
+                  </button>
+                )}
+
+                {showDialogResult()}
+                {/* <Transition appear show={isOpen} as={Fragment}>
+                  <Dialog
+                    as="div"
+                    className="relative z-10"
+                    onClose={closeModal}
+                  >
+                    <Transition.Child
+                      as={Fragment}
+                      enter="ease-out duration-300"
+                      enterFrom="opacity-0"
+                      enterTo="opacity-100"
+                      leave="ease-in duration-200"
+                      leaveFrom="opacity-100"
+                      leaveTo="opacity-0"
+                    >
+                      <div className="fixed inset-0 bg-black bg-opacity-25" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 overflow-y-auto">
+                      <div className="flex min-h-full items-center justify-center p-4 text-center">
+                        <Transition.Child
+                          as={Fragment}
+                          enter="ease-out duration-300"
+                          enterFrom="opacity-0 scale-95"
+                          enterTo="opacity-100 scale-100"
+                          leave="ease-in duration-200"
+                          leaveFrom="opacity-100 scale-100"
+                          leaveTo="opacity-0 scale-95"
+                        >
+                          <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                            <Dialog.Title
+                              as="h3"
+                              className="text-lg font-medium leading-6 text-gray-900"
+                            >
+                              Results after the test
+                            </Dialog.Title>
+                            <div className="mt-2">
+                              <p className="text-sm text-gray-500">
+                                Your payment has been successfully submitted.
+                              </p>
+
+                              <div className="">
+                                <h1 className="">
+                                  Total number of questions:{" "}
+                                  {quickTest?.questions?.length}{" "}
+                                </h1>
+
+                                <ul className="flex flex-col gap-2">
+                                  <li className="bg-green-500 text-white">
+                                    Number of correct answers:{" "}
+                                    {correctlyQuickTests.length}
+                                  </li>
+                                  <li className="bg-red-500 text-white">
+                                    Number of incorrect answers:{" "}
+                                    {Number(
+                                      quickTest?.questions?.length
+                                        ? quickTest?.questions.length -
+                                            correctlyQuickTests.length
+                                        : 0
+                                    )}
+                                  </li>
+                                </ul>
+                                <p className="text-sm text-gray-500">
+                                  You can retake th quick test
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-4 flex justify-between">
+                              <button
+                                type="button"
+                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                onClick={closeModal}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </Dialog.Panel>
+                        </Transition.Child>
+                      </div>
+                    </div>
+                  </Dialog>
+                </Transition> */}
+              </div>
+            </div>
+          </form>
         </div>
       </div>
 
+      {/* Control questions  */}
       <div className="w-1/3 shadow-md p-2 sticky">
-        <h1 className="font-bold text-[20px]">Time: {quickTest?.time}.00</h1>
+        <div className="">
+          <CountDownTimer />
+        </div>
+
         <div>
-          <h2>Tat ca cac cau da lam</h2>
+          <h2 className="font-mono text-[20px]">Tat ca cac cau da lam</h2>
           <div className="grid gap-2 lg:grid-cols-10 md:grid-cols-6 sm:grid-cols-5">
             {quickTest?.questions?.map((n, index) => {
               return (
-                <div
-                  key={index}
-                  className="
-                    w-[20px] h-[20px] 
-                    p-3 border-2 rounded-full
-                    flex items-center justify-center
-                  hover:bg-green-500 hover:text-white cursor-pointer"
-                >
-                  {index + 1}
+                <div className="" key={n._id}>
+                  {/* Kiem tra dap an khi da bam vao button Submit */}
+                  {isSubmit ? (
+                    <div className="">
+                      {correctlyQuickTests.includes(n) ? (
+                        <div
+                          className="
+                        w-[20px] h-[20px] 
+                        p-3 border-2 rounded-full
+                        flex items-center justify-center
+                        bg-green-500 cursor-pointer"
+                        >
+                          {index + 1}
+                        </div>
+                      ) : (
+                        <div
+                          className="
+                        w-[20px] h-[20px] 
+                        p-3 border-2 rounded-full
+                        flex items-center justify-center
+                        bg-red-500 cursor-pointer"
+                        >
+                          {index + 1}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    // Kiểm tra khi chưa bấm vào nút Submit, và ghi nhận các câu đã làm và chưa làm
+                    <div className="">
+                      {results[index] === "" ? (
+                        <div
+                          className="
+                        w-[20px] h-[20px] 
+                        p-3 border-2 rounded-full
+                        flex items-center justify-center
+                        hover:opacity-60 cursor-pointer"
+                        >
+                          {index + 1}
+                        </div>
+                      ) : (
+                        /**
+                         * Nếu đã chọn đáp án thì đổi màu
+                         */
+                        <div
+                          className="
+                        w-[20px] h-[20px] 
+                        p-3 border-2 rounded-full
+                        flex items-center justify-center
+                        bg-sky-500 hover:text-white cursor-pointer"
+                        >
+                          {index + 1}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
+
+          {isSubmit ? (
+            <button
+              type="button"
+              className="mt-[20px] inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              onClick={handleReTakeQT}
+            >
+              Retake the Quick Test
+            </button>
+          ) : (
+            ""
+          )}
         </div>
       </div>
     </div>

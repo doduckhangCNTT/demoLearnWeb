@@ -10,16 +10,9 @@ import { useDispatch, useSelector } from "react-redux";
 import actionAuth from "../../redux/action/actionAuth";
 import LazyLoadingImg from "../LazyLoadingImg/LazyLoadingImg";
 import Information from "../../pages/option/Information";
-import NotFound from "./NotFound";
 import { toggleNavbarSlice } from "../../redux/reducers/toggleNavbarSlice";
 import { FormSubmit } from "../../utils/Typescript";
-
-const navigation = [
-  { name: "Dashboard", href: "#", current: true },
-  { name: "Team", href: "#", current: false },
-  { name: "Projects", href: "#", current: false },
-  { name: "Calendar", href: "#", current: false },
-];
+import Search from "./Search";
 
 const accessPage = [
   {
@@ -78,7 +71,6 @@ function classNames(...classes: string[]) {
 export default function Header() {
   const { authUser } = useSelector(authSelector);
   const { toggleNavbar } = useSelector(toggleNavbarSelector);
-  const [toggleInputSearch, setToggleInputSearch] = useState<boolean>(false);
 
   const dispatch = useDispatch();
 
@@ -93,10 +85,6 @@ export default function Header() {
         statusNavbar: !toggleNavbar.statusNavbar,
       })
     );
-  };
-
-  const handleSubmitSearch = (e: FormSubmit) => {
-    e.preventDefault();
   };
 
   return (
@@ -150,42 +138,8 @@ export default function Header() {
                   )}
 
                   {/* Search */}
-                  <div className="flex rounded-full">
-                    <form
-                      action=""
-                      onSubmit={handleSubmitSearch}
-                      className="flex items-center lg:max-w-[300px] md:w-[100px] sm:w-[50px] max-w-[25px] relative"
-                    >
-                      <div className="">
-                        {toggleInputSearch ? (
-                          <input
-                            type="text"
-                            placeholder="Search..."
-                            className="outline-0 rounded-full p-2 absolute top-[40px] w-[300px]  right-[-20px] border-2"
-                          />
-                        ) : (
-                          ""
-                        )}
-                      </div>
-                      <button
-                        onClick={() => setToggleInputSearch(!toggleInputSearch)}
-                        className="hover:bg-sky-600 hover:text-white rounded-full h-full transition p-3 "
-                        type="submit"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </form>
+                  <div className="rounded-full relative">
+                    <Search />
                   </div>
 
                   <div>

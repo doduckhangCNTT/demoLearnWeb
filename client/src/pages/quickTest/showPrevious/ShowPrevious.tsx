@@ -2,13 +2,17 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { alertSlice } from "../../../redux/reducers/alertSlice";
-import { authSelector } from "../../../redux/selector/selectors";
+import {
+  authSelector,
+  statusCountDownSelector,
+} from "../../../redux/selector/selectors";
 import { getApi } from "../../../utils/FetchData";
-import { FormSubmit, IQuestion, IQuickTest } from "../../../utils/Typescript";
+import { IQuestion, IQuickTest } from "../../../utils/Typescript";
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import CountDownTimer from "./CountDownTimer";
+import { countDownSlice } from "../../../redux/reducers/quickTest/countDownSlice";
 
 const ShowPrevious = () => {
   const [quickTest, setQuickTest] = useState<IQuickTest>();
@@ -30,6 +34,7 @@ const ShowPrevious = () => {
   }
 
   const { authUser } = useSelector(authSelector);
+  const { statusCountDown } = useSelector(statusCountDownSelector);
   const dispatch = useDispatch();
 
   // =========================================== Hanlde Get QuickTest with Id ========================================================
@@ -80,6 +85,13 @@ const ShowPrevious = () => {
     setResults([]);
     setCorrectlyQuickTests([]);
     setIsSubmit(false);
+    dispatch(
+      countDownSlice.actions.updateStatusCountDown({
+        status: !statusCountDown.status,
+      })
+    );
+
+    handleGetQuickTest();
   };
 
   // =========================================== Handle Change Input / Submit ========================================================
@@ -152,8 +164,20 @@ const ShowPrevious = () => {
     console.log("Correctly: ", correctlyQuickTests);
   };
 
-  const handleSubmit = (e: FormSubmit) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (statusCountDown.status) {
+      if (
+        window.confirm("Time to take the quick test. You can watch answer this")
+      ) {
+        handleSubmit();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusCountDown]);
+
+  const handleSubmit = () => {
+    // e.preventDefault();
+    openModal();
     checkAnswer();
     setIsSubmit(!isSubmit);
   };
@@ -244,10 +268,10 @@ const ShowPrevious = () => {
   };
 
   return (
-    <div className="flex gap-2 w-2/3 mx-auto">
-      <div className="flex flex-col gap-2 w-2/3 shadow-md p-3">
+    <div className="flex gap-2 lg:flex-row md:flex-col-reverse sm:flex-col-reverse flex-col-reverse lg:w-2/3 md:w-full sm:w-full w-full p-2 mx-auto">
+      <div className="flex flex-col gap-2 lg:w-2/3 md:w-full sm:w-full w-full shadow-md p-3">
         {/* Title of quickTest  */}
-        <div className="">
+        <div className="text-[30px] font-mono flex justify-center">
           <div
             dangerouslySetInnerHTML={{
               __html: quickTest?.titleTest ? quickTest.titleTest : "",
@@ -257,7 +281,7 @@ const ShowPrevious = () => {
 
         {/* Show all questions of quickTest */}
         <div className="w-full">
-          <form action="" onSubmit={handleSubmit}>
+          <form action="">
             {quickTest?.questions?.map((q, index) => {
               return (
                 <div key={index} className="mt-2">
@@ -309,8 +333,8 @@ const ShowPrevious = () => {
                   ""
                 ) : (
                   <button
-                    type="submit"
-                    onClick={openModal}
+                    onClick={handleSubmit}
+                    // onClick={openModal}
                     className="rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                   >
                     Submit
@@ -318,89 +342,6 @@ const ShowPrevious = () => {
                 )}
 
                 {showDialogResult()}
-                {/* <Transition appear show={isOpen} as={Fragment}>
-                  <Dialog
-                    as="div"
-                    className="relative z-10"
-                    onClose={closeModal}
-                  >
-                    <Transition.Child
-                      as={Fragment}
-                      enter="ease-out duration-300"
-                      enterFrom="opacity-0"
-                      enterTo="opacity-100"
-                      leave="ease-in duration-200"
-                      leaveFrom="opacity-100"
-                      leaveTo="opacity-0"
-                    >
-                      <div className="fixed inset-0 bg-black bg-opacity-25" />
-                    </Transition.Child>
-
-                    <div className="fixed inset-0 overflow-y-auto">
-                      <div className="flex min-h-full items-center justify-center p-4 text-center">
-                        <Transition.Child
-                          as={Fragment}
-                          enter="ease-out duration-300"
-                          enterFrom="opacity-0 scale-95"
-                          enterTo="opacity-100 scale-100"
-                          leave="ease-in duration-200"
-                          leaveFrom="opacity-100 scale-100"
-                          leaveTo="opacity-0 scale-95"
-                        >
-                          <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                            <Dialog.Title
-                              as="h3"
-                              className="text-lg font-medium leading-6 text-gray-900"
-                            >
-                              Results after the test
-                            </Dialog.Title>
-                            <div className="mt-2">
-                              <p className="text-sm text-gray-500">
-                                Your payment has been successfully submitted.
-                              </p>
-
-                              <div className="">
-                                <h1 className="">
-                                  Total number of questions:{" "}
-                                  {quickTest?.questions?.length}{" "}
-                                </h1>
-
-                                <ul className="flex flex-col gap-2">
-                                  <li className="bg-green-500 text-white">
-                                    Number of correct answers:{" "}
-                                    {correctlyQuickTests.length}
-                                  </li>
-                                  <li className="bg-red-500 text-white">
-                                    Number of incorrect answers:{" "}
-                                    {Number(
-                                      quickTest?.questions?.length
-                                        ? quickTest?.questions.length -
-                                            correctlyQuickTests.length
-                                        : 0
-                                    )}
-                                  </li>
-                                </ul>
-                                <p className="text-sm text-gray-500">
-                                  You can retake th quick test
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="mt-4 flex justify-between">
-                              <button
-                                type="button"
-                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                onClick={closeModal}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </Dialog.Panel>
-                        </Transition.Child>
-                      </div>
-                    </div>
-                  </Dialog>
-                </Transition> */}
               </div>
             </div>
           </form>
@@ -408,14 +349,14 @@ const ShowPrevious = () => {
       </div>
 
       {/* Control questions  */}
-      <div className="w-1/3 shadow-md p-2 sticky">
+      <div className="lg:w-1/3 md:w-full sm:w-full w-full shadow-md p-2 sticky top-[60px] bg-white">
         <div className="">
           <CountDownTimer />
         </div>
 
         <div>
           <h2 className="font-mono text-[20px]">Tat ca cac cau da lam</h2>
-          <div className="grid gap-2 lg:grid-cols-10 md:grid-cols-6 sm:grid-cols-5">
+          <div className="lg:grid md:flex sm:flex flex gap-2 lg:grid-cols-10 md:grid-cols-6 sm:grid-cols-5">
             {quickTest?.questions?.map((n, index) => {
               return (
                 <div className="" key={n._id}>

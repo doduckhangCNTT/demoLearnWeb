@@ -31,5 +31,6 @@ export const userSelector = (state: RootState) => state;
 export const blogPageSelector = (state: RootState) => state;
 export const coursePageSelector = (state: RootState) => state;
 export const toggleNavbarSelector = (state: RootState) => state;
+export const statusCountDownSelector = (state: RootState) => state;
 
 export const socketSelector = (state: RootState) => state;

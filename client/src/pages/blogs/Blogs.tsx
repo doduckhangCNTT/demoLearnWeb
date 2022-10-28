@@ -58,10 +58,6 @@ const Blogs = () => {
     setBlogsOfCategory(blogCategory);
   }, [blogsCategory, option]);
 
-  // console.log({ limit, qualityStart });
-  // console.log("ListBlogs: ", listBlogs);
-  // console.log("Blogs: ", blogs);
-
   const { BtnRender } = useInfinityQuery({
     limit,
     setLimit,

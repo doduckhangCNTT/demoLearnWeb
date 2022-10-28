@@ -3,14 +3,14 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { courseSelector } from "../../../redux/selector/selectors";
 import { ICourses } from "../../../utils/Typescript";
+import FrameList from "../common/FrameList";
 
 const Course = () => {
   const { courses } = useSelector(courseSelector);
 
   return (
-    <div className="mt-3 ">
-      <h1 className="font-bold text-[30px]">Free Courses</h1>
-      <div className=" grid gap-2 ml-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 px-2">
+    <FrameList titleList="Courses">
+      <>
         {(courses as ICourses[])?.map((course, index) => {
           return (
             <div key={index} className="">
@@ -27,7 +27,7 @@ const Course = () => {
                       <img
                         src={course.thumbnail?.url as string}
                         alt=""
-                        className="rounded-lg"
+                        className="rounded-lg h-[250px] w-full object-cover"
                       />
                     </div>
                     <div className="p-2">
@@ -53,8 +53,8 @@ const Course = () => {
             </div>
           );
         })}
-      </div>
-    </div>
+      </>
+    </FrameList>
   );
 };
 

@@ -20,17 +20,14 @@ const Chats = () => {
   return (
     <div className="flex gap-2 relative">
       {/* Content chats  */}
-      <div className="lg:w-2/3 md:w-full sm:w-full w-full">
-        <Outlet />
-      </div>
-
-      {/* Conversation chats  */}
       <div
         className={`${
-          toggleConversation ? "" : "w-1/3"
-        } lg:relative lg:mt-0 md:relative md:mt-0 sm:absolute absolute sm:top-0 sm:right-0 sm:mt-[100px] sm:bg-slate-100`}
+          toggleConversation ? "w-full" : "lg:w-2/3 md:w-full sm:w-full w-full"
+        } `}
       >
-        <div className="flex justify-end">
+        <Outlet />
+
+        <div className="flex justify-end fixed z-20 top-[60px] right-0">
           <button
             onClick={() => setToggleConversation(!toggleConversation)}
             className="
@@ -44,7 +41,14 @@ const Chats = () => {
             {toggleConversation ? "<--" : "-->"}
           </button>
         </div>
+      </div>
 
+      {/* Conversation chats  */}
+      <div
+        className={`${
+          toggleConversation ? "" : "w-1/3"
+        } lg:relative lg:mt-0 md:relative md:mt-0 sm:absolute absolute sm:top-0 sm:right-0 sm:mt-[100px] sm:bg-slate-100`}
+      >
         {toggleConversation ? (
           ""
         ) : (

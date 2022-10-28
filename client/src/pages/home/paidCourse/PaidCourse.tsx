@@ -2,14 +2,14 @@ import React, { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { courseSelector } from "../../../redux/selector/selectors";
+import FrameList from "../common/FrameList";
 
 const PaidCourse = () => {
   const { courses } = useSelector(courseSelector);
 
   return (
-    <div className="mt-3">
-      <h1 className="font-bold text-[30px]">Paid Courses</h1>
-      <div className=" grid lg:grid-cols-4 gap-2 md:grid-cols-3 sm:grid-cols-2 ml-5 px-2">
+    <FrameList titleList="Paid Course">
+      <>
         {courses.map((course, index) => {
           return (
             <Fragment key={index}>
@@ -24,7 +24,7 @@ const PaidCourse = () => {
                       <img
                         src={course.thumbnail?.url as string}
                         alt=""
-                        className="rounded-lg"
+                        className="rounded-lg h-[250px] w-full object-cover"
                       />
                     </div>
                     <div className="p-2">
@@ -44,8 +44,8 @@ const PaidCourse = () => {
             </Fragment>
           );
         })}
-      </div>
-    </div>
+      </>
+    </FrameList>
   );
 };
 

@@ -15,7 +15,10 @@ const Course: React.FC<IProps> = ({ courses, titleCourse, children }) => {
       <div className=" grid grid-cols-4 gap-3">
         {courses.map((course, index) => {
           return (
-            <div key={index} className="border-2 rounded-lg hover:shadow-md ">
+            <div
+              key={index}
+              className="border-2 rounded-lg hover:shadow-md transition"
+            >
               <Link to={course.link}>
                 <div className="">
                   <img src={course.url} alt="" className="rounded-lg" />

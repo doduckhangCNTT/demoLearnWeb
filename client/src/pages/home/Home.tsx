@@ -7,6 +7,7 @@ import QuickTest from "./quickTest/QuickTest";
 import Course from "./course/Course";
 import PaidCourse from "./paidCourse/PaidCourse";
 import SlideShow from "./slideShow/SlideShow";
+import BlogHome from "./blog/Blogs";
 
 const Home = () => {
   const { authUser } = useSelector(authSelector);
@@ -26,7 +27,7 @@ const Home = () => {
   }, [authUser.access_token, dispatch]);
 
   return (
-    <div className="">
+    <div className="relative">
       {/* Slide show */}
       <div className="">
         <SlideShow />
@@ -48,7 +49,9 @@ const Home = () => {
       </div>
 
       {/* Blog Outstanding */}
-      <div className=""></div>
+      <div className="">
+        <BlogHome />
+      </div>
     </div>
   );
 };

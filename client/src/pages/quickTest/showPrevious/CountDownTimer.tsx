@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { countDownSlice } from "../../../redux/reducers/quickTest/countDownSlice";
+import { statusCountDownSelector } from "../../../redux/selector/selectors";
 
 const CountDownTimer = () => {
   const [isDeadTime, setIsDeadTime] = useState<boolean>(false);
+  const { statusCountDown } = useSelector(statusCountDownSelector);
+  const dispatch = useDispatch();
 
   // We need ref in this, because we are dealing
   // with JS setInterval to keep track of it and
@@ -41,9 +46,12 @@ const CountDownTimer = () => {
 
     if (hours === 0 && minutes === 0 && seconds === 0) {
       setIsDeadTime(!isDeadTime);
-      // const test = [...results];
-      // setResults(test);
       console.log("Het time");
+      dispatch(
+        countDownSlice.actions.updateStatusCountDown({
+          status: !statusCountDown.status,
+        })
+      );
     }
   };
 

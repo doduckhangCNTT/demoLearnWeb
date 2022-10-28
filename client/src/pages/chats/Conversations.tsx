@@ -45,7 +45,6 @@ const Conversations = () => {
         <div className="flex flex-col gap-3">
           <div className="flex justify-between">
             <h1 className="text-[25px] font-bold">Conversation</h1>
-
             {/* Options */}
             <div className="flex gap-2">
               {conversationIcons.map((option, index) => {
@@ -128,7 +127,7 @@ const Conversations = () => {
           </ul>
 
           {/* Lists of conversations */}
-          <ul className="w-full touch-pan-y h-[500px]">
+          <ul className="w-full touch-pan-y">
             {(searchUser ? users : conversation.usersChatted).map(
               (user, index) => {
                 return (
@@ -153,6 +152,7 @@ const Conversations = () => {
                       >
                         {user.name}
                       </Link>
+
                       <small className="text-sm text-slate-500 truncate">
                         {user.text
                           ? user.text.length > 20

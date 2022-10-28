@@ -19,7 +19,13 @@ const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
 const blogCtrl = {
   getBlogs: async (req: Request, res: Response) => {
-    const { limit, skip, page } = PageConfig(req);
+    const { limit, skip } = PageConfig(req);
+
+    const key = req.originalUrl;
+    if (myCache.has(key)) {
+      const cacheResponseBlogs = await myCache.get(key);
+      res.json(cacheResponseBlogs);
+    }
 
     try {
       // const blogs = await Blogs.find().sort("-createdAt");
@@ -79,6 +85,7 @@ const blogCtrl = {
       }
       // Neu muon hien thi tong so trang
       // res.json({ blogs, total });
+      myCache.set(key, blogs);
       res.json(blogs);
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
@@ -169,12 +176,10 @@ const blogCtrl = {
     if (myCache.has(key)) {
       const cacheResponseBlogsPageSearch = myCache.get(key);
       res.json(cacheResponseBlogsPageSearch);
-    } else {
     }
 
     try {
       const blogs = await Blogs.find();
-
       const blogsValue = await Blogs.find()
         .skip(skip)
         .limit(limit)
@@ -189,11 +194,14 @@ const blogCtrl = {
   },
 
   getBlogsPageSearch: async (req: IReqAuth, res: Response) => {
-    const { page, skip, limit } = PageConfig(req);
-
+    const { skip, limit } = PageConfig(req);
+    const key = req.originalUrl;
+    if (myCache.has(key)) {
+      const cacheResponseBlogsPageSearch = await myCache.get(key);
+      res.json(cacheResponseBlogsPageSearch);
+    }
     try {
       const { search } = req.query;
-
       if (validEmail(search?.toString() ? search.toString() : "")) {
         const user = await userModel.findOne({ account: search });
 
@@ -201,17 +209,17 @@ const blogCtrl = {
           return res.json({ success: false, msg: "User not found" });
         }
         const blogs = await Blogs.find();
-
         const blogsValue = await Blogs.find({ user: user._id })
           .skip(skip)
           .limit(limit)
           .populate("user")
           .populate("category");
 
+        myCache.set(key, { blogs: blogsValue, totalCount: blogs.length });
         res.json({ blogs: blogsValue, totalCount: blogs.length });
       } else if (search?.toString()?.match(/^[0-9a-fA-F]{24}$/)) {
         const blog = await Blogs.find({ _id: search.toString() });
-
+        myCache.set(key, { blogs: blog, totalCount: 1 });
         res.json({ blogs: blog, totalCount: 1 });
       } else {
         const blogs = await Blogs.find({
@@ -226,6 +234,7 @@ const blogCtrl = {
           .populate("user")
           .populate("category");
 
+        myCache.set(key, { blogs: blogsValue, totalCount: blogs.length });
         res.json({ blogs: blogsValue, totalCount: blogs.length });
       }
     } catch (error: any) {
@@ -333,6 +342,11 @@ const blogCtrl = {
   },
 
   getBlogsCategory: async (req: Request, res: Response) => {
+    const key = req.originalUrl;
+    if (myCache.has(key)) {
+      const cacheResponseBlogsCategory = await myCache.get(key);
+      res.json(cacheResponseBlogsCategory);
+    }
     try {
       // const blogs = await Blogs.find().sort("-createdAt");
       const blogs = await Blogs.aggregate([
@@ -374,6 +388,7 @@ const blogCtrl = {
           },
         },
       ]);
+      myCache.set(key, blogs);
       res.json(blogs);
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
@@ -417,6 +432,11 @@ const blogCtrl = {
   },
 
   getBlogsUser: async (req: IReqAuth, res: Response) => {
+    const key = req.originalUrl;
+    if (myCache.has(key)) {
+      const cacheResponseBlogsUser = await myCache.get(key);
+      res.json(cacheResponseBlogsUser);
+    }
     try {
       const Data = await Blogs.aggregate([
         {
@@ -463,6 +483,7 @@ const blogCtrl = {
 
       const blogs = Data[0].totalData;
       const count = Data[0].count;
+      myCache.set(key, { blogs, count });
       res.json({ blogs, count });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });

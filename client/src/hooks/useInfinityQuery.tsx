@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { blogSlice } from "../redux/reducers/blogSlice";
 import { getApi } from "../utils/FetchData";
 import { IBlog } from "../utils/Typescript";
 
@@ -31,6 +33,7 @@ const useInfinityQuery = ({
   const [firstLoad, setFirstLoad] = useState(false);
   const [stop, setStop] = useState(false);
   const [disable, setDisable] = useState(false);
+  const dispatch = useDispatch();
 
   // const [listBlogs, setListBlogs] = useState<IBlog[]>([]);
   // console.log("ListBlog: ", listBlogs);
@@ -58,16 +61,21 @@ const useInfinityQuery = ({
   //   solution();
   // }, []);
 
-  const handleLoadMore = useCallback(() => {
-    if (limit >= blogs.length - 2) {
-      setDisable(true);
-      return;
-    }
-    console.log("LoadMore");
+  const handleLoadMore = useCallback(async () => {
+    // console.log("Ok");
+    // if (limit >= blogs.length - 2) {
+    //   setDisable(true);
+    //   return;
+    // }
+    // console.log("LoadMore");
 
-    setQualityStart(limit);
-    setLimit(limit + 3);
-  }, [limit, setLimit, setQualityStart, blogs.length]);
+    // setQualityStart(limit);
+    // setLimit(limit + 3);
+
+    const res = await getApi(`blogs?page=${2}`);
+    console.log("Res: ", res);
+    dispatch(blogSlice.actions.getBlog(res.data));
+  }, [dispatch]);
 
   useEffect(() => {
     const btn = btnRef.current;
@@ -86,15 +94,13 @@ const useInfinityQuery = ({
 
   const BtnRender = () => {
     return (
-      <div>
-        <button
-          className=" text-white bg-cyan-600 p-2 rounded hover:opacity-80"
-          onClick={handleLoadMore}
-          ref={btnRef}
-        >
-          Load More
-        </button>
-      </div>
+      <button
+        className=" text-white bg-cyan-600 p-2 rounded hover:opacity-80"
+        onClick={handleLoadMore}
+        ref={btnRef}
+      >
+        Load More
+      </button>
     );
   };
 

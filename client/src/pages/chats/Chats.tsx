@@ -18,7 +18,7 @@ const Chats = () => {
   }, [authUser, dispatch]);
 
   return (
-    <div className="flex gap-2 relative">
+    <div className="flex gap-2 relative my-2">
       {/* Content chats  */}
       <div
         className={`${
@@ -26,19 +26,19 @@ const Chats = () => {
         } `}
       >
         <Outlet />
-
         <div className="flex justify-end fixed z-20 top-[60px] right-0">
           <button
             onClick={() => setToggleConversation(!toggleConversation)}
             className="
-            p-1 w-[50px] 
+            p-1
             top-[100px] right-0 z-10 rounded-md 
             cursor-pointer font-bold 
             bg-gray-100 
             hover:bg-sky-500 hover:text-white
+            transition
             "
           >
-            {toggleConversation ? "<--" : "-->"}
+            {toggleConversation ? "Open" : "Close"}
           </button>
         </div>
       </div>
@@ -46,16 +46,20 @@ const Chats = () => {
       {/* Conversation chats  */}
       <div
         className={`${
-          toggleConversation ? "" : "w-1/3"
-        } lg:relative lg:mt-0 md:relative md:mt-0 sm:absolute absolute sm:top-0 sm:right-0 sm:mt-[100px] sm:bg-slate-100`}
+          toggleConversation
+            ? "lg:w-0"
+            : ` md:sticky sm:absolute absolute
+                top-[70px] right-0 h-full 
+                lg:mt-0 md:mt-0 sm:mt-[30px] mt-[30px] 
+                lg:w-1/3 md:w-full sm:w-full w-full
+                touch-pan-y
+              `
+        } 
+          bg-slate-400
+          border-2 
+        `}
       >
-        {toggleConversation ? (
-          ""
-        ) : (
-          <div className="mt-[20px]">
-            <Conversations />
-          </div>
-        )}
+        {!toggleConversation && <Conversations />}
       </div>
     </div>
   );

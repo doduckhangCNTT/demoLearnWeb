@@ -73,7 +73,8 @@ const ShowContentChat: React.FC<IProps> = ({
     );
 
     observer.observe(refPageEnd.current as HTMLButtonElement);
-  }, [conversation.data, page]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation.data]);
 
   const handleChangeMedia = (e: InputChangedEvent) => {
     const target = e.target as HTMLInputElement;
@@ -118,7 +119,12 @@ const ShowContentChat: React.FC<IProps> = ({
       <div className="sticky top-[60px] z-10 flex justify-between p-2 shadow-md bg-white">
         {/* Info User / Room */}
         <div className="">
-          <div className="flex hover:bg-slate-200 transition p-2 mt-2 rounded-md">
+          <div
+            className="
+            flex 
+            p-2 mt-2 rounded-md
+            hover:bg-slate-200 transition "
+          >
             {/* Check Room  */}
             {(value as IRoomChatList)?.users?.length > 0 ? (
               <>
@@ -172,7 +178,11 @@ const ShowContentChat: React.FC<IProps> = ({
             return roomChat._id === room?._id
               ? roomChat.admin.map((ad) =>
                   ad._id === authUser.user?._id ? (
-                    <button key={roomChat._id} onClick={handleDeleteRoom}>
+                    <button
+                      key={roomChat._id}
+                      className="hover:bg-sky-500 transition hover:text-white p-2 rounded-md"
+                      onClick={handleDeleteRoom}
+                    >
                       Delete
                     </button>
                   ) : (
@@ -191,19 +201,28 @@ const ShowContentChat: React.FC<IProps> = ({
           })}
         </div>
       </div>
+
       {/* Tab Options  */}
       {toggleTab ? (
-        <div className="absolute h-full w-full z-10 bg-white opacity-[0.8]">
-          <TabOption room={room} />
+        <div
+          onClick={() => setToggleTab(!toggleTab)}
+          className="absolute h-full w-full z-10 bg-white opacity-[0.8]"
+        >
+          <div className="sticky top-[100px]">
+            <TabOption room={room} />
+          </div>
         </div>
       ) : (
         ""
       )}
 
-      <div className="flex h-[100vh] flex-col justify-end  ">
+      <div className="flex h-full flex-col justify-end  ">
         {/* Contents */}
-        <div ref={refDisplay} className="h-[100vh] overflow-auto touch-auto">
-          <div className="bottom-0 ">
+        <div
+          ref={refDisplay}
+          className="h-[100vh] flex flex-col-reverse overflow-auto touch-auto"
+        >
+          <div className="bottom-0">
             <button className="w-full p-2 border-2" ref={refPageEnd}>
               LoadMore
             </button>
@@ -229,12 +248,6 @@ const ShowContentChat: React.FC<IProps> = ({
                         ></source>
                       </video>
                     ) : (
-                      // <img
-                      //   src={URL.createObjectURL(m)}
-                      //   alt="images"
-                      //   className="h-full"
-                      // />
-
                       <LazyLoadingImg
                         url={URL.createObjectURL(m)}
                         alt="images"
@@ -255,6 +268,7 @@ const ShowContentChat: React.FC<IProps> = ({
             })}
           </div>
 
+          {/* Form Message */}
           <form
             action=""
             onSubmit={handleSubmit}

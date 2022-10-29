@@ -182,7 +182,7 @@ const ShowPrevious = () => {
     setIsSubmit(!isSubmit);
   };
 
-  // =========================================== Count Downs Timer ========================================================
+  // =========================================== Show Dialog ========================================================
   const showDialogResult = () => {
     return (
       <Transition appear show={isOpen} as={Fragment}>
@@ -326,8 +326,6 @@ const ShowPrevious = () => {
             })}
 
             <div className="w-full flex justify-end mt-5">
-              {/* <div className="">{isDeadTime ? showDialogResult() : ""}</div> */}
-
               <div className="flex items-center justify-center">
                 {isSubmit ? (
                   ""
@@ -342,6 +340,10 @@ const ShowPrevious = () => {
                 )}
 
                 {showDialogResult()}
+              </div>
+
+              <div className="">
+                <input type="reset" />
               </div>
             </div>
           </form>

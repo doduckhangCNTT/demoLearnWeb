@@ -21,8 +21,6 @@ const useCustomRouter = () => {
     if (time?.requestTime && time.timeNumber)
       query.time = String(time.timeNumber).concat(" ", `${time.requestTime}`);
 
-    console.log("New query: ", query);
-
     const newQuery = new URLSearchParams(query as any).toString();
     navigate(`${pathname}?${newQuery}`);
   };

@@ -11,7 +11,6 @@ import actionAuth from "../../redux/action/actionAuth";
 import LazyLoadingImg from "../LazyLoadingImg/LazyLoadingImg";
 import Information from "../../pages/option/Information";
 import { toggleNavbarSlice } from "../../redux/reducers/toggleNavbarSlice";
-import { FormSubmit } from "../../utils/Typescript";
 import Search from "./Search";
 
 const accessPage = [

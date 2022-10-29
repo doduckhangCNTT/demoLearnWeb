@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Pagination from "../../components/Pagination";
 import {
   LIMIT_BLOG_PAGE,
@@ -31,14 +31,13 @@ import {
 } from "../../utils/Typescript";
 
 const ManagerBlog = () => {
-  const { blogs } = useSelector(blogSelector);
   const { page } = useOptionLocationUrl();
   const [checkedBlogs, setCheckedBlogs] = useState<string[]>([]);
   const [toggleCheckedAll, setToggleCheckedAll] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const debouncedSearch = useDebounce(searchValue, 800);
-  const navigate = useNavigate();
 
+  const { blogs } = useSelector(blogSelector);
   const { authUser } = useSelector(authSelector);
   const { categories } = useSelector(categorySelector);
   const { blogPage } = useSelector(blogPageSelector);
@@ -70,7 +69,6 @@ const ManagerBlog = () => {
     }
 
     if (searchValue.trim() !== "") {
-      console.log("Page :", page);
       const data = {
         page: page ? Number(page) : 1,
         limit: LIMIT_BLOG_PAGE_SEARCH,

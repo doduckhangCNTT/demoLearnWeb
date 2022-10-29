@@ -33,7 +33,6 @@ const Blogs = () => {
   const [limit, setLimit] = useState(3);
   const [qualityStart, setQualityStart] = useState(0);
   const [listBlogs, setListBlogs] = useState<IBlog[]>([]);
-  // const [limit, setLimit] = useState(3);
 
   useEffect(() => {
     if (blogs.length > 0) {
@@ -68,14 +67,15 @@ const Blogs = () => {
 
   useEffect(() => {
     if (blogs && listBlogs.length < blogs?.length) {
-      blogs?.slice(qualityStart, limit).forEach((blog: IBlog) => {
+      // blogs?.slice(qualityStart, limit).forEach((blog: IBlog) => {
+      blogs.forEach((blog: IBlog) => {
         const res = listBlogs?.find((item) => item._id === blog._id);
         if (!res) {
           setListBlogs((prev) => [...prev, blog]);
         }
       });
     }
-  }, [limit, qualityStart, listBlogs, blogs]);
+  }, [blogs, listBlogs]);
 
   return (
     <>
@@ -99,6 +99,7 @@ const Blogs = () => {
             <BlogOfCategory />
           ) : (
             <div>
+              {/* Lan 1 */}
               {listBlogs?.map((blog, index) => {
                 if (!blog._id) return [];
                 const res = (saveBlog as any).blogs?.find(
@@ -115,7 +116,7 @@ const Blogs = () => {
                   </div>
                 );
               })}
-              <div className=" flex justify-center">{BtnRender()}</div>
+              {/* <div className=" flex justify-center">{BtnRender()}</div> */}
             </div>
           )}
         </div>

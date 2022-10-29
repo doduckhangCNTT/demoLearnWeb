@@ -94,6 +94,7 @@ const ShowMessages: React.FC<IProps> = ({ msg }) => {
         ) : (
           <div className="flex justify-end group ">
             <div className="flex flex-col">
+              {/* Show Message and Option */}
               <div className="flex flex-col gap-1">
                 <div className="text-right h-full flex gap-2 justify-end items-center ">
                   <span className="rounded-full bg-slate-200 p-2 mt-2 relative ">
@@ -108,6 +109,7 @@ const ShowMessages: React.FC<IProps> = ({ msg }) => {
                 </small>
               </div>
 
+              {/* Show Image  */}
               <div className="flex flex-col gap-1 text-right">
                 {msg?.media?.map((item, index) => {
                   return (

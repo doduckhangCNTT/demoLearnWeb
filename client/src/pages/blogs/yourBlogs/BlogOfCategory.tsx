@@ -12,12 +12,10 @@ import CardBlog from "../Card/CardBlog";
 
 const BlogOfCategory = () => {
   const { option } = useParams();
+  const [blogsOfCategory, setBlogsOfCategory] = useState<IGetBlogsCategory>();
 
   const { blogsCategory } = useSelector(blogsCategorySelector);
   const { saveBlog } = useSelector(saveBlogUserSelector);
-
-  const [blogsOfCategory, setBlogsOfCategory] = useState<IGetBlogsCategory>();
-
   const dispatch = useDispatch();
 
   useEffect(() => {

@@ -71,7 +71,7 @@ const Search = () => {
       <form
         action=""
         onSubmit={handleSubmitSearch}
-        className="flex items-center lg:max-w-[300px] md:w-[100px] sm:w-[50px] max-w-[25px] relative "
+        className="flex items-center md:w-[100px] sm:w-[50px] max-w-[25px] relative "
       >
         <div className="flex left-0 right-0 absolute bg-red-500">
           {toggleInputSearch ? (

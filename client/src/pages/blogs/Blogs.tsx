@@ -107,7 +107,7 @@ const Blogs = () => {
                     blog._id === item.id_blog
                 );
                 return (
-                  <div className="hover:shadow-lg transition" key={blog._id}>
+                  <div className="hover:shadow-lg transition" key={index}>
                     {res ? (
                       <CardBlog blog={blog} bookmark={res} />
                     ) : (
@@ -136,7 +136,7 @@ const Blogs = () => {
                   return (
                     <div
                       className="bg-slate-300 relative text-color-black inline-block m-2 p-3 rounded-full text-center hover:bg-sky-600 hover:text-color-white shadow-md transition"
-                      key={item._id}
+                      key={index}
                     >
                       <Link to={`category/${item._id}`}>{item.name}</Link>
                     </div>

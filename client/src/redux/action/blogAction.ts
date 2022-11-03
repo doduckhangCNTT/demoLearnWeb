@@ -118,12 +118,22 @@ const blogAction = {
     try {
       dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
-      const newBlog = {
-        ...blog,
-        thumbnail: {
+      let data;
+      if (typeof blog.thumbnail.url === "string") {
+        data = {
           public_id: blog.thumbnail.public_id,
           url: blog.thumbnail.url,
-        },
+        };
+      } else {
+        let formData = new FormData();
+        formData.append("file", blog.thumbnail.url);
+        const resImg = await postApi("upload", formData, access_token);
+        data = { public_id: resImg.data.public_id, url: resImg.data.url };
+      }
+
+      const newBlog = {
+        ...blog,
+        thumbnail: data,
         classify,
       };
       dispatch(

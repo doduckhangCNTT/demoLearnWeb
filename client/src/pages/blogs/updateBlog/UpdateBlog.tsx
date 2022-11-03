@@ -4,7 +4,6 @@ import CreateBlog from "../CreateBlog";
 
 const UpdateBlog = () => {
   const { id } = useParams();
-  console.log("ID_1: ", id);
 
   return <CreateBlog id={id} />;
 };

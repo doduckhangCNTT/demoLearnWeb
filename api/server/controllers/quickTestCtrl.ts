@@ -211,7 +211,7 @@ const quickTestCtrl = {
 
     try {
       const { quickTest } = req.body;
-      console.log("Quick Test: ", quickTest);
+      // console.log("Quick Test: ", quickTest);
       await QuickTestModel.findOneAndUpdate(
         {
           _id: req.params.id,

@@ -8,12 +8,15 @@ import Course from "./course/Course";
 import PaidCourse from "./paidCourse/PaidCourse";
 import SlideShow from "./slideShow/SlideShow";
 import BlogHome from "./blog/Blogs";
+import categoryAction from "../../redux/action/categoryAction";
 
 const Home = () => {
   const { authUser } = useSelector(authSelector);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    categoryAction.getCategory(dispatch);
+
     const handleGetCourses = () => {
       if (!authUser.access_token) {
         return dispatch(

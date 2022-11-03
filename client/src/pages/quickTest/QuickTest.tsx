@@ -23,6 +23,7 @@ import {
   IQuestionNow,
 } from "../../utils/Typescript";
 import { useParams } from "react-router-dom";
+import LazyLoadingImg from "../../components/LazyLoadingImg/LazyLoadingImg";
 
 const QuickTest = () => {
   const initialState = {
@@ -110,7 +111,7 @@ const QuickTest = () => {
   };
 
   const handleChangeQuickTest = (e: InputChangedEvent) => {
-    const { name, value } = e.target;
+    const { value } = e.target;
     if (value === "") setQuickTest(clearQuickTest);
     dispatch(idQuickTestSlice.actions.createIdQuickTestNow({ id: value }));
   };
@@ -141,7 +142,6 @@ const QuickTest = () => {
         }
       }
     });
-
     const newQuickTest = {
       ...quickTest,
       numberOfTimes: maxNumberOfTimes + 1,
@@ -152,12 +152,13 @@ const QuickTest = () => {
       authUser.access_token,
       dispatch
     );
-
     setQuickTest(clearQuickTest);
 
     await quickTestAction.getQuickTests(authUser.access_token, dispatch);
     maxNumberOfTimes = 0;
   };
+
+  const handleEdit_QuickTest = async () => {};
 
   const handleAddNewQuickTest = () => {
     dispatch(idQuickTestSlice.actions.updateEmptyIdQuickTestNow({ id: "" }));
@@ -277,19 +278,37 @@ const QuickTest = () => {
 
               {/* Image */}
               <div className="">
-                <h1>Image</h1>
+                <h1 className="font-bold text-[20px]">Image</h1>
                 <input
                   type="file"
                   name="image"
                   accept="image/*"
                   onChange={handleInputFile}
                 />
+                {typeof quickTest.image.url === "string" ? (
+                  <img
+                    src={quickTest.image.url}
+                    alt=""
+                    className="w-full max-h-[200px] object-cover rounded-lg"
+                  />
+                ) : (
+                  <LazyLoadingImg
+                    url={URL.createObjectURL(quickTest.image.url as Blob)}
+                    alt=""
+                    className="w-full max-h-[200px] object-cover rounded-lg"
+                  />
+                )}
               </div>
             </form>
 
             <div className="flex gap-2 justify-end mt-5">
               {quickTestNow.id ? (
-                ""
+                <button
+                  onClick={handleEdit_QuickTest}
+                  className="p-2 hover:bg-sky-500 hover:text-white border-2"
+                >
+                  Edit
+                </button>
               ) : (
                 <button
                   onClick={handleSubmit_QuickTest}
@@ -298,10 +317,6 @@ const QuickTest = () => {
                   Add
                 </button>
               )}
-
-              <button className="p-2 hover:bg-sky-500 hover:text-white border-2">
-                Edit
-              </button>
             </div>
           </div>
 

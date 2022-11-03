@@ -37,7 +37,7 @@ const ShowPrevious = () => {
   const { statusCountDown } = useSelector(statusCountDownSelector);
   const dispatch = useDispatch();
 
-  // =========================================== Hanlde Get QuickTest with Id ========================================================
+  // =========================================== Handle Get QuickTest with Id ========================================================
   const handleGetQuickTest = useCallback(async () => {
     if (!authUser.access_token) {
       return dispatch(
@@ -90,7 +90,7 @@ const ShowPrevious = () => {
         status: !statusCountDown.status,
       })
     );
-
+    window.location.reload();
     handleGetQuickTest();
   };
 
@@ -147,12 +147,13 @@ const ShowPrevious = () => {
     // Check dap an
     if (quickTest?.questions) {
       for (var i = 0; i < Number(quickTest.questions.length); i++) {
-        console.log({
-          join: joinText(quickTest.questions[i].correctly),
-          re: results[i],
-        });
+        // console.log({
+        //   join: joinText(quickTest.questions[i].correctly),
+        //   re: results[i],
+        // });
         if (
-          joinText(quickTest.questions[i].correctly) === sortText(results[i])
+          sortText(joinText(quickTest.questions[i].correctly)) ===
+          sortText(results[i])
         ) {
           correctlyQuickTests.push(quickTest.questions[i]);
         }
@@ -161,7 +162,7 @@ const ShowPrevious = () => {
 
     const values = [...correctlyQuickTests];
     setCorrectlyQuickTests(values);
-    console.log("Correctly: ", correctlyQuickTests);
+    // console.log("Correctly: ", correctlyQuickTests);
   };
 
   useEffect(() => {
@@ -172,6 +173,10 @@ const ShowPrevious = () => {
         handleSubmit();
       }
     }
+
+    return () => {
+      console.log("UnMount");
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusCountDown]);
 
@@ -285,6 +290,7 @@ const ShowPrevious = () => {
             {quickTest?.questions?.map((q, index) => {
               return (
                 <div key={index} className="mt-2">
+                  {/* Hiển thị số câu cho từng câu hỏi */}
                   <h1 className="text-[20px] flex gap-2">
                     <div className="">Cau {index + 1}:</div>
                     <div
@@ -294,6 +300,7 @@ const ShowPrevious = () => {
                       }}
                     />
                   </h1>
+                  {/* Hiển thị các câu trả lời cho mỗi câu hỏi */}
                   <div className="ml-[20px]">
                     {q.answers.map((a, i) => {
                       return (
@@ -338,12 +345,7 @@ const ShowPrevious = () => {
                     Submit
                   </button>
                 )}
-
                 {showDialogResult()}
-              </div>
-
-              <div className="">
-                <input type="reset" />
               </div>
             </div>
           </form>
@@ -353,7 +355,7 @@ const ShowPrevious = () => {
       {/* Control questions  */}
       <div className="lg:w-1/3 md:w-full sm:w-full w-full shadow-md p-2 sticky top-[60px] bg-white">
         <div className="">
-          <CountDownTimer />
+          {quickTest && <CountDownTimer quickTest={quickTest} />}
         </div>
 
         <div>

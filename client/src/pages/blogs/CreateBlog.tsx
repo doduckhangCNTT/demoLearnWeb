@@ -45,9 +45,6 @@ const CreateBlog: React.FC<IProps> = React.memo(({ id, valueId }) => {
 
   const divRef = useRef<HTMLDivElement>(null);
 
-  console.log("Body: ", body);
-  console.log("Text: ", text);
-
   useEffect(() => {
     const getBlog = async () => {
       if (!id) return;

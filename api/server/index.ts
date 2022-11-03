@@ -28,7 +28,8 @@ app.use(
 // ---------------- Setup Socket ----------------------
 const http = createServer(app);
 export const io = new Server(http, {
-  cors: { origin: "http://localhost:3000" },
+  cors: { origin: `${process.env.BASE_URL}`, credentials: true },
+  // cors: { origin: "http://localhost:3000" },
 });
 
 io.on("connection", (socket: Socket) => SocketServer(socket));

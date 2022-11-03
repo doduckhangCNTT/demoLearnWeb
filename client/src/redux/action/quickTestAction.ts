@@ -77,7 +77,7 @@ const quickTestAction = {
     }
   },
 
-  updateQuestionQuickTest: async (
+  updateQuickTest: async (
     quickTest: IQuickTest,
     token: string,
     dispatch: AppDispatch
@@ -90,7 +90,7 @@ const quickTestAction = {
 
       // console.log("Quick test: ", quickTest);
 
-      const res = await patchApi(
+      await patchApi(
         `quickTest/${quickTest?.idQuickTest}`,
         { quickTest },
         access_token
@@ -150,20 +150,6 @@ const quickTestAction = {
         access_token
       );
       dispatch(quickTestSlice.actions.deleteQuestion(res.data));
-
-      dispatch(alertSlice.actions.alertAdd({ loading: false }));
-    } catch (error: any) {
-      dispatch(alertSlice.actions.alertAdd({ error: error.message }));
-    }
-  },
-
-  updateQuickTest: async (
-    quickTest: IQuickTest,
-    token: string,
-    dispatch: AppDispatch
-  ) => {
-    try {
-      dispatch(alertSlice.actions.alertAdd({ loading: true }));
 
       dispatch(alertSlice.actions.alertAdd({ loading: false }));
     } catch (error: any) {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { courseSelector } from "../../../redux/selector/selectors";
@@ -13,7 +13,7 @@ const Course = () => {
       <>
         {(courses as ICourses[])?.map((course, index) => {
           return (
-            <div key={index} className="">
+            <Fragment key={index}>
               {course.price ? (
                 ""
               ) : (
@@ -50,7 +50,7 @@ const Course = () => {
                   </Link>
                 </div>
               )}
-            </div>
+            </Fragment>
           );
         })}
       </>

@@ -5,7 +5,7 @@ import authUser from "../middleware/auth/authUser";
 
 const router = express.Router();
 
-router.get("/quickTests", authUser, authAdmin, quickTestCtrl.getQuickTests);
+router.get("/quickTests", authUser, quickTestCtrl.getQuickTests);
 
 router.get("/quickTestsPage", quickTestCtrl.getQuickTestsToPage);
 

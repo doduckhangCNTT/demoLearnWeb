@@ -132,7 +132,7 @@ const Answer: React.FC<IProps> = ({ quickTest, questionNow, setQuickTest }) => {
 
       clearQuestion();
 
-      quickTestAction.updateQuestionQuickTest(
+      quickTestAction.updateQuickTest(
         newQuickTest,
         authUser.access_token,
         dispatch

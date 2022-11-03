@@ -10,6 +10,7 @@ import actionAuth from "./redux/action/actionAuth";
 import { socketSlice } from "./redux/reducers/socketSlice";
 import HandleRouter from "./routes/HandleRouter";
 import SocketClient from "./socket/SocketClient";
+import { API_URL } from "./utils/config";
 
 function App() {
   const dispatch = useDispatch();
@@ -17,7 +18,8 @@ function App() {
   // --------------------- Connect Socket --------------------
   useEffect(() => {
     let newSocket: Socket<DefaultEventsMap, DefaultEventsMap>;
-    newSocket = io("http://localhost:5000");
+    // newSocket = io("http://localhost:5000");
+    newSocket = io(API_URL);
     dispatch(socketSlice.actions.socketComment(newSocket));
 
     return () => {

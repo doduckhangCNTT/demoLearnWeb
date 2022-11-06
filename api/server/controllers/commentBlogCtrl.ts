@@ -85,7 +85,7 @@ const commentBlogCtrl = {
 
   updateCommentBlog: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 28" });
     }
 
     try {
@@ -97,7 +97,8 @@ const commentBlogCtrl = {
         { content: req.body?.content },
         { new: true }
       );
-      if (!comment) return res.status(400).json({ msg: "Comment not found" });
+      if (!comment)
+        return res.status(400).json({ msg: "Comment not found 29" });
 
       io.to(`${comment.blog_id}`).emit("updateCommentBlog", comment);
 
@@ -109,7 +110,7 @@ const commentBlogCtrl = {
 
   deleteCommentBlog: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 30" });
     }
 
     try {

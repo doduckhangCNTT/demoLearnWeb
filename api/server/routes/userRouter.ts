@@ -17,9 +17,14 @@ router.patch(
 
 router.get("/users", authUser, authAdmin, userCtrl.getUsers);
 
-router.get("/usersPage", userCtrl.getUsersPage);
+router.get("/usersPage", authUser, authAdmin, userCtrl.getUsersPage);
 
-router.get("/usersSearchPage", userCtrl.getUsersSearchPage);
+router.get(
+  "/usersSearchPage",
+  authUser,
+  authAdmin,
+  userCtrl.getUsersSearchPage
+);
 
 router.get("/search_user", authUser, userCtrl.getUserSearch);
 

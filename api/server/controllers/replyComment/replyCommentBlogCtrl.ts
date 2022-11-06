@@ -127,7 +127,7 @@ const replyCommentsBlogCtrl = {
 
   updateCommentReplyBlog: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
-      return res.json({ msg: "Invalid Authentication" });
+      return res.json({ msg: "Invalid Authentication 42" });
     }
 
     try {

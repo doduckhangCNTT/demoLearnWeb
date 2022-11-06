@@ -42,7 +42,7 @@ const authCtrl = {
 
       const url = `${process.env.BASE_URL}/active/${access_token}`;
       // Check register with pass or phone
-      console.log("ValidEmail: ", validEmail(account));
+      // console.log("ValidEmail: ", validEmail(account));
       if (validEmail(account)) {
         sendEmail(account, url, "Verify your email");
         return res.json({
@@ -87,10 +87,10 @@ const authCtrl = {
     if (!req.user)
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 11" });
     try {
       res.clearCookie("refreshtoken", { path: "/api/refresh_token" });
-      await Users.findOneAndUpdate({ _id: req.user._id }, { rf_token: "" });
+      await Users.findOneAndUpdate({ _id: req.user?._id }, { rf_token: "" });
 
       res.json({ success: true, msg: "Logged out" });
     } catch (error: any) {
@@ -100,9 +100,7 @@ const authCtrl = {
 
   refreshToken: async (req: Request, res: Response) => {
     try {
-      // console.log("Cookie: ", req.cookies);
       const rf_token = req.cookies.refreshtoken;
-      // console.log("RefToken: ", rf_token);
       if (!rf_token) {
         return res.json({
           success: false,
@@ -161,9 +159,10 @@ const authCtrl = {
       const { newUser } = decoded;
       // console.log("Decoded: ", decoded);
       if (!newUser) {
+        console.log("IV");
         return res
           .status(400)
-          .json({ success: false, msg: "Invalid Authentication" });
+          .json({ success: false, msg: "Invalid Authentication 12" });
       }
       const user = await Users.findOne({ account: newUser.account });
       if (user) {
@@ -255,10 +254,7 @@ const authCtrl = {
   loginSmsAccount: async (req: Request, res: Response) => {
     try {
       const { phone } = req.body;
-      console.log("Phone: ", phone);
-
       const data = await smsOTP(phone, "sms");
-      // console.log("Data: ", data);
       res.json(data);
     } catch (error: any) {
       res.status(500).json({ success: false, msg: error.message });
@@ -270,9 +266,8 @@ const authCtrl = {
       const { phone, code } = req.body;
 
       const data = await smsVerify(phone, code);
-      console.log("Data: ", data);
       if (!data?.valid)
-        return res.status(400).json({ msg: "Invalid Authentication" });
+        return res.status(400).json({ msg: "Invalid Authentication 13" });
 
       const password = phone + "You secret your account";
       const passwordHash = await bcrypt.hash(password, 12);

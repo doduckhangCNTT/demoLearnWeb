@@ -93,9 +93,9 @@ const blogCtrl = {
   },
 
   getListBlogs: async (req: Request, res: Response) => {
-    console.log("Req: ", req.query.limit);
+    // console.log("Req: ", req.query.limit);
     const { limit, skip, page } = PageConfig(req);
-    console.log({ limit, skip, page });
+    // console.log({ limit, skip, page });
 
     try {
       // const blogs = await Blogs.find().sort("-createdAt");
@@ -246,7 +246,7 @@ const blogCtrl = {
     if (!req.user)
       return res
         .status(400)
-        .json({ success: false, error: "Initial Authentication " });
+        .json({ success: false, error: "Initial Authentication 13" });
 
     try {
       const { title, content, description, thumbnail, category, classify } =
@@ -492,7 +492,7 @@ const blogCtrl = {
 
   updateBlog: async (req: IReqAuth, res: Response) => {
     if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 14" });
 
     try {
       const newBlog = req.body;
@@ -508,7 +508,7 @@ const blogCtrl = {
           newBlog
         );
         if (!blog)
-          return res.status(400).json({ msg: "Invalid Authentication" });
+          return res.status(400).json({ msg: "Invalid Authentication 15" });
       } else if (classify.toLowerCase() === "draft") {
         blog = await DraftBlog.findOneAndUpdate(
           {
@@ -518,7 +518,7 @@ const blogCtrl = {
           newBlog
         );
         if (!blog)
-          return res.status(400).json({ msg: "Invalid Authentication" });
+          return res.status(400).json({ msg: "Invalid Authentication 16" });
       }
 
       res.json({ success: true, msg: "Update Blog successfully", blog });
@@ -529,7 +529,7 @@ const blogCtrl = {
 
   updateBookMarkBlog: async (req: IReqAuth, res: Response) => {
     if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 17" });
 
     try {
       const newBlog = req.body;
@@ -545,7 +545,7 @@ const blogCtrl = {
           newBlog
         );
         if (!blog)
-          return res.status(400).json({ msg: "Invalid Authentication" });
+          return res.status(400).json({ msg: "Invalid Authentication 18" });
       } else if (classify.toLowerCase() === "draft") {
         blog = await DraftBlog.findOneAndUpdate(
           {
@@ -555,7 +555,7 @@ const blogCtrl = {
           newBlog
         );
         if (!blog)
-          return res.status(400).json({ msg: "Invalid Authentication" });
+          return res.status(400).json({ msg: "Invalid Authentication 19" });
       }
 
       res.json({ success: true, msg: "Update Blog successfully", blog });
@@ -566,14 +566,15 @@ const blogCtrl = {
 
   deleteBlog: async (req: IReqAuth, res: Response) => {
     if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 20" });
     let blog;
     try {
       blog = await Blogs.findOneAndDelete({
         _id: req.params.id,
         user: req.user._id,
       });
-      if (!blog) return res.status(400).json({ msg: "Invalid Authentication" });
+      if (!blog)
+        return res.status(400).json({ msg: "Invalid Authentication 21" });
 
       res.json({ msg: "Delete Blog successfully", blog });
     } catch (error: any) {
@@ -583,14 +584,15 @@ const blogCtrl = {
 
   deleteDraftBlog: async (req: IReqAuth, res: Response) => {
     if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 22" });
 
     try {
       const blog = await DraftBlog.findOneAndDelete({
         _id: req.params.id,
         user: req.user._id,
       });
-      if (!blog) return res.status(400).json({ msg: "Invalid Authentication" });
+      if (!blog)
+        return res.status(400).json({ msg: "Invalid Authentication 23" });
 
       res.json({ msg: "Delete Draft Blog successfully", blog });
     } catch (error: any) {

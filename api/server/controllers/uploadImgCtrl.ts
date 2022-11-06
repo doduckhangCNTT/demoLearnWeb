@@ -14,7 +14,7 @@ const uploadImgCtrl = {
     if (!req.user)
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 39" });
 
     try {
       if (!req.files || Object.keys(req.files).length === 0) {
@@ -53,7 +53,7 @@ const uploadImgCtrl = {
     if (!req.user)
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 40" });
 
     try {
       if (!req.files || Object.keys(req.files).length === 0) {
@@ -94,7 +94,7 @@ const uploadImgCtrl = {
     if (!req.user)
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 41" });
 
     try {
       const { public_id } = req.body;
@@ -116,7 +116,7 @@ const uploadImgCtrl = {
     if (!req.user)
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 42" });
 
     try {
       const { public_id } = req.body;

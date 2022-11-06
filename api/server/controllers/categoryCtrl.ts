@@ -17,7 +17,7 @@ const categoryCtrl = {
     if (!req.user) {
       return res
         .status(401)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 24" });
     }
     try {
       const { name } = req.body;
@@ -43,7 +43,7 @@ const categoryCtrl = {
     if (!req.user) {
       return res
         .status(401)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 25" });
     }
     try {
       const { name } = req.body;
@@ -69,7 +69,7 @@ const categoryCtrl = {
     if (!req.user) {
       return res
         .status(401)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 26" });
     }
     try {
       const { quality } = req.body;
@@ -94,7 +94,7 @@ const categoryCtrl = {
     if (!req.user) {
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 27" });
     }
     try {
       const category = await Categories.findOneAndDelete({

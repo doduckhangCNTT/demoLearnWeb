@@ -23,7 +23,7 @@ const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 const quickTestCtrl = {
   getQuickTests: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 32" });
     }
     try {
       const quickTests = await QuickTestModel.find()
@@ -127,7 +127,7 @@ const quickTestCtrl = {
 
   getQuickTestsSearch: async (req: IReqAuth, res: Response) => {
     if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 33" });
 
     try {
       let listTestSearch = [] as IQuickTests[];
@@ -170,7 +170,7 @@ const quickTestCtrl = {
 
   createQuickTest: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 34" });
     }
     try {
       const {
@@ -207,7 +207,7 @@ const quickTestCtrl = {
 
   updateQuickTest: async (req: IReqAuth, res: Response) => {
     if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 35" });
 
     try {
       const { quickTest } = req.body;
@@ -245,7 +245,7 @@ const quickTestCtrl = {
 
   getQuestion: async (req: IReqAuth, res: Response) => {
     if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 36" });
 
     if (!req.params.id) {
       return res
@@ -274,7 +274,7 @@ const quickTestCtrl = {
 
   updateQuestion: async (req: IReqAuth, res: Response) => {
     if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 37" });
 
     if (!req.params.id) {
       return res
@@ -306,7 +306,7 @@ const quickTestCtrl = {
 
   deleteQuestion: async (req: IReqAuth, res: Response) => {
     if (!req.user)
-      return res.status(400).json({ msg: "Invalid Authentication" });
+      return res.status(400).json({ msg: "Invalid Authentication 38" });
 
     if (!req.params.id) {
       return res

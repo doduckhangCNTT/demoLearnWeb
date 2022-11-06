@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { IReqAuth, IUser } from "../config/interface";
 import Users from "../models/userModel";
 import bcrypt from "bcrypt";
@@ -7,7 +7,6 @@ const PageConfig = (req: IReqAuth) => {
   const page = Number(req.query.page) * 1 || 1;
   const limit = Number(req.query.limit) * 1 || 5;
   const skip = (page - 1) * limit;
-
   return { page, skip, limit };
 };
 
@@ -22,7 +21,7 @@ const userCtrl = {
     if (!req.user) {
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 1" });
     }
     try {
       const users = await Users.find().select("-password").sort("-createdAt");
@@ -37,7 +36,7 @@ const userCtrl = {
     if (!req.user) {
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 2" });
     }
     try {
       const users = await Users.find({
@@ -57,14 +56,14 @@ const userCtrl = {
     if (!req.user) {
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 3" });
     }
     try {
       const user = await Users.findById(req.params.id).select("-password");
       if (!user)
         return res
           .status(400)
-          .json({ success: false, msg: "Invalid Authentication" });
+          .json({ success: false, msg: "Invalid Authentication 4" });
 
       res.json({ user });
     } catch (error: any) {
@@ -73,11 +72,11 @@ const userCtrl = {
   },
 
   getUsersPage: async (req: IReqAuth, res: Response) => {
-    // if (!req.user) {
-    //   return res
-    //     .status(400)
-    //     .json({ success: false, msg: "Invalid Authentication" });
-    // }
+    if (!req.user) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Invalid Authentication 5" });
+    }
 
     const { skip, limit } = PageConfig(req);
 
@@ -97,11 +96,11 @@ const userCtrl = {
   },
 
   getUsersSearchPage: async (req: IReqAuth, res: Response) => {
-    // if (!req.user) {
-    //   return res
-    //     .status(400)
-    //     .json({ success: false, msg: "Invalid Authentication" });
-    // }
+    if (!req.user) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Invalid Authentication 6" });
+    }
 
     try {
       let users: IUser[] = [];
@@ -125,11 +124,12 @@ const userCtrl = {
       res.status(500).json({ success: false, msg: error.message });
     }
   },
+
   updateUser: async (req: IReqAuth, res: Response) => {
     if (!req.user) {
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 7" });
     }
     try {
       const { name, avatar, bio, telephoneNumber } = req.body;
@@ -149,13 +149,13 @@ const userCtrl = {
     if (!req.user) {
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 8" });
     }
     try {
       const { name, user } = req.body;
 
       await Users.findOneAndUpdate(
-        { _id: req.user._id },
+        { _id: req.user?._id },
         { [`${name}`]: user[`${name}`] }
       );
 
@@ -169,7 +169,7 @@ const userCtrl = {
     if (!req.user) {
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 9" });
     }
     try {
       const user = await Users.findOneAndDelete({ _id: req.params.id });
@@ -207,7 +207,7 @@ const userCtrl = {
     if (!req.user) {
       return res
         .status(400)
-        .json({ success: false, msg: "Invalid Authentication" });
+        .json({ success: false, msg: "Invalid Authentication 10" });
     }
     try {
       const { url } = req.body;

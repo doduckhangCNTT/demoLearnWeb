@@ -105,7 +105,7 @@ const courseCtrl = {
     if (!req.user) {
       return res
         .status(400)
-        .json({ success: false, error: "Invalid Authentication" });
+        .json({ success: false, error: "Invalid Authentication 43" });
     }
     try {
       const courses = await CourseModel.find()
@@ -241,7 +241,7 @@ const courseCtrl = {
       }
 
       const lesson = req.body as ILesson;
-      console.log("Lesson: ", lesson);
+      // console.log("Lesson: ", lesson);
 
       const value = await CourseModel.findOne(
         {
@@ -249,7 +249,7 @@ const courseCtrl = {
         },
         { "content.$": 1 }
       );
-      console.log("Value: ", value);
+      // console.log("Value: ", value);
 
       if (!value) {
         return res.json({ msg: "Course not found" });
@@ -259,7 +259,7 @@ const courseCtrl = {
         ...value?.content[0]._doc,
         lessons: [...value.content[0].lessons, lesson],
       };
-      console.log("Add Lesson: ", addLessonInChapter);
+      // console.log("Add Lesson: ", addLessonInChapter);
       const course = await CourseModel.findOneAndUpdate(
         {
           "content._id": req.params.chapterId,
@@ -270,7 +270,7 @@ const courseCtrl = {
         { new: true }
       );
 
-      console.log("Course: ", course);
+      // console.log("Course: ", course);
 
       res.json({ msg: "Add lesson successfully", content: course?.content });
     } catch (error: any) {
@@ -306,7 +306,7 @@ const courseCtrl = {
       const chapterId = req.params.chapterId;
       const lessonId = req.params.lessonId;
 
-      console.log({ lessonId, courseId, chapterId });
+      // console.log({ lessonId, courseId, chapterId });
       const value = await CourseModel.updateOne(
         {
           _id: `${courseId}`,

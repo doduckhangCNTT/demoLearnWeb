@@ -98,13 +98,13 @@ const authCtrl = {
     }
   },
 
-  refreshToken: async (req: Request, res: Response) => {
+  refreshToken: async (req: IReqAuth, res: Response) => {
     try {
       const rf_token = req.cookies.refreshtoken;
       if (!rf_token) {
         return res.json({
           success: false,
-          msg: "You need Login or Register 1",
+          msg: "You need Login or Register to watch courses, quickTest ...",
         });
       }
 
